@@ -97,14 +97,7 @@ class InvitesController < ApplicationController
   def verify_available_invites
     return if current_user? && current_user.available_invites?
 
-    respond_to do |format|
-      format.html do
-        flash[:notice] = t("invite.no_invites")
-        redirect_to online_users_url
-      end
-      format.json do
-        render(text: t("invite.no_invites"), status: :method_not_allowed)
-      end
-    end
+    flash[:notice] = t("invite.no_invites")
+    redirect_to online_users_url
   end
 end

@@ -47,7 +47,7 @@ module ExchangesController
       @exchange.posts.last,
       @exchange.posts_count
     )
-    render layout: false, text: "OK" if request.xhr?
+    render layout: false, plain: "OK" if request.xhr?
   end
 
   protected
