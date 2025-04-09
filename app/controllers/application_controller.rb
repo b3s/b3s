@@ -11,7 +11,6 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception
 
-  before_action :disable_xss_protection
   before_action :load_configuration
   before_action :set_time_zone
   before_action :set_section
@@ -30,13 +29,6 @@ class ApplicationController < ActionController::Base
     return {} unless current_user?
 
     { id: current_user.id, username: current_user.username }
-  end
-
-  def disable_xss_protection
-    # Disabling this is probably not a good idea, but the header
-    # causes Chrome to choke when being redirected back after a submit
-    # and the page contains an iframe.
-    response.headers["X-XSS-Protection"] = "0"
   end
 
   def error_messages
