@@ -36,7 +36,7 @@ class UsersController < ApplicationController
     private
 
     def new_user_params
-      params.require(:user).permit(:username, *allowed_params)
+      params.expect(user: [:username, *allowed_params])
     end
 
     def find_invite

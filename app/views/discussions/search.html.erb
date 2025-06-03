@@ -7,7 +7,7 @@
 
 <h2 class="section">
   Searching discussions for
-  <em><%= @search_query %></em>
+  <em><%= search_query %></em>
 </h2>
 
 <%= render partial: "search/tips" %>
@@ -16,7 +16,7 @@
   <%= render(partial: "exchanges/table",
              locals: {
                exchanges: @exchanges,
-               pagination_params: { q: @search_query }}) %>
+               pagination_params: { q: search_query }}) %>
 <% else %>
   <p>
     No discussions were found.

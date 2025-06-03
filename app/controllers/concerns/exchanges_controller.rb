@@ -26,13 +26,18 @@ module ExchangesController
   end
 
   def edit
-    @exchange.body = @exchange.posts.first.body
-    render template: "exchanges/edit"
+    if @exchange.editable_by?(current_user)
+      @exchange.body = @exchange.posts.first.body
+      render template: "exchanges/edit"
+    else
+      render_error 403
+    end
   end
 
   def update
-    @exchange.update(exchange_params.merge(updated_by: current_user))
-    if @exchange.valid?
+    return render_error 403 unless @exchange.editable_by?(current_user)
+
+    if @exchange.update(exchange_params.merge(updated_by: current_user))
       flash[:notice] = t("changes_saved")
       redirect_to @exchange
     else
@@ -62,29 +67,12 @@ module ExchangesController
     current_user.mark_exchange_viewed(exchange, last_post, count)
   end
 
-  def verify_editable
-    render_error 403 unless @exchange.editable_by?(current_user)
-  end
-
-  def search_query
-    params[:query] || params[:q]
-  end
-
   def respond_with_exchange(exchange, page)
     respond_to do |format|
       format.html
       format.json do
-        redirect_to(polymorphic_path([exchange, :posts],
-                                     page:, format: :json))
+        redirect_to(polymorphic_path([exchange, :posts], page:, format: :json))
       end
     end
-  end
-
-  def require_and_set_search_query
-    @search_query = search_query
-    return if @search_query
-
-    flash[:notice] = t("exchange.no_query")
-    redirect_to root_url
   end
 end

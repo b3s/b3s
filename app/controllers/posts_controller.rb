@@ -13,7 +13,6 @@ class PostsController < ApplicationController
   before_action :verify_editable, only: %i[edit update]
   before_action :verify_postable, only: %i[create]
   before_action :verify_viewable, except: %i[search count]
-  before_action :require_and_set_search_query, only: %i[search]
 
   after_action :mark_exchange_viewed, only: %i[since]
   after_action :mark_conversation_viewed, only: %i[since]
@@ -95,18 +94,6 @@ class PostsController < ApplicationController
   #     end
   #   end
   # end
-
-  def search_query
-    params[:query] || params[:q]
-  end
-
-  def require_and_set_search_query
-    @search_query = search_query
-    return if @search_query
-
-    flash[:notice] = t("exchange.no_query")
-    redirect_to root_url
-  end
 
   def verify_viewable
     return if @exchange&.viewable_by?(current_user)

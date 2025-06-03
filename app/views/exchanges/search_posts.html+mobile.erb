@@ -1,11 +1,11 @@
-<% content_for(:page_title, "\"#{@search_query}\" in " + @exchange.title) %>
+<% content_for(:page_title, "\"#{search_query}\" in " + @exchange.title) %>
 
 <% if @posts %>
   <%= render(partial: "posts/posts",
              locals: {
                posts: @posts,
                title: false,
-               pagination_params: { q: @search_query }}) %>
+               pagination_params: { q: search_query }}) %>
 <% else %>
   <div class="page_content">
     <p>

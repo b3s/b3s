@@ -1,11 +1,11 @@
-<% content_for(:page_title, "Posts: \"#{@search_query}\"") %>
+<% content_for(:page_title, "Posts: \"#{search_query}\"") %>
 
 <% if @posts %>
   <%= render(partial: "posts/posts",
              locals: {
                posts: @posts,
                title: true,
-               pagination_params: { q: @search_query } }) %>
+               pagination_params: { q: search_query } }) %>
 <% else %>
   <div class="page_content">
     <p>

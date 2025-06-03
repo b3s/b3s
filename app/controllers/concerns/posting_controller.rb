@@ -32,7 +32,7 @@ module PostingController
   end
 
   def post_params
-    params.require(:post).permit(:body, :format)
+    params.expect(post: %i[body format])
   end
 
   def render_post_error(msg)

@@ -17,7 +17,8 @@ class ApplicationController < ActionController::Base
   before_action :set_sentry_context
   before_action :set_variant
 
-  helper_method :current_section, :mobile_user_agent?, :theme, :mobile_theme
+  helper_method :current_section, :mobile_user_agent?, :theme, :mobile_theme,
+                :search_query
 
   protected
 
@@ -97,5 +98,9 @@ class ApplicationController < ActionController::Base
 
   def theme
     Theme.find(current_user&.theme || Sugar.config.default_theme)
+  end
+
+  def search_query
+    params[:q]
   end
 end

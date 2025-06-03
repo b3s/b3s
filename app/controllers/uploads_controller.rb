@@ -50,6 +50,6 @@ class UploadsController < ApplicationController
   end
 
   def upload_params
-    params.require(:upload).permit(:file)
+    params.expect(upload: %i[file])
   end
 end

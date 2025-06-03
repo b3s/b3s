@@ -207,7 +207,7 @@ describe InvitesController do
     end
 
     context "with invalid params" do
-      before { post :create, params: { invite: { foo: "bar" } } }
+      before { post :create, params: { invite: { email: "", message: "" } } }
 
       specify { expect(assigns(:invite)).to be_a(Invite) }
       it { is_expected.to respond_with(:success) }

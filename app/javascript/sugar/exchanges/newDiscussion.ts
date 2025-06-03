@@ -86,7 +86,7 @@ readyHandler.ready(() => {
       const query = words.join(" | ");
       const searchUrl = "/discussions/search.json";
 
-      fetch(`${searchUrl}?query=${encodeURIComponent(query)}`)
+      fetch(`${searchUrl}?q=${encodeURIComponent(query)}`)
         .then((response) => response.json())
         .then((discussions: Discussion[]) => {
           searchResults.classList.remove("loading");

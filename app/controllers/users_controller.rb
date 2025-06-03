@@ -142,7 +142,7 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(*allowed_params)
+    params.expect(user: allowed_params)
   end
 
   def user_posts(user)

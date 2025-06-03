@@ -21,10 +21,10 @@ describe UserScopes do
 
     before { first_user.destroy }
 
-    let!(:user1) { create(:user, username: "danz") }
-    let!(:user2) { create(:user, username: "adam") }
+    let!(:user_danz) { create(:user, username: "danz") }
+    let!(:user_adam) { create(:user, username: "adam") }
 
-    it { is_expected.to eq([user2, user1]) }
+    it { is_expected.to eq([user_adam, user_danz]) }
   end
 
   describe "deactivated" do
@@ -68,20 +68,20 @@ describe UserScopes do
   describe "recently_joined" do
     subject { User.recently_joined }
 
-    let!(:user1) { create(:user, created_at: 2.days.ago) }
-    let!(:user2) { create(:user, created_at: 1.day.ago) }
+    let!(:older_user) { create(:user, created_at: 2.days.ago) }
+    let!(:newer_user) { create(:user, created_at: 1.day.ago) }
 
-    it { is_expected.to eq([user2, user1]) }
+    it { is_expected.to eq([newer_user, older_user]) }
   end
 
   describe "top_posters" do
     subject { User.top_posters }
 
-    let!(:user1) { create(:user, public_posts_count: 1) }
-    let!(:user2) { create(:user, public_posts_count: 2) }
+    let!(:low_post_user) { create(:user, public_posts_count: 1) }
+    let!(:high_post_user) { create(:user, public_posts_count: 2) }
 
     before { create(:user, public_posts_count: 0) }
 
-    it { is_expected.to eq([user2, user1]) }
+    it { is_expected.to eq([high_post_user, low_post_user]) }
   end
 end

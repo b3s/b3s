@@ -73,7 +73,7 @@ describe DiscussionsController do
     before { login }
 
     context "with invalid params" do
-      before { post :create, params: { discussion: { foo: "bar" } } }
+      before { post :create, params: { discussion: { title: "", body: "" } } }
 
       it { is_expected.to render_template(:new) }
 

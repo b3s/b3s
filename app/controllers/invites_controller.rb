@@ -76,7 +76,7 @@ class InvitesController < ApplicationController
   end
 
   def invite_params
-    params.require(:invite).permit(:email, :message)
+    params.expect(invite: %i[email message])
   end
 
   def find_invite

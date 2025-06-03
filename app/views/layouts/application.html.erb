@@ -24,7 +24,7 @@
     <% if current_user? || Sugar.public_browsing? %>
       <div id="search">
         <%= form_tag((@search_path || search_path), method: 'get') do %>
-          <%= text_field_tag 'q', @search_query, class: :query %>
+          <%= text_field_tag 'q', search_query, class: :query %>
           <%= select_tag 'search_mode', options_for_select(
             search_mode_options(@exchange),
             @search_path || search_path

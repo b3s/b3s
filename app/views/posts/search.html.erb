@@ -6,7 +6,7 @@
 <% end %>
 
 <h2 class="section">
-  Searching posts for <em><%= @search_query %></em>
+  Searching posts for <em><%= search_query %></em>
 </h2>
 
 <%= render partial: "search/tips" %>
@@ -17,7 +17,7 @@
                posts: @posts,
                title: true,
                hide_nsfw: true,
-               pagination_params: { q: @search_query }}) %>
+               pagination_params: { q: search_query }}) %>
 <% else %>
   <p>
     No posts were found.

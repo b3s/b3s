@@ -1,5 +1,5 @@
 <% content_for(:body_class, "search search_posts_in_discussion") %>
-<% content_for(:page_title, @exchange.title + " - Search: " + h(@search_query)) %>
+<% content_for(:page_title, @exchange.title + " - Search: " + h(search_query)) %>
 
 <h2 class="section">
   <% if @exchange.labels? %>
@@ -7,7 +7,7 @@
   <% end %>
   <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
   &raquo;
-  Search: <em><%= @search_query %></em>
+  Search: <em><%= search_query %></em>
 </h2>
 
 <%= render partial: "search/tips" %>
@@ -18,7 +18,7 @@
                posts: @posts,
                title: false,
                permalink: true,
-               pagination_params: { q: @search_query }}) %>
+               pagination_params: { q: search_query }}) %>
 <% else %>
   <p>
     No posts were found.

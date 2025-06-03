@@ -12,7 +12,7 @@ class SanitizeFilter < Filter
     strip_ujs_attributes(parser)
     enforce_allowscriptaccess(parser)
 
-    parser.to_html
+    parser.to_html.html_safe
   end
 
   private

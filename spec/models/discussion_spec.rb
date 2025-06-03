@@ -12,40 +12,40 @@ describe Discussion do
   it { is_expected.to be_a(Exchange) }
 
   describe ".popular_in_the_last" do
-    let(:discussion1) { create(:discussion) }
-    let(:discussion2) { create(:discussion) }
+    let(:old_discussion) { create(:discussion) }
+    let(:recent_discussion) { create(:discussion) }
 
     before do
-      discussion1.posts.first.update(created_at: 4.days.ago)
+      old_discussion.posts.first.update(created_at: 4.days.ago)
       [13.days.ago, 12.days.ago].each do |t|
-        create(:post, exchange: discussion1, created_at: t)
+        create(:post, exchange: old_discussion, created_at: t)
       end
       [2.days.ago].each do |t|
-        create(:post, exchange: discussion2, created_at: t)
+        create(:post, exchange: recent_discussion, created_at: t)
       end
     end
 
     context "when within the last 3 days" do
       subject { described_class.popular_in_the_last(3.days) }
 
-      it { is_expected.to eq([discussion2]) }
+      it { is_expected.to eq([recent_discussion]) }
     end
 
     context "when within the last 7 days" do
       subject { described_class.popular_in_the_last(7.days) }
 
       before do
-        discussion1
-        discussion2
+        old_discussion
+        recent_discussion
       end
 
-      it { is_expected.to eq([discussion2, discussion1]) }
+      it { is_expected.to eq([recent_discussion, old_discussion]) }
     end
 
     context "when within the last 14 days" do
       subject { described_class.popular_in_the_last(14.days) }
 
-      it { is_expected.to eq([discussion1, discussion2]) }
+      it { is_expected.to eq([old_discussion, recent_discussion]) }
     end
   end
 
