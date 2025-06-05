@@ -13,7 +13,7 @@ module LayoutHelper
 
   def frontend_configuration
     { emoticons: enabled_emoticons,
-      amazonAssociatesId: Sugar.config.amazon_associates_id,
+      amazonAssociatesId: B3S.config.amazon_associates_id,
       uploads: true,
       currentUserId: current_user&.id,
       currentUser: current_user.try(&:as_json),
@@ -45,7 +45,7 @@ module LayoutHelper
   private
 
   def enabled_emoticons
-    Sugar.config.emoticons.split(/\s+/).filter_map do |name|
+    B3S.config.emoticons.split(/\s+/).filter_map do |name|
       emoji = Emoji.find_by_alias(name)
       { name:, image: emoji_path(emoji) } if emoji
     end

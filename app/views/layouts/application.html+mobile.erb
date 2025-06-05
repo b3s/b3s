@@ -27,12 +27,12 @@
     </div>
     <h1 id="pageTitle" class="page_title">
       <span class="site_name">
-        <%= link_to "#{Sugar.config.forum_short_name}:", discussions_path %>
+        <%= link_to "#{B3S.config.forum_short_name}:", discussions_path %>
       </span>
       <%= content_for(:page_title) %>
     </h1>
   </div>
-  <% if current_user? || Sugar.public_browsing? %>
+  <% if current_user? || B3S.public_browsing? %>
     <div id="navigation"><ul>
       <li>
         <%= link_to "Discussions", discussions_path %>
@@ -110,9 +110,9 @@
 
   <%= javascript_include_tag "mobile" %>
 
-  <%# Sugar configuration %>
+  <%# B3S configuration %>
   <script>
-    Sugar.Configuration = <%= frontend_configuration.to_json.html_safe %>;
+    B3S.Configuration = <%= frontend_configuration.to_json.html_safe %>;
   </script>
 
   <%# Muted users %>
@@ -120,10 +120,10 @@
     window.mutedUsers = <%= muted_user_ids(@exchange).to_json %>;
   </script>
 
-  <% if Sugar.config.google_analytics %>
+  <% if B3S.config.google_analytics %>
     <script>
     var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '<%= Sugar.config.google_analytics %>']);
+    _gaq.push(['_setAccount', '<%= B3S.config.google_analytics %>']);
     _gaq.push(['_trackPageview']);
     (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;

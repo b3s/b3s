@@ -1,4 +1,4 @@
-import Sugar from "../sugar";
+import B3S from "../b3s";
 
 interface IUser {
   id: number;
@@ -24,8 +24,8 @@ export default class User implements IUser {
 }
 
 export function currentUser() {
-  if (Sugar.Configuration.currentUser) {
-    return new User(Sugar.Configuration.currentUser);
+  if (B3S.Configuration.currentUser) {
+    return new User(B3S.Configuration.currentUser);
   } else {
     return null;
   }

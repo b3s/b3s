@@ -9,7 +9,7 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Sugar
+module B3S
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
@@ -32,4 +32,4 @@ module Sugar
   end
 end
 
-require Rails.root.join("lib/sugar.rb")
+require Rails.root.join("lib/b3s.rb")

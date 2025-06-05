@@ -7,7 +7,7 @@
   <%= link_to t("new"), new_invite_path %>
 </h2>
 
-<%= form_for @invite, builder: Sugar::FormBuilder do |f| %>
+<%= form_for @invite, builder: B3SFormBuilder do |f| %>
   <%= f.labelled_text_field :email, size: 60, type: 'email' %>
   <%= f.labelled_text_area(:message,
                            cols: 60,

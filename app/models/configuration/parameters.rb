@@ -5,9 +5,9 @@ class Configuration
     extend ActiveSupport::Concern
 
     included do
-      parameter :forum_name, :string, "Sugar"
-      parameter :forum_short_name, :string, "Sugar"
-      parameter :forum_title, :string, "Sugar"
+      parameter :forum_name, :string, "B3S"
+      parameter :forum_short_name, :string, "B3S"
+      parameter :forum_title, :string, "B3S"
       parameter :public_browsing, :boolean, false
       parameter :signups_allowed, :boolean, true
       parameter :domain_names, :string

@@ -59,7 +59,7 @@
     </div>
   <% end %>
 
-  <% if !Sugar.config.signups_allowed && current_user? &&
+  <% if !B3S.config.signups_allowed && current_user? &&
     current_user.user_admin? && !@user.user_admin? %>
     <p class="grant_invites">
       <strong>
@@ -206,7 +206,7 @@
     <% end %>
   <% elsif current_user? && @user == current_user %>
     <div class="welcome">
-      <h2>Welcome to <%= Sugar.config.forum_name %>!</h2>
+      <h2>Welcome to <%= B3S.config.forum_name %>!</h2>
       <p>
         This is your user profile. Normally your posts will show up in
         this space, but you haven't posted anything yet.

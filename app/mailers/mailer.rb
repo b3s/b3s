@@ -7,7 +7,7 @@ class Mailer < ApplicationMailer
     mail(
       to: @invite.email,
       subject: "#{@invite.user.realname_or_username} has invited you to " \
-               "#{Sugar.config.forum_name}!"
+               "#{B3S.config.forum_name}!"
     )
   end
 
@@ -16,7 +16,7 @@ class Mailer < ApplicationMailer
     @login_url = login_url
     mail(
       to: @user.email,
-      subject: "Welcome to #{Sugar.config.forum_name}!"
+      subject: "Welcome to #{B3S.config.forum_name}!"
     )
   end
 
@@ -24,7 +24,7 @@ class Mailer < ApplicationMailer
     @url = url
     mail(
       to: email,
-      subject: "Password reset for #{Sugar.config.forum_name}"
+      subject: "Password reset for #{B3S.config.forum_name}"
     )
   end
 
@@ -34,7 +34,7 @@ class Mailer < ApplicationMailer
     @conversation = conversation
     mail(
       to: email,
-      subject: "New post in conversation at #{Sugar.config.forum_name}!"
+      subject: "New post in conversation at #{B3S.config.forum_name}!"
     )
   end
 end

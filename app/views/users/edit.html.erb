@@ -38,7 +38,7 @@
   <% end %>
 </ul>
 
-<%= form_for @user, builder: Sugar::FormBuilder, multipart: true do |f| %>
+<%= form_for @user, builder: B3SFormBuilder, multipart: true do |f| %>
   <%= hidden_field_tag :page, @page %>
   <%= render partial: "edit_#{@page}", locals: {f: f} %>
   <p>

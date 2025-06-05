@@ -38,8 +38,8 @@ describe LayoutHelper do
     end
 
     before do
-      Sugar.config.reset!
-      Sugar.config.update(amazon_associates_id: "amazon")
+      B3S.config.reset!
+      B3S.config.update(amazon_associates_id: "amazon")
       allow(helper).to receive(:current_user).and_return(user)
     end
 

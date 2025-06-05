@@ -81,7 +81,7 @@ FactoryBot.define do
 
   factory :user do
     sequence(:username)   { |n| "lonelygirl#{n}" }
-    sequence(:realname)   { |n| "Sugar User #{n}" }
+    sequence(:realname)   { |n| "B3S User #{n}" }
     email
     password              { "Correct Horse Battery Staple" }
     password_confirmation { "Correct Horse Battery Staple" }

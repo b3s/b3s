@@ -1,5 +1,5 @@
 import readyHandler from "../lib/readyHandler";
-import Sugar from "../sugar";
+import B3S from "../b3s";
 
 const urlPattern =
   /https?:\/\/([\w\d\-.])*(amazon|junglee)(\.com?)*\.([\w]{2,3})\//;
@@ -11,7 +11,7 @@ function needsReferral(link: HTMLAnchorElement) {
 }
 
 function applyReferral(link: HTMLAnchorElement) {
-  const referralId = Sugar.Configuration.amazonAssociatesId;
+  const referralId = B3S.Configuration.amazonAssociatesId;
 
   if (referralId && needsReferral(link)) {
     link.dataset.amazonReferralId = referralId;

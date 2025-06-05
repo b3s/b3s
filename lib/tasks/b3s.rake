@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-namespace :sugar do
+namespace :b3s do
   desc "Delete all posts for a given user"
   task delete_posts: :environment do
     user = User.find_by(id: ENV.fetch("USER_ID", nil))
     unless user
-      puts "Usage: #{$PROGRAM_NAME} sugar:delete_posts USER_ID=<id>"
+      puts "Usage: #{$PROGRAM_NAME} b3s:delete_posts USER_ID=<id>"
       exit
     end
     puts "Deleting #{user.discussion_posts.count} posts..."

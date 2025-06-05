@@ -9,8 +9,8 @@ describe ConversationNotifier do
   let!(:notifier) { described_class.new(post, url) }
 
   before do
-    Sugar.config.forum_name = "Sugar"
-    Sugar.config.mail_sender = "test@example.com"
+    B3S.config.forum_name = "B3S"
+    B3S.config.mail_sender = "test@example.com"
   end
 
   describe "#deliver_now" do

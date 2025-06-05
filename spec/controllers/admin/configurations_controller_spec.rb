@@ -35,7 +35,7 @@ describe Admin::ConfigurationsController do
       specify { expect(flash[:notice]).to be_nil }
 
       it "updates the forum configuration" do
-        expect(Sugar.config.forum_name).to eq("New Forum Name")
+        expect(B3S.config.forum_name).to eq("New Forum Name")
       end
 
       it "redirects back to edit" do

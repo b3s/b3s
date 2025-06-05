@@ -6,7 +6,7 @@ describe DiscussionsController do
   let(:user) { create(:user) }
 
   describe "with public browsing off" do
-    before { Sugar.config.update(public_browsing: false) }
+    before { B3S.config.update(public_browsing: false) }
 
     it_requires_login_for %w[index search new create]
     it_requires_login_for %w[favorites following]
@@ -15,7 +15,7 @@ describe DiscussionsController do
   end
 
   describe "with public browsing on" do
-    before { Sugar.config.update(public_browsing: true) }
+    before { B3S.config.update(public_browsing: true) }
 
     it_requires_login_for %w[new create favorites following]
     it_requires_login_for %w[edit update follow unfollow favorite unfavorite]

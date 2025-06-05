@@ -22,7 +22,7 @@ module Admin
     end
 
     def find_configuration
-      @configuration = Sugar.config
+      @configuration = B3S.config
     end
   end
 end

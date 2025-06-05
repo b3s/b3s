@@ -51,7 +51,7 @@ class ApplicationController < ActionController::Base
   end
 
   def load_configuration
-    Sugar.config.load
+    B3S.config.load
   end
 
   def set_time_zone
@@ -93,11 +93,11 @@ class ApplicationController < ActionController::Base
   end
 
   def mobile_theme
-    Theme.find(current_user&.mobile_theme || Sugar.config.default_mobile_theme)
+    Theme.find(current_user&.mobile_theme || B3S.config.default_mobile_theme)
   end
 
   def theme
-    Theme.find(current_user&.theme || Sugar.config.default_theme)
+    Theme.find(current_user&.theme || B3S.config.default_theme)
   end
 
   def search_query

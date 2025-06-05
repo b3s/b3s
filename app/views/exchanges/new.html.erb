@@ -21,7 +21,7 @@
   <% end %>
 </h2>
 
-<%= form_for @exchange, builder: Sugar::FormBuilder do |f| %>
+<%= form_for @exchange, builder: B3SFormBuilder do |f| %>
   <%= render partial: "exchanges/form", locals: {f: f} %>
   <p>
     <button type="submit">

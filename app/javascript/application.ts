@@ -4,30 +4,30 @@
 import Rails from "@rails/ujs";
 Rails.start();
 
-import Sugar from "./sugar";
+import B3S from "./b3s";
 declare const window: Window & {
-  Sugar: typeof Sugar;
+  B3S: typeof B3S;
 };
-window.Sugar = Sugar;
+window.B3S = B3S;
 
 import readyHandler from "./lib/readyHandler";
-import { applyRichTextArea } from "./sugar/richTextArea";
+import { applyRichTextArea } from "./b3s/richTextArea";
 
-import "./sugar/exchanges/newDiscussion";
-import "./sugar/hotkeys";
-import "./sugar/embeds";
-import "./sugar/posts/buttons";
-import "./sugar/posts/newPosts";
-import "./sugar/posts/preview";
-import "./sugar/posts/submit";
-import "./sugar/referrals";
-import "./sugar/search";
-import "./sugar/style";
-import "./sugar/timestamps";
-import "./sugar/users/editProfile";
+import "./b3s/exchanges/newDiscussion";
+import "./b3s/hotkeys";
+import "./b3s/embeds";
+import "./b3s/posts/buttons";
+import "./b3s/posts/newPosts";
+import "./b3s/posts/preview";
+import "./b3s/posts/submit";
+import "./b3s/referrals";
+import "./b3s/search";
+import "./b3s/style";
+import "./b3s/timestamps";
+import "./b3s/users/editProfile";
 
 readyHandler.start(() => {
-  Sugar.init();
+  B3S.init();
   applyRichTextArea();
 });
 

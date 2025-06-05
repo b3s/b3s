@@ -7,4 +7,4 @@
 
 require File.expand_path("config/application", __dir__)
 
-Sugar::Application.load_tasks
+B3S::Application.load_tasks

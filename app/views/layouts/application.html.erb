@@ -18,10 +18,10 @@
 <body class="<%= body_class %>">
 
   <div id="header">
-    <h1><%= Sugar.config.forum_title.html_safe %></h1>
+    <h1><%= B3S.config.forum_title.html_safe %></h1>
 
     <%# Search form %>
-    <% if current_user? || Sugar.public_browsing? %>
+    <% if current_user? || B3S.public_browsing? %>
       <div id="search">
         <%= form_tag((@search_path || search_path), method: 'get') do %>
           <%= text_field_tag 'q', search_query, class: :query %>
@@ -42,7 +42,7 @@
                      logout_users_path,
                      data: { confirm: "Do you really want to sign out?" }) %>)
       <% else %>
-        <% if Sugar.config.signups_allowed %>
+        <% if B3S.config.signups_allowed %>
           <%= link_to("Sign up", new_user_path) %>
           or
         <% end %>
@@ -51,7 +51,7 @@
     </div>
 
     <%# Navigation tabs %>
-    <% if current_user? || Sugar.public_browsing? %>
+    <% if current_user? || B3S.public_browsing? %>
       <ul id="navigation">
         <%= header_tab 'Discussions', discussions_path %>
         <% if current_user? %>
@@ -115,9 +115,9 @@
 
   <%= javascript_include_tag "application" %>
 
-  <%# Sugar configuration %>
+  <%# B3S configuration %>
   <script>
-    Sugar.Configuration = <%= frontend_configuration.to_json.html_safe %>;
+    B3S.Configuration = <%= frontend_configuration.to_json.html_safe %>;
   </script>
 
   <%# Muted users %>
@@ -126,15 +126,15 @@
   </script>
 
   <%# Google Analytics %>
-  <% if Sugar.config.google_analytics %>
+  <% if B3S.config.google_analytics %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= Sugar.config.google_analytics %>"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= B3S.config.google_analytics %>"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', '<%= Sugar.config.google_analytics %>', { 'anonymize_ip': true });
+      gtag('config', '<%= B3S.config.google_analytics %>', { 'anonymize_ip': true });
     </script>
   <% end %>
 </body>

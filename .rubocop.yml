@@ -66,7 +66,7 @@ Style/Encoding:
 
 Rails/ContentTag:
   Exclude:
-    - "app/form_builders/sugar/form_builder.rb"
+    - "app/helpers/b3s_form_builder.rb"
     - "app/helpers/icons_helper.rb"
     - "app/helpers/posts_helper.rb"
     - "config/puma.rb"

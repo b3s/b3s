@@ -158,7 +158,7 @@ describe User do
   end
 
   describe "#theme" do
-    before { Sugar.config.default_theme = "default" }
+    before { B3S.config.default_theme = "default" }
 
     specify { expect(user.theme).to eq("default") }
     specify { expect(create(:user, theme: "mytheme").theme).to eq("mytheme") }
@@ -191,7 +191,7 @@ describe User do
   describe "#mobile_theme" do
     subject { user.mobile_theme }
 
-    before { Sugar.config.default_mobile_theme = "default_mobile" }
+    before { B3S.config.default_mobile_theme = "default_mobile" }
 
     context "when not set" do
       it { is_expected.to eq("default_mobile") }

@@ -8,7 +8,7 @@ class HelpController < ApplicationController
   end
 
   def code_of_conduct
-    @code_of_conduct = Sugar.config.code_of_conduct
+    @code_of_conduct = B3S.config.code_of_conduct
   end
 
   def keyboard; end

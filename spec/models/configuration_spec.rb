@@ -37,7 +37,7 @@ describe Configuration do
 
     let(:parameter) { :forum_name }
 
-    it { is_expected.to eq("Sugar") }
+    it { is_expected.to eq("B3S") }
 
     it "raises an error when parameter doesn't exist" do
       expect { configuration.get(:inexistant) }.to(
@@ -76,7 +76,7 @@ describe Configuration do
 
     it "loads the configuration" do
       expect { configuration.load }.to(
-        change(configuration, :forum_name).from("Sugar").to("Test")
+        change(configuration, :forum_name).from("B3S").to("Test")
       )
     end
   end
@@ -91,7 +91,7 @@ describe Configuration do
 
     it "saves the configuration" do
       expect { other_configuration.load }.to(
-        change(other_configuration, :forum_name).from("Sugar").to("Save test")
+        change(other_configuration, :forum_name).from("B3S").to("Save test")
       )
     end
   end
@@ -103,7 +103,7 @@ describe Configuration do
 
     it "updates the configuration" do
       expect { other_configuration.load }.to(
-        change(other_configuration, :forum_name).from("Sugar").to("Update test")
+        change(other_configuration, :forum_name).from("B3S").to("Update test")
       )
     end
   end
@@ -113,7 +113,7 @@ describe Configuration do
 
     it "resets the configuration" do
       expect { configuration.reset! }.to(
-        change(configuration, :forum_name).from("Reset test").to("Sugar")
+        change(configuration, :forum_name).from("Reset test").to("B3S")
       )
     end
   end

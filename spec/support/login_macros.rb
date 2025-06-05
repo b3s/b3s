@@ -83,7 +83,7 @@ module LoginMacros
   end
 
   def private_browsing!
-    allow(Sugar).to receive(:public_browsing?).and_return(false)
+    allow(B3S).to receive(:public_browsing?).and_return(false)
   end
 
   def login(user = nil)

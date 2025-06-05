@@ -2,6 +2,6 @@
 
 module ConfigurationMacros
   def configure(configuration = {})
-    Sugar.config.update(configuration)
+    B3S.config.update(configuration)
   end
 end

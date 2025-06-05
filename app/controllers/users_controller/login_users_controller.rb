@@ -26,7 +26,7 @@ class UsersController < ApplicationController
     def logout
       deauthenticate!
       flash[:notice] = t("authentication.logged_out")
-      redirect_to Sugar.public_browsing? ? discussions_url : login_users_url
+      redirect_to B3S.public_browsing? ? discussions_url : login_users_url
     end
 
     private

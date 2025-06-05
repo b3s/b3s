@@ -6,7 +6,7 @@ describe LinkFilter do
   let(:filter) { described_class.new(input) }
 
   context "when input contains a local link" do
-    before { Sugar.config.domain_names = "b3s.me" }
+    before { B3S.config.domain_names = "b3s.me" }
 
     let(:input) { '<a href="https://b3s.me/path">foo</a>' }
     let(:output) { '<a href="/path">foo</a>' }

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Sugar
+module B3S
   class << self
     def config(_key = nil, *_args)
       @config ||= Configuration.new.tap(&:load)

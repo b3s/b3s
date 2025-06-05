@@ -70,7 +70,7 @@ class User < ApplicationRecord
   end
 
   def theme
-    super || Sugar.config.default_theme
+    super || B3S.config.default_theme
   end
 
   def mark_active!
@@ -80,7 +80,7 @@ class User < ApplicationRecord
   end
 
   def mobile_theme
-    super || Sugar.config.default_mobile_theme
+    super || B3S.config.default_mobile_theme
   end
 
   def serializable_params

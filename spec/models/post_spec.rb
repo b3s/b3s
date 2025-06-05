@@ -206,13 +206,13 @@ describe Post do
     specify { expect(post.viewable_by?(user)).to be(true) }
 
     context "when public browsing is on" do
-      before { Sugar.config.public_browsing = true }
+      before { B3S.config.public_browsing = true }
 
       specify { expect(post.viewable_by?(nil)).to be(true) }
     end
 
     context "when public browsing is off" do
-      before { Sugar.config.public_browsing = false }
+      before { B3S.config.public_browsing = false }
 
       specify { expect(post.viewable_by?(nil)).to be(false) }
     end

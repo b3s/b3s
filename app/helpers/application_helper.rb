@@ -13,7 +13,7 @@ module ApplicationHelper
 
   def page_title_tag
     tag.title(safe_join([content_for(:page_title),
-                         Sugar.config.forum_name].compact, " - "))
+                         B3S.config.forum_name].compact, " - "))
   end
 
   def pretty_link(url)

@@ -11,6 +11,6 @@ module Viewable
 
   # Returns true if the user can view this record
   def viewable_by?(user)
-    Sugar.public_browsing? || user ? true : false
+    B3S.public_browsing? || user ? true : false
   end
 end

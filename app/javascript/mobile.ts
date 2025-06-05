@@ -4,23 +4,23 @@
 import Rails from "@rails/ujs";
 Rails.start();
 
-import Sugar from "./sugar";
+import B3S from "./b3s";
 declare const window: Window & {
-  Sugar: typeof Sugar;
+  B3S: typeof B3S;
 };
-window.Sugar = Sugar;
+window.B3S = B3S;
 
 import readyHandler from "./lib/readyHandler";
-import { applyRichTextArea } from "./sugar/richTextArea";
+import { applyRichTextArea } from "./b3s/richTextArea";
 
-import "./sugar/embeds";
-import "./sugar/referrals";
-import "./sugar/timestamps";
+import "./b3s/embeds";
+import "./b3s/referrals";
+import "./b3s/timestamps";
 
 import "./mobile/functions";
 
 readyHandler.start(() => {
-  Sugar.init();
+  B3S.init();
   applyRichTextArea();
 });
 

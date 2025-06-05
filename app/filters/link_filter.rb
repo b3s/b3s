@@ -40,7 +40,7 @@ class LinkFilter < Filter
   end
 
   def local_domains
-    Sugar.config.domain_names.try(:strip).try(:split, /\s*,\s*/) || []
+    B3S.config.domain_names.try(:strip).try(:split, /\s*,\s*/) || []
   end
 
   def parser

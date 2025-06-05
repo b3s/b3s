@@ -1,11 +1,11 @@
-import { startPosts } from "./sugar/post";
+import { startPosts } from "./b3s/post";
 
 type Icon = {
   name: string;
   image: string;
 };
 
-type SugarConfiguration = {
+type B3SConfiguration = {
   emoticons: Icon[];
   amazonAssociatesId?: string;
   currentUser?: UserAttributes;
@@ -14,12 +14,12 @@ type SugarConfiguration = {
   uploads?: boolean;
 };
 
-const Sugar = {
-  Configuration: {} as SugarConfiguration,
+const B3S = {
+  Configuration: {} as B3SConfiguration,
 
   init() {
     startPosts();
   }
 };
 
-export default Sugar;
+export default B3S;

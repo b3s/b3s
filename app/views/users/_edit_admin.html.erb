@@ -12,7 +12,7 @@
   </fieldset>
 <% end %>
 
-<% if !Sugar.config.signups_allowed && !@user.user_admin? %>
+<% if !B3S.config.signups_allowed && !@user.user_admin? %>
   <fieldset>
     <h2>
       <%= t("user.edit.invites") %>

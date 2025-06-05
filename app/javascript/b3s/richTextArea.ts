@@ -1,4 +1,4 @@
-import Sugar from "../sugar";
+import B3S from "../b3s";
 
 import HtmlDecorator from "./richTextArea/HtmlDecorator";
 import MarkdownDecorator from "./richTextArea/MarkdownDecorator";
@@ -36,7 +36,7 @@ export default function richTextArea(textarea: RichText.Element) {
   formatButton.className = "formatting";
   formatButton.innerHTML = "<a>Markdown</a>";
 
-  const icons = Sugar.Configuration.emoticons;
+  const icons = B3S.Configuration.emoticons;
 
   const toolbar = document.createElement("ul");
   toolbar.className = "richTextToolbar clearfix";
@@ -61,8 +61,8 @@ export default function richTextArea(textarea: RichText.Element) {
     }
   }
   if (textarea.dataset.rememberFormat) {
-    if (Sugar.Configuration.preferredFormat) {
-      format = Sugar.Configuration.preferredFormat;
+    if (B3S.Configuration.preferredFormat) {
+      format = B3S.Configuration.preferredFormat;
     }
   }
   format = format || formats[0];
@@ -89,8 +89,8 @@ export default function richTextArea(textarea: RichText.Element) {
     }
 
     if (textarea.dataset.rememberFormat && !skipUpdate) {
-      if (Sugar.Configuration.currentUserId) {
-        void putJson(`/users/${Sugar.Configuration.currentUserId}.json`, {
+      if (B3S.Configuration.currentUserId) {
+        void putJson(`/users/${B3S.Configuration.currentUserId}.json`, {
           user: { preferred_format: newFormat }
         });
       }
@@ -246,7 +246,7 @@ export default function richTextArea(textarea: RichText.Element) {
     addEmojiButton(icons[j].name, icons[j].image);
   }
 
-  if (Sugar.Configuration.uploads) {
+  if (B3S.Configuration.uploads) {
     bindUploads(textarea);
   }
 }
