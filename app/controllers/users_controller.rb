@@ -127,9 +127,9 @@ class UsersController < ApplicationController
     User.temporarily_deactivated.each(&:check_status!)
   end
 
-  def respond_with_user(user, &block)
+  def respond_with_user(user, &)
     respond_to do |format|
-      format.html(&block)
+      format.html(&)
       format.json { render json: UserResource.new(user) }
     end
   end

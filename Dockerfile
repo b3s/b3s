@@ -1,13 +1,13 @@
 #### Rails image ##############################################################
 
-ARG RUBY_VERSION='3.4.1'
+ARG RUBY_VERSION='3.4.4'
 
 FROM ruby:$RUBY_VERSION-bookworm AS runtime
 
-ARG RUBYGEMS_VERSION='3.6.2'
-ARG BUNDLER_VERSION='2.6.2'
-ARG NVM_VERSION='0.40.1'
-ARG NODE_VERSION='22.12.0'
+ARG RUBYGEMS_VERSION='3.6.7'
+ARG BUNDLER_VERSION='2.6.7'
+ARG NVM_VERSION='0.40.3'
+ARG NODE_VERSION='24.1.0'
 ARG PG_MAJOR='15'
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -53,7 +53,7 @@ RUN gem update --system $RUBYGEMS_VERSION && \
 ENV LANG=C.UTF-8 \
         RAILS_ENV=production \
         RAILS_LOG_TO_STDOUT=1 \
-        RAILS_SERVE_STATIC_FILES=1 
+        RAILS_SERVE_STATIC_FILES=1
 
 # Create a directory for the app code
 RUN mkdir -p /app
@@ -115,7 +115,7 @@ FROM app AS prod
 ENV LANG=C.UTF-8 \
         RAILS_ENV=production \
         RAILS_LOG_TO_STDOUT=1 \
-        RAILS_SERVE_STATIC_FILES=1 
+        RAILS_SERVE_STATIC_FILES=1
 
 COPY --from=assets /app/app/assets/builds ./app/assets/builds
 COPY --from=assets /app/public/assets ./public/assets
