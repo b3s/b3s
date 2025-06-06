@@ -20,7 +20,7 @@ class PasswordResetsController < ApplicationController
       flash[:notice] = t("password_reset.changed")
       redirect_to root_url
     else
-      render action: :show
+      render :show
     end
   end
 

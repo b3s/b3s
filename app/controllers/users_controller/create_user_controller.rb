@@ -29,7 +29,7 @@ class UsersController < ApplicationController
         redirect_to user_profile_url(id: @user.username)
       else
         flash.now[:notice] = t("signup.invalid")
-        render action: :new
+        render :new
       end
     end
 

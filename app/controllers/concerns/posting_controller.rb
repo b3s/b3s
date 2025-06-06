@@ -45,7 +45,7 @@ module PostingController
         format.html { redirect_to redirect_url }
         format.json { render json: post, status: :created }
       else
-        format.html { render action: :new }
+        format.html { render :new }
         format.json { render json: post, status: :unprocessable_entity }
       end
     end
@@ -57,7 +57,7 @@ module PostingController
         format.html { redirect_to redirect_url }
         format.json { render json: post }
       else
-        format.html { render action: :edit }
+        format.html { render :edit }
         format.json { render json: post, status: :unprocessable_entity }
       end
     end

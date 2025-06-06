@@ -55,32 +55,32 @@ class UsersController < ApplicationController
         redirect_to edit_user_page_url(id: @user.username, page: @page)
       else
         flash.now[:notice] = t("flash.invalid_record")
-        render action: :edit
+        render :edit
       end
     end
   end
 
   def mute
     current_user.mute!(@user)
-    flash[:notice] = "#{@user.username} has been muted."
+    flash[:notice] = t("user.muted", username: @user.username)
     redirect_to user_profile_url(id: @user.username)
   end
 
   def unmute
     current_user.unmute!(@user)
-    flash[:notice] = "#{@user.username} has been unmuted."
+    flash[:notice] = t("user.unmuted", username: @user.username)
     redirect_to user_profile_url(id: @user.username)
   end
 
   def grant_invite
     @user.grant_invite!
-    flash[:notice] = "#{@user.username} has been granted one invite."
+    flash[:notice] = t("user.granted_invite", username: @user.username)
     redirect_to user_profile_url(id: @user.username)
   end
 
   def revoke_invites
     @user.revoke_invite!(:all)
-    flash[:notice] = "#{@user.username} has been revoked of all invites."
+    flash[:notice] = t("user.revoked_invites", username: @user.username)
     redirect_to user_profile_url(id: @user.username)
   end
 

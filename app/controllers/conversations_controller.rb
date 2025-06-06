@@ -24,7 +24,7 @@ class ConversationsController < ApplicationController
     @exchange = Conversation.new
     @recipient = User.find_by(username: params[:username]) if params[:username]
     @moderators = true if params[:moderators]
-    render template: "exchanges/new"
+    render "exchanges/new"
   end
 
   def create
@@ -34,7 +34,7 @@ class ConversationsController < ApplicationController
       redirect_to @exchange
     else
       flash.now[:notice] = t("conversation.invalid")
-      render template: "exchanges/new"
+      render "exchanges/new"
     end
   end
 

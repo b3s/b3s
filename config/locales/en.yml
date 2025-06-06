@@ -95,6 +95,10 @@ en:
     user_removed: "%{username} has been removed from the conversation"
     you_have_been_removed: You have been removed from the conversation
   user:
+    muted: "%{username} has been muted."
+    unmuted: "%{username} has been unmuted."
+    granted_invite: "%{username} has been granted one invite."
+    revoked_invites: "%{username} has been revoked of all invites."
     status:
       active: Active
       inactive: Inactive

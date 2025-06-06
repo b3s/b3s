@@ -6,7 +6,6 @@ require "digest/sha1"
 #
 
 class User < ApplicationRecord
-  include ActiveModel::ForbiddenAttributesProtection
   include Authenticable
   include Inviter
   include Emailable

@@ -48,7 +48,7 @@ class DiscussionsController < ApplicationController
 
   def new
     @exchange = Discussion.new
-    render template: "exchanges/new"
+    render "exchanges/new"
   end
 
   def create
@@ -56,9 +56,8 @@ class DiscussionsController < ApplicationController
     if @exchange.valid?
       redirect_to @exchange
     else
-      flash.now[:notice] = "Could not save your discussion! " \
-                           "Please make sure all required fields are filled in."
-      render template: "exchanges/new"
+      flash.now[:notice] = t("exchange.invalid")
+      render "exchanges/new"
     end
   end
 

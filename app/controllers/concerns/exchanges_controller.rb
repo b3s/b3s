@@ -12,7 +12,7 @@ module ExchangesController
     @posts = @exchange.posts
                       .search_in_exchange(search_query)
                       .page(params[:page])
-    render template: "exchanges/search_posts"
+    render "exchanges/search_posts"
   end
 
   def show
@@ -28,7 +28,7 @@ module ExchangesController
   def edit
     if @exchange.editable_by?(current_user)
       @exchange.body = @exchange.posts.first.body
-      render template: "exchanges/edit"
+      render "exchanges/edit"
     else
       render_error 403
     end
@@ -42,7 +42,7 @@ module ExchangesController
       redirect_to @exchange
     else
       flash.now[:notice] = t("exchange.invalid")
-      render template: "exchanges/edit"
+      render "exchanges/edit"
     end
   end
 

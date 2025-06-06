@@ -38,7 +38,7 @@ class InvitesController < ApplicationController
     @invite = create_invite(invite_params)
 
     if @invite.invalid?
-      render action: :new
+      render :new
       return
     elsif deliver_invite!(@invite)
       flash[:notice] = t("invite.sent", email: @invite.email)
