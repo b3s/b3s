@@ -179,12 +179,6 @@ Rails.application.routes.draw do
   get "help/code-of-conduct" => "help#code_of_conduct",
       as: :code_of_conduct_help
 
-  # Old theme redirects
-  # TODO: Remove after redesign
-  get "/themes/:theme/images/*path.:format",
-      to: redirect("assets/%{theme}/%{path}.%{format}")
-  get "/themes/:theme/*path.:format",
-      to: redirect("assets/%{theme}/%{path}.%{format}")
 
   # Vanilla redirects
   controller :vanilla do
