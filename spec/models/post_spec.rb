@@ -164,6 +164,20 @@ describe Post do
         expect(Renderer).to have_received(:render).once
       end
     end
+
+    context "when in non-development environment" do
+      let!(:post) do
+        create(:post, exchange:, body_html: "<p>Test <em>HTML</em></p>")
+      end
+
+      before do
+        allow(Rails.env).to receive(:development?).and_return(false)
+      end
+
+      it "returns html_safe content" do
+        expect(post.body_html).to be_html_safe
+      end
+    end
   end
 
   describe "#edited?" do

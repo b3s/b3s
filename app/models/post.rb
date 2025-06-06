@@ -48,7 +48,7 @@ class Post < ApplicationRecord
       Renderer.render(body, format:)
     else
       update_column(:body_html, Renderer.render(body, format:)) if super.blank?
-      self[:body_html]
+      self[:body_html].html_safe
     end
   end
 
