@@ -472,6 +472,7 @@ GEM
     thruster (0.1.13)
     thruster (0.1.13-x86_64-linux)
     tilt (2.6.0)
+    timecop (0.9.10)
     timeout (0.4.3)
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
@@ -558,6 +559,7 @@ DEPENDENCIES
   sprockets-rails
   terser
   thruster
+  timecop
   validate_url
   web-console
   webmock

@@ -48,7 +48,7 @@ module Authentication
     def verify_active_account
       return unless current_user?
 
-      current_user.check_status!
+      current_user.reactivate_if_eligible!
       logger.info(authentication_log_line(current_user))
       return if current_user.active?
 

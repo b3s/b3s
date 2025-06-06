@@ -11,8 +11,6 @@ class UsersController < ApplicationController
   include LoginUsersController
   include UsersListController
 
-  before_action :check_status
-
   before_action :load_user,
                 only: %i[show edit update participated discussions posts
                          grant_invite revoke_invites mute unmute]
@@ -119,12 +117,6 @@ class UsersController < ApplicationController
     return [] unless current_user&.user_admin?
 
     %i[username user_admin moderator available_invites status banned_until]
-  end
-
-  def check_status
-    # TODO: This is a bit dirty, and should be handled by ActiveJob
-    # instead.
-    User.temporarily_deactivated.each(&:check_status!)
   end
 
   def respond_with_user(user, &)

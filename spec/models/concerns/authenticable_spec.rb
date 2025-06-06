@@ -156,4 +156,64 @@ describe Authenticable do
       it { is_expected.to eq(previous_token) }
     end
   end
+
+  describe "#reactivate_if_eligible!" do
+    subject { user.reload.status }
+
+    let(:status) { :hiatus }
+    let(:banned_until) { 1.hour.ago }
+    let(:user) do
+      Timecop.freeze(banned_until - 1.hour) do
+        create(:user, status:, banned_until: 1.hour.from_now)
+      end
+    end
+
+    before { user.reactivate_if_eligible! }
+
+    context "when user is on hiatus with expired ban" do
+      it { is_expected.to eq("active") }
+    end
+
+    context "when user is timed out with expired ban" do
+      let(:status) { :time_out }
+
+      it { is_expected.to eq("active") }
+    end
+
+    context "when user has future ban date" do
+      let(:banned_until) { 1.hour.from_now }
+
+      it { is_expected.to eq("hiatus") }
+    end
+
+    context "when user is active" do
+      let(:status) { :active }
+      let(:banned_until) { nil }
+      let(:user) { create(:user, status:) }
+
+      it { is_expected.to eq("active") }
+    end
+  end
+
+  describe "#schedule_reactivation_job" do
+    context "when user goes on hiatus" do
+      let(:hiatus_time) { 2.hours.from_now }
+
+      it "schedules a reactivation job" do
+        expect do
+          user.update(hiatus_until: hiatus_time)
+        end.to have_enqueued_job(ReactivateUserJob)
+          .with(user.id)
+          .at(hiatus_time + 5.minutes)
+      end
+    end
+
+    context "when user status is unchanged" do
+      it "does not schedule a job" do
+        expect do
+          user.update(realname: "New Name")
+        end.not_to have_enqueued_job(ReactivateUserJob)
+      end
+    end
+  end
 end

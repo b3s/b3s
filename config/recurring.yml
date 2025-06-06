@@ -1,3 +1,8 @@
+---
+production:
+  reactivate_eligible_users:
+    class: ReactivateEligibleUsersJob
+    schedule: every hour
 # production:
 #   periodic_cleanup:
 #     class: CleanSoftDeletedRecordsJob

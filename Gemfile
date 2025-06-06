@@ -62,6 +62,7 @@ group :development, :test do
   gem "selenium-webdriver"
   gem "shoulda-matchers", [">= 4.3.0", "!= 4.4.0"]
   gem "simplecov"
+  gem "timecop"
   gem "webmock", require: false
 
   gem "rubocop", require: false

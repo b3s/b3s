@@ -179,7 +179,6 @@ Rails.application.routes.draw do
   get "help/code-of-conduct" => "help#code_of_conduct",
       as: :code_of_conduct_help
 
-
   # Vanilla redirects
   controller :vanilla do
     get "/vanilla" => :discussions
