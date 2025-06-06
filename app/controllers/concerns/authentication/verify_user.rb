@@ -64,8 +64,8 @@ module Authentication
       options = default_verify_user_options(options)
 
       if current_user?
-        verified = verify_current_user(options)
-        verified ||= verify_current_user_flags(options)
+        verified = verify_current_user?(options)
+        verified ||= verify_current_user_flags?(options)
       else
         verified = false
       end
@@ -74,7 +74,7 @@ module Authentication
       verified
     end
 
-    def verify_current_user(options = {})
+    def verify_current_user?(options = {})
       if options[:user]
         options[:user] == :any || options[:user] == current_user
       else
@@ -82,7 +82,7 @@ module Authentication
       end
     end
 
-    def verify_current_user_flags(options = {})
+    def verify_current_user_flags?(options = {})
       %i[admin moderator user_admin].each do |flag|
         return true if options[flag] && current_user.send(:"#{flag}?")
       end

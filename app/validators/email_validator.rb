@@ -13,6 +13,6 @@ class EmailValidator < ActiveModel::EachValidator
     end
     return if valid
 
-    record.errors.add(attribute, (options[:message] || "is invalid"))
+    record.errors.add(attribute, options[:message] || "is invalid")
   end
 end

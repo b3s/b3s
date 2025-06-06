@@ -39,17 +39,16 @@ class DiscussionRelationship < ApplicationRecord
   end
 
   def ensure_flags_are_mutually_exclusive
-    if hidden?
-      if hidden_changed?
-        # Unfollow if discussion has been hidden
-        self.following = false
-        self.favorite = false
-      elsif favorite_or_following_enabled?
-        # Unhide if discussion has been followed/favorited
-        self.hidden = false
-      end
+    return unless hidden?
+
+    if hidden_changed?
+      # Unfollow if discussion has been hidden
+      self.following = false
+      self.favorite = false
+    elsif favorite_or_following_enabled?
+      # Unhide if discussion has been followed/favorited
+      self.hidden = false
     end
-    true
   end
 
   def relationship_count(flag)

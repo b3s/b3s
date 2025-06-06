@@ -84,7 +84,7 @@ class PostsController < ApplicationController
 
     current_user.mark_exchange_viewed(@exchange,
                                       @posts.last,
-                                      (params[:index].to_i + @posts.length))
+                                      params[:index].to_i + @posts.length)
   end
 
   # def notify_mentioned

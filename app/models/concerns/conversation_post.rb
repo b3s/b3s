@@ -12,7 +12,6 @@ module ConversationPost
 
   def flag_conversation
     self.conversation = exchange.is_a?(Conversation)
-    true
   end
 
   def notify_new_conversation_post

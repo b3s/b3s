@@ -20,7 +20,7 @@ module ExchangesController
     @posts = @exchange.posts.page(@page, context:).for_view
 
     mark_as_viewed!(@exchange, @posts.last,
-                    (@posts.offset_value + @posts.count))
+                    @posts.offset_value + @posts.count)
 
     respond_with_exchange(@exchange, @page)
   end
