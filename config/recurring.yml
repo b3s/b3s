@@ -3,6 +3,9 @@ production:
   reactivate_eligible_users:
     class: ReactivateEligibleUsersJob
     schedule: every hour
+  cleanup_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches(finished_before: 30.days.ago)"
+    schedule: every day at 2am
 # production:
 #   periodic_cleanup:
 #     class: CleanSoftDeletedRecordsJob
