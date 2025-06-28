@@ -41,3 +41,9 @@ OEmbed::Provider.new("https://embed.bsky.app/oembed").tap do |provider|
   provider << "https://*.bsky.app/*"
   OEmbed::Providers.register(provider)
 end
+
+OEmbed::Provider.new("https://oembed.tidal.com/").tap do |provider|
+  provider << "http://*.tidal.com/*"
+  provider << "https://*.tidal.com/*"
+  OEmbed::Providers.register(provider)
+end
