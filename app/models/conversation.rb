@@ -45,7 +45,7 @@ class Conversation < Exchange
   end
 
   def removeable?(user)
-    user && participants.include?(user) && participants.count > 1
+    user && participants.include?(user) && participants.many?
   end
 
   def removeable_by?(participant, remover)

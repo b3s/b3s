@@ -27,11 +27,11 @@ module Inviter
   end
 
   def invites?
-    invites.count.positive?
+    invites.any?
   end
 
   def invitees?
-    invitees.count.positive?
+    invitees.any?
   end
 
   def invites_or_invitees?
