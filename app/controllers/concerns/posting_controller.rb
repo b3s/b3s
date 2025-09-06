@@ -46,7 +46,7 @@ module PostingController
         format.json { render json: post, status: :created }
       else
         format.html { render :new }
-        format.json { render json: post, status: :unprocessable_entity }
+        format.json { render json: post, status: :unprocessable_content }
       end
     end
   end
@@ -58,7 +58,7 @@ module PostingController
         format.json { render json: post }
       else
         format.html { render :edit }
-        format.json { render json: post, status: :unprocessable_entity }
+        format.json { render json: post, status: :unprocessable_content }
       end
     end
   end

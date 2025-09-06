@@ -12,7 +12,7 @@ class UserLink < ApplicationRecord
 
   acts_as_list scope: :user
 
-  scope :sorted, -> { order("position ASC") }
+  scope :sorted, -> { order(:position) }
 
   class << self
     def active

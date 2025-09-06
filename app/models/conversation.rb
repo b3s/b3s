@@ -8,7 +8,7 @@ class Conversation < Exchange
   class RemoveParticipantError < StandardError; end
 
   has_many :conversation_relationships,
-           -> { order "created_at ASC" },
+           -> { order :created_at },
            dependent: :destroy,
            inverse_of: :conversation
 

@@ -27,7 +27,7 @@ class Post < ApplicationRecord
 
   after_destroy :update_post_counts
 
-  scope :sorted,                 -> { order("created_at ASC") }
+  scope :sorted,                 -> { order(:created_at) }
   scope :for_view,               -> { sorted.includes(user: [:avatar]) }
   scope :for_view_with_exchange, -> { for_view.includes(:exchange) }
 

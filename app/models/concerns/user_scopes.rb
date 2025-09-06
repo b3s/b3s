@@ -26,7 +26,7 @@ module UserScopes
     end
 
     def by_username
-      order("username ASC")
+      order(:username)
     end
 
     def online
@@ -34,12 +34,12 @@ module UserScopes
     end
 
     def recently_joined
-      active_and_memorialized.order("created_at DESC")
+      active_and_memorialized.order(created_at: :desc)
     end
 
     def top_posters
       active_and_memorialized.where("public_posts_count > 0")
-                             .order("public_posts_count DESC")
+                             .order(public_posts_count: :desc)
     end
   end
 end

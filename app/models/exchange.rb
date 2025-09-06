@@ -21,7 +21,7 @@ class Exchange < ApplicationRecord
   belongs_to(:closer, class_name: "User", optional: true)
 
   has_many(:posts,
-           -> { order "created_at ASC" },
+           -> { order :created_at },
            dependent: :destroy,
            foreign_key: "exchange_id",
            inverse_of: :exchange)

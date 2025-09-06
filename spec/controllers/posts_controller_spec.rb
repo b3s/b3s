@@ -79,7 +79,7 @@ describe PostsController do
       end
 
       specify { expect(assigns(:post)).not_to be_valid }
-      it { is_expected.to respond_with(:unprocessable_entity) }
+      it { is_expected.to respond_with(:unprocessable_content) }
     end
   end
 
@@ -165,7 +165,7 @@ describe PostsController do
       end
 
       specify { expect(assigns(:post)).not_to be_valid }
-      it { is_expected.to respond_with(:unprocessable_entity) }
+      it { is_expected.to respond_with(:unprocessable_content) }
     end
   end
 end

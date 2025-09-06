@@ -14,14 +14,14 @@ module Inviter
                optional: true
 
     has_many :invitees,
-             -> { order "username ASC" },
+             -> { order :username },
              class_name: "User",
              foreign_key: "inviter_id",
              inverse_of: :inviter,
              dependent: :nullify
 
     has_many :invites,
-             -> { order "created_at ASC" },
+             -> { order :created_at },
              dependent: :destroy,
              inverse_of: :user
   end
