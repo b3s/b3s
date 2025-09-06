@@ -22,7 +22,7 @@ module PostsHelper
         width: 16, height: 16)
   rescue Sprockets::Rails::Helper::AssetNotFound
     # Return the unicode character for the emoji
-    emoji.unicode_char || ":#{alt}:"
+    emoji.raw || ":#{alt}:"
   end
 
   def format_post(content, user)
