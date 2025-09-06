@@ -2,7 +2,7 @@
 
 require "active_support/parameter_filter"
 
-if Rails.application.credentials.sentry_dsn? && !Rails.env.test?
+if Rails.application.credentials.sentry_dsn.present? && !Rails.env.test?
   Sentry.init do |config|
     config.dsn = Rails.application.credentials.sentry_dsn
     config.enabled_environments = %w[staging production]
