@@ -126,7 +126,7 @@
   </script>
 
   <%# Google Analytics %>
-  <% if B3S.config.google_analytics %>
+  <% if B3S.config.google_analytics.present? %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=<%= B3S.config.google_analytics %>"></script>
     <script>
