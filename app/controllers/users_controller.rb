@@ -109,7 +109,7 @@ class UsersController < ApplicationController
      :notify_on_message, :realname, :stylesheet_url, :theme, :time_zone,
      :password, :password_confirmation, :hiatus_until, :preferred_format,
      { avatar_attributes: [:file],
-       user_links_attributes: %i[id position label name url _destroy] }] +
+       user_links_attributes: [%i[id position label name url _destroy]] }] +
       allowed_user_admin_params + allowed_admin_params
   end
 
