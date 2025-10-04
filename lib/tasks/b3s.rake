@@ -8,9 +8,9 @@ namespace :b3s do
       puts "Usage: #{$PROGRAM_NAME} b3s:delete_posts USER_ID=<id>"
       exit
     end
-    puts "Deleting #{user.discussion_posts.count} posts..."
-    user.discussion_posts.update(deleted: true, skip_html: true)
-    user.update(public_posts_count: 0)
+
+    DeletePostsJob.perform_later(user.id)
+    puts "Queued deletion job for #{user.username} (#{user.posts.count} posts)"
   end
 
   desc "Update syntax highlighting theme"
