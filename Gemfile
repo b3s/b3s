@@ -12,7 +12,7 @@ gem "bootsnap", ">= 1.1.0", require: false
 gem "dynamic_image"
 gem "fastimage"
 gem "fog-aws"
-gem "httparty", "~> 0.17"
+gem "typhoeus"
 gem "kamal", require: false
 gem "nokogiri"
 gem "pg"

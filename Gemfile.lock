@@ -120,7 +120,6 @@ GEM
     crass (1.0.6)
     cssbundling-rails (1.4.3)
       railties (>= 6.0.0)
-    csv (3.3.5)
     date (3.5.0)
     diff-lcs (1.6.2)
     dis (1.1.16)
@@ -142,6 +141,8 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
+    ethon (0.15.0)
+      ffi (>= 1.15.0)
     excon (0.112.0)
     execjs (2.10.0)
     factory_bot (6.5.6)
@@ -180,10 +181,6 @@ GEM
     hashdiff (1.2.1)
     highline (3.1.2)
       reline
-    httparty (0.23.2)
-      csv
-      mini_mime (>= 1.0.0)
-      multi_xml (>= 0.5.2)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.2.2)
@@ -246,8 +243,6 @@ GEM
       turbo-rails
     msgpack (1.8.0)
     multi_json (1.17.0)
-    multi_xml (0.7.2)
-      bigdecimal (~> 3.1)
     net-imap (0.5.12)
       date
       net-protocol
@@ -486,6 +481,8 @@ GEM
     turbo-rails (2.0.20)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
+    typhoeus (1.5.0)
+      ethon (>= 0.9.0, < 0.16.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
@@ -532,7 +529,6 @@ DEPENDENCIES
   fastimage
   fog-aws
   gemoji
-  httparty (~> 0.17)
   jsbundling-rails
   json_spec
   kamal
@@ -569,6 +565,7 @@ DEPENDENCIES
   terser
   thruster
   timecop
+  typhoeus
   validate_url
   web-console
   webmock

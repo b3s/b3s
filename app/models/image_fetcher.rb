@@ -103,16 +103,18 @@ class ImageFetcher
 
   def uploaded_file(request)
     Rack::Test::UploadedFile.new(
-      create_tempfile(request.parsed_response),
-      request.content_type
+      create_tempfile(request.body),
+      request.headers["Content-Type"]
     )
   end
 
   def create_image(uri)
-    request = HTTParty.get(uri)
+    request = Typhoeus.get(uri)
+    return nil unless request.success?
+
     image = PostImage.create(
       data: uploaded_file(request),
-      content_type: request.content_type,
+      content_type: request.headers["Content-Type"],
       filename: filename(uri),
       original_url: uri
     )
