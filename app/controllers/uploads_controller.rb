@@ -9,7 +9,7 @@ class UploadsController < ApplicationController
     respond_to do |format|
       format.json { render json: post_image_response(post_image) }
     end
-  rescue MiniMagick::Error
+  rescue Vips::Error
     upload_error("Unreadable image")
   rescue DynamicImage::Errors::InvalidHeader
     upload_error("Invalid headers")
