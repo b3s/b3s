@@ -12,7 +12,6 @@ gem "bootsnap", ">= 1.1.0", require: false
 gem "dynamic_image"
 gem "fastimage"
 gem "fog-aws"
-gem "typhoeus"
 gem "kamal", require: false
 gem "nokogiri"
 gem "pg"
@@ -24,6 +23,7 @@ gem "redcarpet", "~> 3.5"
 gem "rouge"
 gem "ruby-oembed", require: "oembed"
 gem "thruster", require: false
+gem "typhoeus"
 gem "validate_url"
 
 gem "mission_control-jobs"
@@ -46,6 +46,10 @@ gem "non-stupid-digest-assets"
 # 3rd party monitoring
 gem "sentry-rails"
 gem "sentry-ruby"
+
+# Pin connection_pool to 2.x until react-rails releases a version
+# compatible with connection_pool 3.x
+gem "connection_pool", "~> 2.4"
 
 group :development do
   gem "web-console"
