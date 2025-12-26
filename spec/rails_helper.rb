@@ -91,7 +91,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
 
   config.include ActiveJob::TestHelper
-  config.include LoginMacros, type: :controller
+  config.include LoginMacros, type: :request
   config.include MailerMacros
   config.include ConfigurationMacros
   config.include SystemHelpers, type: :system

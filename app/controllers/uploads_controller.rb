@@ -9,11 +9,8 @@ class UploadsController < ApplicationController
     respond_to do |format|
       format.json { render json: post_image_response(post_image) }
     end
-  rescue Vips::Error
-    upload_error("Unreadable image")
-  rescue DynamicImage::Errors::InvalidHeader
-    upload_error("Invalid headers")
-  rescue DynamicImage::Errors::InvalidImage
+  rescue Vips::Error, DynamicImage::Errors::InvalidHeader,
+         DynamicImage::Errors::InvalidImage
     upload_error("Invalid image")
   end
 

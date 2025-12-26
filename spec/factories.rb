@@ -83,8 +83,8 @@ FactoryBot.define do
     sequence(:username)   { |n| "lonelygirl#{n}" }
     sequence(:realname)   { |n| "B3S User #{n}" }
     email
-    password              { "Correct Horse Battery Staple" }
-    password_confirmation { "Correct Horse Battery Staple" }
+    sequence(:password)   { |n| "Correct Horse Battery Staple #{n}" }
+    password_confirmation { password }
     description           { "Hi, I'm #{realname}!" }
     sequence(:location)   { |n| "Location #{n}" }
 
