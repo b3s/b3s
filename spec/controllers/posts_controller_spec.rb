@@ -46,7 +46,10 @@ describe PostsController do
 
       specify { expect(assigns(:post)).to be_valid }
       it { is_expected.to respond_with(:created) }
-      specify { expect(response.body).to be_json_eql(assigns(:post).to_json) }
+
+      it "returns the expected JSON response" do
+        expect(response.parsed_body).to eq(JSON.parse(assigns(:post).to_json))
+      end
     end
   end
 
