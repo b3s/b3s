@@ -1,11 +1,11 @@
 #### Rails image ##############################################################
 
-ARG RUBY_VERSION='3.4.5'
+ARG RUBY_VERSION='4.0.0'
 
 FROM ruby:$RUBY_VERSION-bookworm AS runtime
 
-ARG RUBYGEMS_VERSION='3.6.9'
-ARG BUNDLER_VERSION='2.6.9'
+ARG RUBYGEMS_VERSION='4.0.3'
+ARG BUNDLER_VERSION='4.0.3'
 ARG NVM_VERSION='0.40.3'
 ARG NODE_VERSION='24.1.0'
 ARG PG_MAJOR='15'
