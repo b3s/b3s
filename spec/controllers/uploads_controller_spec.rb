@@ -40,7 +40,11 @@ describe UploadsController do
         expect(response.header["Content-Type"]).to match "application/json"
       end
 
-      it { is_expected.to be_json_eql(expected_response.to_json) }
+      it "returns the expected JSON response" do
+        expect(response.parsed_body).to eq(
+          JSON.parse(expected_response.to_json)
+        )
+      end
     end
   end
 end
