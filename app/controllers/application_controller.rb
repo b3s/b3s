@@ -32,14 +32,6 @@ class ApplicationController < ActionController::Base
     { id: current_user.id, username: current_user.username }
   end
 
-  def error_messages
-    { 404 => "Not found" }
-  end
-
-  def paginated_json_path(page)
-    page && url_for(page:, only_path: true, format: :json)
-  end
-
   # Renders an error
   def render_error(error, options = {})
     options[:status] ||= error if error.is_a?(Numeric)

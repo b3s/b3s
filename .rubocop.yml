@@ -55,6 +55,9 @@ Style/FormatStringToken:
   Exclude:
     - "config/routes.rb"
 
+Style/HashSyntax:
+  EnforcedShorthandSyntax: always
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 

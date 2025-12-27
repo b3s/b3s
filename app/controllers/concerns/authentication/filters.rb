@@ -20,12 +20,6 @@ module Authentication
       end
     end
 
-    def requires_moderator(*)
-      send(:before_action, *) do |controller|
-        controller.send(:verify_user, moderator: true)
-      end
-    end
-
     def requires_user_admin(*)
       send(:before_action, *) do |controller|
         controller.send(:verify_user, user_admin: true)

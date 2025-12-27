@@ -12,12 +12,6 @@ class Theme
       ids.map { |id| find(id) }
     end
 
-    def precompile_assets
-      all.flat_map do |theme|
-        [theme.stylesheet_path, theme.mobile_stylesheet_path]
-      end.compact
-    end
-
     def mobile
       all.select(&:mobile?)
     end
