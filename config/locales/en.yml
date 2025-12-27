@@ -147,7 +147,6 @@ en:
       warning: Warning
       missing_time_zone_link: "You haven't %{link} yet!"
       chosen_a_time_zone: chosen a time zone
-      gaming: Gaming
       social_media: Social Media
       messaging: Messaging
     new:

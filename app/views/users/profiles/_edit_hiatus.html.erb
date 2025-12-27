@@ -8,7 +8,7 @@
     </strong>
     <%= t("user.edit.missing_time_zone_link",
           link: link_to(t("user.edit.chosen_a_time_zone"),
-                        edit_user_page_path(@user.username,
+                        edit_user_profile_path(@user.username,
                                             "location"))).html_safe %>
   </p>
 <% end %>

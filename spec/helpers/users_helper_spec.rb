@@ -32,7 +32,8 @@ describe UsersHelper do
 
       before do
         allow(helper).to(
-          receive(:params).and_return(controller: "users", action: "stuff")
+          receive(:params)
+            .and_return(controller: "users/lists", action: "stuff")
         )
       end
 

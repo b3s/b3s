@@ -49,7 +49,7 @@ RSpec.describe "Invites" do
 
       it "redirects to signup page with token" do
         expect(response).to redirect_to(
-          new_user_by_token_url(token: invite.token)
+          new_registration_by_token_url(token: invite.token)
         )
       end
     end
@@ -65,7 +65,7 @@ RSpec.describe "Invites" do
         expect(session[:invite_token]).to be_nil
       end
 
-      it { is_expected.to redirect_to(login_users_url) }
+      it { is_expected.to redirect_to(new_session_url) }
     end
 
     context "when invite doesn't exist" do
@@ -79,7 +79,7 @@ RSpec.describe "Invites" do
         expect(session[:invite_token]).to be_nil
       end
 
-      it { is_expected.to redirect_to(login_users_url) }
+      it { is_expected.to redirect_to(new_session_url) }
     end
   end
 

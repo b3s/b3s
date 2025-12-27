@@ -28,7 +28,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
 
       it "sets the flash" do
@@ -48,7 +48,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
 
       it "sets the flash" do
@@ -74,7 +74,7 @@ RSpec.describe "PasswordResets" do
       before { get password_reset_path }
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
 
       it "sets the flash" do
@@ -88,7 +88,7 @@ RSpec.describe "PasswordResets" do
       before { get password_reset_path, params: { token: } }
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
 
       it "sets the flash" do
@@ -100,7 +100,7 @@ RSpec.describe "PasswordResets" do
       before { get password_reset_path, params: { token: "456" } }
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
 
       it "sets the flash" do
@@ -160,7 +160,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
 
       it "sets the flash" do
@@ -181,7 +181,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
 
       it "sets the flash" do

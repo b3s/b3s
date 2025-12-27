@@ -9,7 +9,7 @@
   <%= link_to "Users", users_path %> &raquo;
   <%= profile_link(@user) %> &raquo;
   <%= link_to("Participated discussions",
-              participated_user_path(id: @user.username)) %>
+              participated_user_profile_discussions_path( @user.username)) %>
 </h2>
 
 

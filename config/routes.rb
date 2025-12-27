@@ -28,18 +28,31 @@ Rails.application.routes.draw do
         "conversations#search_posts",
         via: %i[get post]
 
-  # Users
-  resources :users, except: %i[edit show] do
-    collection do
-      get "login"
-      post "authenticate"
-      get "logout"
-      get "online"
-      get "recently_joined"
-      get "admins"
-      get "top_posters"
-      get "deactivated"
+  # Sessions
+  resource :session, only: %i[new create destroy]
+
+  # Registrations
+  resources :registrations, only: %i[new create]
+
+  controller :registrations do
+    constraints(token: %r{[^?/]+}) do
+      get "/registrations/new/:token" => :new,
+          as: :new_registration_by_token
     end
+  end
+
+  # Users
+  resources :users, only: [:index], controller: "users/lists" do
+    collection do
+      get :online
+      get :deactivated
+      get :recently_joined
+      get :admins
+      get :top_posters
+    end
+
+    resource :invites, only: %i[create destroy],
+                       controller: "users/invites"
   end
 
   resources :user_links, only: %i[index] do
@@ -48,34 +61,27 @@ Rails.application.routes.draw do
     end
   end
 
-  controller :users do
-    constraints(id: %r{[^?/]+}) do
-      post "/users/profile/:id/mute" => :mute,
-           as: :mute_user
-      post "/users/profile/:id/unmute" => :unmute,
-           as: :unmute_user
-      post "/users/profile/:id/grant_invite" => :grant_invite,
-           as: :grant_invite_user
-      post "/users/profile/:id/revoke_invites" => :revoke_invites,
-           as: :revoke_invites_user
-      get "/users/profile/:id/edit" => :edit,
-          as: :edit_user
-      get "/users/profile/:id/edit/:page" => :edit,
-          as: :edit_user_page
-      get "/users/profile/:id" => :show,
-          as: :user_profile
-      get "/users/profile/:id/discussions" => :discussions,
-          as: :discussions_user
-      get "/users/profile/:id/discussions/:page" => :discussions
-      get "/users/profile/:id/participated" => :participated,
-          as: :participated_user
-      get "/users/profile/:id/participated/:page" => :participated
-      get "/users/profile/:id/posts" => :posts,
-          as: :posts_user
-      get "/users/profile/:id/posts/:page" => :posts,
-          as: :paged_user_posts
-      get "/users/new/:token" => :new,
-          as: :new_user_by_token
+  resources(:user_profiles,
+            only: %i[show update],
+            path: "users/profile",
+            controller: "users/profiles",
+            constraints: { id: %r{[^?/]+} }) do
+    member do
+      get "edit(/:page)", action: :edit, as: :edit
+      post :mute
+      post :unmute
+    end
+
+    resources :discussions, only: :index, controller: "users/discussions" do
+      collection do
+        get :participated
+        get "participated/:page", action: :participated
+      end
+      get "/:page", action: :index, on: :collection
+    end
+
+    resources :posts, only: :index, controller: "users/posts" do
+      get "/:page", action: :index, on: :collection
     end
   end
 

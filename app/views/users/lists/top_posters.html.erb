@@ -2,7 +2,7 @@
 <% content_for(:page_title, "Top Posters") %>
 
 <div class="functions">
-  <%= render partial: "users_functions" %>
+  <%= render partial: "users/lists/functions" %>
 </div>
 
 
@@ -11,10 +11,10 @@
   <%= link_to "Top Posters", top_posters_users_path %>
 </h2>
 
-<%= render partial: "list_navigation" %>
+<%= render partial: "users/lists/navigation" %>
 
 <% if @users.length > 0 %>
-  <%= render(partial: "users_listing",
+  <%= render(partial: "users/lists/listing",
              locals: {
                users: @users,
                columns: [
