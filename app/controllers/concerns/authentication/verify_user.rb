@@ -24,7 +24,7 @@ module Authentication
     def require_user_account
       verify_user(
         user: :any,
-        redirect: login_users_url,
+        redirect: new_session_url,
         notice: "You must be logged in to do that",
         api_notice: "Authorization required"
       )
@@ -50,7 +50,7 @@ module Authentication
     #  # Require any user
     #  verify_user(
     #    user: :any,
-    #    redirect: login_users_url,
+    #    redirect: new_session_url,
     #    notice: 'You must be logged in!'
     #  )
     #

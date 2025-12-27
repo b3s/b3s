@@ -4,7 +4,7 @@ module LoginMacros
   def login_as(user)
     return unless user
 
-    post(authenticate_users_path,
+    post(session_path,
          params: { email: user.email,
                    password: user.password })
   end

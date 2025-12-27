@@ -1,0 +1,72 @@
+# frozen_string_literal: true
+
+class RegistrationsController < ApplicationController
+  before_action :find_invite, only: %i[new create]
+  before_action :check_for_expired_invite, only: %i[new create]
+  before_action :check_for_signups_allowed, only: %i[new create]
+
+  def new
+    if @invite
+      session[:invite_token] = @invite.token
+      @user = @invite.user.invitees.new
+      @user.email = @invite.email
+    else
+      @user = User.new
+    end
+  end
+
+  def create
+    @user = User.new(user_params)
+    @user.invite = @invite
+
+    if @user.save
+      finalize_successful_signup
+      redirect_to user_profile_url(@user.username)
+    else
+      flash.now[:notice] = t("signup.invalid")
+      render :new
+    end
+  end
+
+  private
+
+  def user_params
+    params.expect(
+      user: %i[username email password password_confirmation
+               realname location]
+    )
+  end
+
+  def find_invite
+    @invite = Invite.find_by(token: invite_token) if invite_token?
+  end
+
+  def invite_token
+    params[:token] || session[:invite_token]
+  end
+
+  def invite_token?
+    invite_token ? true : false
+  end
+
+  def finalize_successful_signup
+    Mailer.new_user(@user, new_session_url).deliver_later if @user.email?
+    session.delete(:invite_token)
+    authenticate!(@user)
+  end
+
+  def check_for_expired_invite
+    return unless @invite&.expired?
+
+    session.delete(:invite_token)
+    flash[:notice] = t("invite.expired")
+    redirect_to new_session_url
+  end
+
+  def check_for_signups_allowed
+    return unless !B3S.config.signups_allowed && User.any? && !@invite
+
+    flash[:notice] = t("signup.not_allowed")
+    redirect_to new_session_url
+  end
+end

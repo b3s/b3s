@@ -22,12 +22,12 @@ class InvitesController < ApplicationController
     if expire_invite(@invite)
       flash[:notice] ||= t("invite.expired")
     elsif @invite
-      redirect_to new_user_by_token_url(token: @invite.token)
+      redirect_to new_registration_by_token_url(token: @invite.token)
       return
     else
       flash[:notice] ||= t("invite.invalid")
     end
-    redirect_to login_users_url
+    redirect_to new_session_url
   end
 
   def new

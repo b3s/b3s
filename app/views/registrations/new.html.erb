@@ -5,7 +5,7 @@
   <% if current_user? || B3S.public_browsing? -%>
     <%= link_to "Users", users_path %> &raquo;
   <% end -%>
-  <%= link_to t("user.sign_up"), new_user_path %>
+  <%= link_to t("user.sign_up"), new_registration_path %>
 </h2>
 
 
@@ -17,8 +17,9 @@
 
 <%# Normal signup %>
 <div id="password">
-  <%= form_for @user, builder: B3SFormBuilder do |f| %>
-    <%= render partial: "signup_form", locals: { f: f } %>
+  <%= form_for @user, url: registrations_path,
+               builder: B3SFormBuilder do |f| %>
+    <%= render partial: "form", locals: { f: f } %>
     <p>
       <button type="submit">
         <%= t("user.sign_up") %>

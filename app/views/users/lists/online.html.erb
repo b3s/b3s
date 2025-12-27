@@ -2,7 +2,7 @@
 <% content_for(:page_title, "Online Users") %>
 
 <div class="functions">
-  <%= render partial: "users_functions" %>
+  <%= render partial: "users/lists/functions" %>
 </div>
 
 <h2 class="section">
@@ -10,7 +10,7 @@
   <%= link_to "Online", online_users_path %>
 </h2>
 
-<%= render partial: "list_navigation" %>
+<%= render partial: "users/lists/navigation" %>
 
 <% if @users.length > 0 %>
   <div class="content">
@@ -22,7 +22,7 @@
       <% end %>
     </p>
   </div>
-  <%= render(partial: "users_listing",
+  <%= render(partial: "users/lists/listing",
              locals: {
                users: @users,
                columns: [:username, :location, :member_since, :status] }) %>

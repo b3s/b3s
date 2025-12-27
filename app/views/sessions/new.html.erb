@@ -2,12 +2,12 @@
 <% content_for(:page_title, "Login") %>
 
 <h2 class="section">
-  <%= link_to "Login", login_users_path %>
+  <%= link_to "Login", new_session_path %>
 </h2>
 
 <div id="login">
 
-  <%= form_tag(authenticate_users_path,
+  <%= form_tag(session_path,
                class: "form username_and_password") do %>
     <fieldset>
       <label>

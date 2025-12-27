@@ -14,11 +14,11 @@
         <br />
         <% if current_user.muted?(@user) %>
           <%= link_to("Unmute user",
-                      unmute_user_path(id: @user.username),
+                      unmute_user_profile_path(@user.username),
                       method: :post) %>
         <% else %>
           <%= link_to("Mute user",
-                      mute_user_path(id: @user.username),
+                      mute_user_profile_path(@user.username),
                       method: :post) %>
         <% end %>
       </p>
@@ -98,7 +98,7 @@
       <th>Discussions</th>
       <td>
         <%= link_to(@user.discussions.viewable_by(current_user).count,
-                    discussions_user_path(id: @user.username)) %>
+                    user_profile_discussions_path(@user.username)) %>
       </td>
     </tr>
 
@@ -106,7 +106,7 @@
       <th>Participated</th>
       <td>
         <%= link_to(@user.participated_discussions.viewable_by(current_user).count,
-                    participated_user_path(id: @user.username)) %>
+                    participated_user_profile_discussions_path(@user.username)) %>
       </td>
     </tr>
 

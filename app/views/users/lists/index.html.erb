@@ -2,7 +2,7 @@
 <% content_for(:page_title, "Users") %>
 
 <div class="functions">
-  <%= render partial: "users_functions" %>
+  <%= render partial: "users/lists/functions" %>
 </div>
 
 
@@ -10,6 +10,6 @@
   <%= link_to "Users", users_path %>
 </h2>
 
-<%= render partial: "list_navigation" %>
+<%= render partial: "users/lists/navigation" %>
 
-<%= render partial: "users_listing", locals: { users: @users } %>
+<%= render partial: "users/lists/listing", locals: { users: @users } %>

@@ -72,8 +72,9 @@
         <% end %>
         <li>
           <%= link_to("Log out",
-                      logout_users_path,
-                      confirm: "Are you sure you want to log out?") %>
+                      session_path,
+                      method: :delete,
+                      data: { confirm: "Are you sure you want to log out?" }) %>
         </li>
       <% end %>
       <li class="search">

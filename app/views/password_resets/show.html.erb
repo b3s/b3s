@@ -2,7 +2,7 @@
 <% content_for(:page_title, "Password Reset") %>
 
 <h2 class="section">
-  <%= link_to "Login", login_users_path %> &raquo;
+  <%= link_to "Login", new_session_path %> &raquo;
   <%= link_to "Password Reset", password_reset_path(token: @token) %>
 </h2>
 
@@ -21,7 +21,7 @@
         Change Password
       </button>
       or
-      <%= link_to "Return to login screen", login_users_path %>
+      <%= link_to "Return to login screen", new_session_path %>
     </fieldset>
   <% end %>
 </div>
