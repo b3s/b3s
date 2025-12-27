@@ -7,7 +7,7 @@ module SystemHelpers
   end
 
   def login_with(email, password)
-    visit login_users_path
+    visit new_session_path
     fill_in "email", with: email
     fill_in "password", with: password
     click_on "Sign in"

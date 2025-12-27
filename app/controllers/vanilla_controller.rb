@@ -20,6 +20,6 @@ class VanillaController < ApplicationController
   # /vanilla/account.php?u=4
   def user
     headers["Status"] = "301 Moved Permanently"
-    redirect_to user_profile_url(id: params[:u])
+    redirect_to user_profile_url(params[:u])
   end
 end

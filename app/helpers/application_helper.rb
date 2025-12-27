@@ -32,7 +32,7 @@ module ApplicationHelper
       link_text ||= user.username
       link_to(
         link_text,
-        user_profile_path(id: user.username),
+        user_profile_path(user.username),
         { title: "#{possessive(user.username)} profile" }.merge(options)
       )
     else

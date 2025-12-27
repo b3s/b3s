@@ -4,41 +4,41 @@
 <h2 class="section">
   <%= link_to "Users", users_path %> &raquo;
   <%= profile_link(@user) %> &raquo;
-  <%= link_to "Edit", edit_user_path(id: @user.username) %>
+  <%= link_to "Edit", edit_user_profile_path( @user.username) %>
 </h2>
 
 <ul class="topTabs">
   <li class="tab<%= " active" if @page == "info" %>">
     <%= link_to(t("user.edit.tabs.info"),
-                edit_user_page_path(@user.username, "info")) %>
+                edit_user_profile_path(@user.username, page: "info")) %>
   </li>
   <li class="tab<%= " active" if @page == "links" %>">
     <%= link_to(t("user.edit.tabs.links"),
-                edit_user_page_path(@user.username, "links")) %>
+                edit_user_profile_path(@user.username, page: "links")) %>
   </li>
   <li class="tab<%= " active" if @page == "location" %>">
     <%= link_to(t("user.edit.tabs.location"),
-                edit_user_page_path(@user.username, "location")) %>
+                edit_user_profile_path(@user.username, page: "location")) %>
   </li>
   <li class="tab<%= " active" if @page == "settings" %>">
     <%= link_to(t("user.edit.tabs.settings"),
-                edit_user_page_path(@user.username, "settings")) %>
+                edit_user_profile_path(@user.username, page: "settings")) %>
   </li>
   <% if current_user == @user %>
     <li class="tab<%= " active" if @page == "hiatus" %>">
       <%= link_to(t("user.edit.tabs.hiatus"),
-                  edit_user_page_path(@user.username, "hiatus")) %>
+                  edit_user_profile_path(@user.username, page: "hiatus")) %>
     </li>
   <% end %>
   <% if current_user.user_admin? %>
     <li class="tab<%= " active" if @page == "admin" %>">
       <%= link_to(t("user.edit.tabs.admin"),
-                  edit_user_page_path(@user.username, "admin")) %>
+                  edit_user_profile_path(@user.username, page: "admin")) %>
     </li>
   <% end %>
 </ul>
 
-<%= form_for @user, builder: B3SFormBuilder, multipart: true do |f| %>
+<%= form_for @user, url: user_profile_path(@user.username), builder: B3SFormBuilder, multipart: true do |f| %>
   <%= hidden_field_tag :page, @page %>
   <%= render partial: "edit_#{@page}", locals: {f: f} %>
   <p>

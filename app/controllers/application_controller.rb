@@ -73,7 +73,8 @@ class ApplicationController < ActionController::Base
 
   def set_section
     mapping = {
-      UsersController => :users,
+      Users::ListsController => :users,
+      Users::ProfilesController => :users,
       InvitesController => :invites,
       ConversationsController => :conversations
     }

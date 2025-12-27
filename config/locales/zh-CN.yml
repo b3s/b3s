@@ -91,7 +91,6 @@ zh-CN:
       warning: 警告
       missing_time_zone_link: "你目前还没有访问 %{link} ！"
       chosen_a_time_zone: 选择一个时区
-      gaming: 游戏
       social_media: 社交媒体
       messaging: 消息
     new:

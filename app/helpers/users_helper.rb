@@ -8,7 +8,7 @@ module UsersHelper
   end
 
   def current_users_tab?(options)
-    controller = options[:controller] || "users"
+    controller = options[:controller] || "users/lists"
     return false unless controller == params[:controller]
 
     (options[:action] && options[:action] == params[:action]) ||

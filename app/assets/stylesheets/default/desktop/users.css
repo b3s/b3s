@@ -35,13 +35,6 @@ span.admin {
   color: #062;
 }
 
-.users_list {
-  .gaming-avatar {
-    margin-bottom: -7px;
-    margin-top: -7px;
-  }
-}
-
 #userinfo {
   width: 425px;
   float: left;
