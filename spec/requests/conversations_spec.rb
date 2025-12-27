@@ -29,9 +29,7 @@ RSpec.describe "Conversations" do
   end
 
   describe "GET /conversations/:id" do
-    before do
-      get conversation_path(conversation)
-    end
+    before { get conversation_path(conversation) }
 
     it { is_expected.to have_http_status(:success) }
 
@@ -111,13 +109,12 @@ RSpec.describe "Conversations" do
 
   describe "POST /conversations" do
     let(:recipient) { create(:user) }
+    let(:conversation_params) { { title: "Test", body: "Test" } }
 
     before do
       post conversations_path,
-           params: {
-             recipient_id: recipient.id,
-             conversation: { title: "Test", body: "Test" }
-           }
+           params: { recipient_id: recipient.id,
+                     conversation: conversation_params }
     end
 
     it_behaves_like "authentication is required"
@@ -128,6 +125,34 @@ RSpec.describe "Conversations" do
 
     it "adds the recipient to the conversation" do
       expect(Conversation.last.participants).to include(recipient)
+    end
+
+    context "with invalid params" do
+      let(:conversation_params) { { title: "", body: "" } }
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "sets the flash" do
+        expect(flash.now[:notice]).to eq(I18n.t("conversation.invalid"))
+      end
+
+      it "re-renders the form" do
+        expect(response.body).to include("New")
+      end
+
+      it "does not create a conversation" do
+        expect(Conversation.count).to eq(0)
+      end
+    end
+
+    context "with missing title" do
+      let(:conversation_params) { { title: "", body: "Test body" } }
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "does not create a conversation" do
+        expect(Conversation.count).to eq(0)
+      end
     end
   end
 
@@ -158,5 +183,120 @@ RSpec.describe "Conversations" do
     end
 
     it { is_expected.to redirect_to(conversation_url(conversation, page: 2)) }
+  end
+
+  describe "POST /conversations/:id/invite_participant" do
+    let(:users) { [create(:user)] }
+
+    before do
+      post invite_participant_conversation_path(
+        conversation,
+        username: users.map(&:username).join(",")
+      )
+    end
+
+    it_behaves_like "authentication is required"
+
+    it "redirects to the conversation" do
+      expect(response).to redirect_to(conversation_url(conversation))
+    end
+
+    it "adds the user to the conversation" do
+      expect(conversation.reload.participants).to include(users.first)
+    end
+
+    context "with multiple users (CSV)" do
+      let(:users) { create_list(:user, 2) }
+
+      it "adds the users to the conversation" do
+        expect(conversation.reload.participants).to include(*users)
+      end
+    end
+
+    context "with non-existent username" do
+      let(:users) { [double(username: "nonexistent")] }
+
+      it "redirects without error" do
+        expect(response).to redirect_to(conversation_url(conversation))
+      end
+    end
+
+    context "with empty username" do
+      let(:users) { [] }
+
+      it "redirects without error" do
+        expect(response).to redirect_to(conversation_url(conversation))
+      end
+    end
+
+    context "with already existing participant" do
+      let(:users) { [participant] }
+
+      it "redirects without error" do
+        expect(response).to redirect_to(conversation_url(conversation))
+      end
+
+      it "does not duplicate participant" do
+        expect(
+          conversation.reload.participants.where(id: participant.id).count
+        ).to eq(1)
+      end
+    end
+  end
+
+  describe "GET /conversations/:id/search_posts" do
+    let(:query) { nil }
+    let!(:matching_post) do
+      create(:post, exchange: conversation, user: participant,
+                    body: "findme unique content")
+    end
+
+    before { get search_posts_conversation_path(conversation, q: query) }
+
+    it_behaves_like "authentication is required"
+
+    context "with search query" do
+      let(:query) { "findme" }
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "includes matching posts in the response" do
+        expect(response.body).to include(matching_post.body)
+      end
+    end
+
+    context "with empty query" do
+      let(:query) { "" }
+
+      it { is_expected.to have_http_status(:success) }
+    end
+
+    context "when conversation does not exist" do
+      before { get search_posts_conversation_path(999_999, q: "test") }
+
+      it { is_expected.to have_http_status(:not_found) }
+    end
+  end
+
+  describe "GET /conversations/:id/mark_as_read" do
+    let(:headers) { { "X-Requested-With": "XMLHttpRequest" } }
+
+    context "with conversation" do
+      before { get mark_as_read_conversation_path(conversation), headers: }
+
+      it_behaves_like "authentication is required"
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "returns OK response" do
+        expect(response.body).to include("OK")
+      end
+    end
+
+    context "when conversation does not exist" do
+      before { get mark_as_read_conversation_path(999_999), headers: }
+
+      it { is_expected.to have_http_status(:not_found) }
+    end
   end
 end

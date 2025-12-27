@@ -288,4 +288,217 @@ RSpec.describe "Users" do
       it { is_expected.to have_http_status(:not_found) }
     end
   end
+
+  describe "GET /users/logout" do
+    before do
+      login_as(user)
+      get logout_users_path
+    end
+
+    it "sets the flash" do
+      expect(flash[:notice]).to match(/logged out/)
+    end
+
+    it { is_expected.to redirect_to(login_users_url) }
+  end
+
+  describe "GET /users/recently_joined" do
+    before { get recently_joined_users_path }
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes users in the response" do
+      expect(response.body).to include(user.username)
+    end
+  end
+
+  describe "GET /users/recently_joined.json" do
+    before { get recently_joined_users_path(format: :json) }
+
+    it "renders JSON" do
+      expect(response.parsed_body).to be_a(Array)
+    end
+  end
+
+  describe "GET /users/online" do
+    before { get online_users_path }
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes online users heading in the response" do
+      expect(response.body).to include("Online")
+    end
+  end
+
+  describe "GET /users/online.json" do
+    before { get online_users_path(format: :json) }
+
+    it "renders JSON" do
+      expect(response.parsed_body).to be_a(Array)
+    end
+  end
+
+  describe "GET /users/admins" do
+    before { get admins_users_path }
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes admins heading in the response" do
+      expect(response.body).to include("Admins")
+    end
+  end
+
+  describe "GET /users/admins.json" do
+    before { get admins_users_path(format: :json) }
+
+    it "renders JSON" do
+      expect(response.parsed_body).to be_a(Array)
+    end
+  end
+
+  describe "GET /users/top_posters" do
+    before { get top_posters_users_path }
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes top posters heading in the response" do
+      expect(response.body).to include("posters")
+    end
+  end
+
+  describe "GET /users/top_posters.json" do
+    before { get top_posters_users_path(format: :json) }
+
+    it "renders JSON" do
+      expect(response.parsed_body).to be_a(Array)
+    end
+  end
+
+  describe "GET /users/profile/:id/discussions" do
+    let(:target_user) { create(:user) }
+
+    let!(:discussion) do
+      create(:discussion, poster: target_user, title: "User Discussion")
+    end
+
+    before { get discussions_user_path(target_user.username) }
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes the user's discussions in the response" do
+      expect(response.body).to include(discussion.title)
+    end
+  end
+
+  describe "GET /users/profile/:id/discussions.json" do
+    let(:target_user) { create(:user) }
+
+    before { get discussions_user_path(target_user.username, format: :json) }
+
+    it "renders JSON" do
+      expect(response.parsed_body).to be_a(Array)
+    end
+  end
+
+  describe "GET /users/profile/:id/participated" do
+    let(:target_user) { create(:user) }
+    let(:discussion) { create(:discussion) }
+
+    before do
+      create(:post, user: target_user, exchange: discussion)
+      get participated_user_path(target_user.username)
+    end
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes participated discussions in the response" do
+      expect(response.body).to include(discussion.title)
+    end
+  end
+
+  describe "GET /users/profile/:id/participated.json" do
+    let(:target_user) { create(:user) }
+
+    before { get participated_user_path(target_user.username, format: :json) }
+
+    it "renders JSON" do
+      expect(response.parsed_body).to be_a(Array)
+    end
+  end
+
+  describe "GET /users/profile/:id/posts" do
+    let(:target_user) { create(:user) }
+    let!(:user_post) do
+      create(:post, user: target_user, body: "User post content")
+    end
+
+    before { get posts_user_path(target_user.username) }
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes the user's posts in the response" do
+      expect(response.body).to include(user_post.body)
+    end
+  end
+
+  describe "POST /users/profile/:id/mute" do
+    let(:target_user) { create(:user) }
+
+    before { post mute_user_path(target_user.username) }
+
+    it_behaves_like "authentication is required"
+
+    it "redirects to the user profile" do
+      expect(response).to redirect_to(user_profile_url(target_user.username))
+    end
+
+    it "sets the flash message" do
+      expect(flash[:notice]).to match(/muted/)
+    end
+
+    it "creates a user_mute record" do
+      expect(user.muted?(target_user)).to be(true)
+    end
+  end
+
+  describe "POST /users/profile/:id/unmute" do
+    let(:target_user) { create(:user) }
+
+    before { post unmute_user_path(target_user.username) }
+
+    it_behaves_like "authentication is required"
+
+    context "when user has muted the target" do
+      before do
+        user.mute!(target_user)
+        post unmute_user_path(target_user.username)
+      end
+
+      it "redirects to the user profile" do
+        expect(response).to redirect_to(user_profile_url(target_user.username))
+      end
+
+      it "sets the flash message" do
+        expect(flash[:notice]).to match(/unmuted/)
+      end
+
+      it "destroys the user_mute record" do
+        expect(user.reload.muted?(target_user)).to be(false)
+      end
+    end
+  end
 end

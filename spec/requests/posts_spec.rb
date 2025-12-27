@@ -238,4 +238,159 @@ RSpec.describe "Posts" do
       it { is_expected.to have_http_status(:not_found) }
     end
   end
+
+  describe "GET /discussions/:discussion_id/posts/count" do
+    context "with posts" do
+      before do
+        create_list(:post, 2, exchange:)
+        get count_discussion_posts_path(exchange, format: :json)
+      end
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "returns the post count as JSON" do
+        expect(response.parsed_body).to eq("posts_count" => 3)
+      end
+    end
+
+    context "when discussion does not exist" do
+      before { get count_discussion_posts_path(999_999, format: :json) }
+
+      it { is_expected.to have_http_status(:not_found) }
+    end
+  end
+
+  describe "GET /discussions/:discussion_id/posts/since/:index" do
+    context "with posts" do
+      let!(:posts) { create_list(:post, 5, exchange:) }
+
+      before { get "/discussions/#{exchange.id}/posts/since/2" }
+
+      it_behaves_like "authentication is required"
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "returns posts starting from the offset" do
+        expect(response.body).to include(posts[2].body)
+      end
+    end
+
+    context "when discussion does not exist" do
+      before { get "/discussions/999999/posts/since/0" }
+
+      it { is_expected.to have_http_status(:not_found) }
+    end
+  end
+
+  describe "GET /conversations/:conversation_id/posts/since/:index" do
+    context "when conversation is not viewable" do
+      let(:exchange) { create(:conversation) }
+
+      before { get "/conversations/#{exchange.id}/posts/since/0" }
+
+      it "redirects to root" do
+        expect(response).to redirect_to(root_url)
+      end
+
+      it "sets the flash" do
+        expect(flash[:notice]).to eq(I18n.t("exchange.not_viewable"))
+      end
+    end
+  end
+
+  describe "GET /discussions/:discussion_id/posts/:id/edit" do
+    let(:existing_post) { create(:post, exchange:) }
+    let(:user) { existing_post.user }
+
+    before { get edit_discussion_post_path(exchange, existing_post) }
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes the post body in the response" do
+      expect(response.body).to include(existing_post.body)
+    end
+
+    context "when user is not the post owner" do
+      let(:user) { create(:user) }
+
+      it "redirects to the discussion" do
+        expect(response).to redirect_to(
+          discussion_url(exchange, page: exchange.last_page)
+        )
+      end
+
+      it "sets the flash" do
+        expect(flash[:notice]).to eq(I18n.t("post.not_editable"))
+      end
+    end
+
+    context "when user is a moderator" do
+      let(:user) { create(:user, :moderator) }
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "allows access to the edit form" do
+        expect(response.body).to include(existing_post.body)
+      end
+    end
+
+    context "when post does not exist" do
+      before { get edit_discussion_post_path(exchange, 999_999) }
+
+      it { is_expected.to have_http_status(:not_found) }
+    end
+  end
+
+  describe "POST /discussions/:discussion_id/posts/preview" do
+    let(:post_params) { { body: "preview text", format: "html" } }
+
+    before do
+      post preview_discussion_posts_path(exchange),
+           params: { post: post_params }
+    end
+
+    it_behaves_like "authentication is required"
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "renders the preview" do
+      expect(response.body).to include("preview text")
+    end
+
+    context "with invalid URI in body" do
+      let(:post_params) { { body: "http://[invalid", format: "html" } }
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "renders the preview despite URI error" do
+        expect(response.body).to be_present
+      end
+    end
+  end
+
+  describe "GET /posts/search" do
+    context "without query" do
+      before { get search_posts_path }
+
+      it_behaves_like "authentication is required"
+
+      it { is_expected.to have_http_status(:success) }
+
+      it "renders the search page" do
+        expect(response.body).to include("Searching posts")
+      end
+    end
+
+    context "with search query" do
+      let!(:existing_post) { create(:post, body: "findme unique content") }
+
+      before { get search_posts_path, params: { q: "findme" } }
+
+      it "renders search results page" do
+        expect(response.body).to include(existing_post.body)
+      end
+    end
+  end
 end
