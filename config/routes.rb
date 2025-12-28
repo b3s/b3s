@@ -10,23 +10,13 @@ Rails.application.routes.draw do
   resources :uploads
 
   # Search discussions
-  get "/search/:query.:format" => "discussions#search",
-      as: :formatted_search_with_query
-  get "/search/:query" => "discussions#search",
-      as: :search_with_query
-  match "/search" => "discussions#search",
-        as: :search, via: %i[get post]
+  get "/search/:query.:format" => "discussions#search", as: :formatted_search_with_query
+  get "/search/:query" => "discussions#search", as: :search_with_query
+  match "/search" => "discussions#search", as: :search, via: %i[get post]
 
   # Search posts
   get "/posts/search/:query" => "posts#search"
-  match "/posts/search" => "posts#search",
-        as: :search_posts, via: %i[get post]
-
-  match "/discussions/:id/search_posts/:query" => "discussions#search_posts",
-        via: %i[get post]
-  match "/conversations/:id/search_posts/:query" =>
-        "conversations#search_posts",
-        via: %i[get post]
+  match "/posts/search" => "posts#search", as: :search_posts, via: %i[get post]
 
   # Sessions
   resource :session, only: %i[new create destroy]
@@ -36,29 +26,25 @@ Rails.application.routes.draw do
 
   controller :registrations do
     constraints(token: %r{[^?/]+}) do
-      get "/registrations/new/:token" => :new,
-          as: :new_registration_by_token
+      get "/registrations/new/:token" => :new, as: :new_registration_by_token
     end
   end
 
   # Users
   resources :users, only: [:index], controller: "users/lists" do
     collection do
-      get :online
-      get :deactivated
-      get :recently_joined
-      get :admins
-      get :top_posters
+      get "online"
+      get "deactivated"
+      get "recently_joined"
+      get "admins"
+      get "top_posters"
     end
 
-    resource :invites, only: %i[create destroy],
-                       controller: "users/invites"
+    resource :invites, only: %i[create destroy], controller: "users/invites"
   end
 
   resources :user_links, only: %i[index] do
-    collection do
-      get "all"
-    end
+    get "all", on: :collection
   end
 
   resources(:user_profiles,
@@ -68,16 +54,16 @@ Rails.application.routes.draw do
             constraints: { id: %r{[^?/]+} }) do
     member do
       get "edit(/:page)", action: :edit, as: :edit
-      post :mute
-      post :unmute
+      post "mute"
+      post "unmute"
     end
 
     resources :discussions, only: :index, controller: "users/discussions" do
       collection do
-        get :participated
+        get "participated"
         get "participated/:page", action: :participated
+        get "/:page", action: :index
       end
-      get "/:page", action: :index, on: :collection
     end
 
     resources :posts, only: :index, controller: "users/posts" do
@@ -88,90 +74,81 @@ Rails.application.routes.draw do
   resource :password_reset, only: %i[new create show update]
 
   # Discussions
-  controller :discussions do
-    get "/discussions/:id(/:page)(.:format)" => :show,
-        as: :discussion,
-        constraints: { id: %r{\d[^/.]*}, page: /\d+/ }
-    get "/discussions/popular/:days/:page" => :popular
-    get "/discussions/popular/:days" => :popular
-    get "/discussions/archive/:page" => :index, as: :paged_discussions
-  end
+  get "/discussions/:id(/:page)(.:format)" => "discussions#show",
+      as: :discussion,
+      constraints: { id: %r{\d[^/.]*}, page: /\d+/ }
 
-  # Conversations
-  controller :conversations do
-    get "/conversations/contact_moderators" => :new,
-        defaults: { moderators: true },
-        as: :contact_moderators
-    get "/conversations/:id(/:page)(.:format)" => :show,
-        as: :conversation,
-        constraints: { id: %r{\d[^/.]*}, page: /\d+/ }
-    get "/conversations/new/with/:username" => :new,
-        as: :new_conversation_with
-    get "/conversations/archive/:page" => :index,
-        as: :paged_conversations
-  end
+  resources :discussions, except: [:show] do
+    member do
+      get "mark_as_read"
+    end
 
-  %i[discussions conversations].each do |resource_type|
-    resources resource_type, except: [:show] do
-      member do
-        get "search_posts"
-        get "mark_as_read"
-        if resource_type == :discussions
-          get "follow"
-          get "unfollow"
-          get "favorite"
-          get "unfavorite"
-          get "hide"
-          get "unhide"
-        end
-        if resource_type == :conversations
-          post "invite_participant"
-          get "mute"
-          get "unmute"
-        end
-      end
+    collection do
+      get "participated"
+      get "search"
+      get "following"
+      get "favorites"
+      get "hidden"
+      get "popular"
+      get "popular/:days(/:page)", action: :popular, as: :popular_days
+      get "archive/:page", action: :index, as: :paged
+    end
 
+    # Relationship management
+    resource :relationship, only: [], controller: "discussion_relationships" do
+      post :follow
+      delete :follow, action: :unfollow, as: :unfollow
+      post :favorite
+      delete :favorite, action: :unfavorite, as: :unfavorite
+      post :hide
+      delete :hide, action: :unhide, as: :unhide
+    end
+
+    # Posts
+    resources :posts, only: %i[edit create update], controller: "exchange_posts" do
       collection do
-        if resource_type == :discussions
-          get "participated"
-          get "search"
-          get "following"
-          get "favorites"
-          get "hidden"
-          get "popular"
-        end
-      end
-
-      # Posts
-      resources :posts, only: %i[edit create update] do
-        collection do
-          get "count"
-          get "since"
-          post "preview"
-        end
+        get "count"
+        get "since/:index", action: :since, as: :since
+        post "preview"
+        get "search"
       end
     end
   end
 
-  controller :conversations do
-    delete "/conversations/:id/remove_participant(/:username)" =>
-      :remove_participant,
-           as: :remove_participant_conversation
-  end
+  # Conversations
+  get "/conversations/:id(/:page)(.:format)" => "conversations#show",
+      as: :conversation,
+      constraints: { id: %r{\d[^/.]*}, page: /\d+/ }
 
-  controller :posts do
-    get "/discussions/:discussion_id/posts/since/:index" => :since
-    get "/conversations/:conversation_id/posts/since/:index" => :since
+  resources :conversations, except: [:show] do
+    member do
+      get "mark_as_read"
+      get "mute"
+      get "unmute"
+    end
+
+    collection do
+      get "contact_moderators", action: :new, defaults: { moderators: true }
+      get "new/with/:username", action: :new, as: :new_with
+      get "archive/:page", action: :index, as: :paged
+    end
+
+    resources :participants, only: %i[create destroy], controller: "conversation_participants"
+
+    resources :posts, only: %i[edit create update], controller: "exchange_posts" do
+      collection do
+        get "count"
+        get "since/:index", action: :since, as: :since
+        post "preview"
+        get "search"
+      end
+    end
   end
 
   # Invites
   resources :invites do
-    member do
-      get :accept
-    end
-    collection do
-      get :all
-    end
+    get "all", on: :collection
+    get "accept", on: :member
   end
 
   namespace :admin do
@@ -182,8 +159,7 @@ Rails.application.routes.draw do
   # Help pages
   get "help" => "help#index", as: :help
   get "help/keyboard" => "help#keyboard", as: :keyboard_help
-  get "help/code-of-conduct" => "help#code_of_conduct",
-      as: :code_of_conduct_help
+  get "help/code-of-conduct" => "help#code_of_conduct", as: :code_of_conduct_help
 
   # Vanilla redirects
   controller :vanilla do

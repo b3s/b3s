@@ -20,7 +20,7 @@
   </div>
   <%= react_component(
     "InviteParticipant", {
-      url: invite_participant_conversation_path(@exchange)
+      url: conversation_participants_path(@exchange)
     }
   ) %>
 <% end %>
@@ -35,9 +35,9 @@
     <% end %>
     <% if @exchange.removeable?(current_user) %>
       <%= link_to("Remove conversation",
-                  remove_participant_conversation_path(
+                  conversation_participant_path(
                     @exchange,
-                    username: current_user.username
+                    current_user.username
                   ),
                   method: :delete,
                   data: {

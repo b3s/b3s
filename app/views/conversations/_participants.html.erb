@@ -5,9 +5,9 @@
       <%= profile_link(participant) %>
       <% if exchange.removeable_by?(participant, current_user) %>
         <%= link_to("Remove",
-                    remove_participant_conversation_path(
+                    conversation_participant_path(
                       exchange,
-                      username: participant.username
+                      participant.username
                     ),
                     class: "remove-participant",
                     method: :delete,

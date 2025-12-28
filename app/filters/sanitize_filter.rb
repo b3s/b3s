@@ -49,9 +49,7 @@ class SanitizeFilter < Filter
     parser.search("*").each do |elem|
       elem.attributes.each do |name, a|
         # XSS fix
-        if a.value && a.value.downcase.gsub(/\\*/, "") =~ /^\s*javascript:/
-          elem.remove_attribute(name)
-        end
+        elem.remove_attribute(name) if a.value && a.value.downcase.gsub(/\\*/, "") =~ /^\s*javascript:/
         # Strip out event handlers
         elem.remove_attribute(name) if /^on/.match?(name.downcase)
       end
@@ -85,9 +83,7 @@ class SanitizeFilter < Filter
   # is present.
   def change_allowscriptaccess_attribute_on(element)
     element.attributes.each_key do |name|
-      if name.downcase.match?(/^allowscriptaccess/)
-        element.set_attribute name, "sameDomain"
-      end
+      element.set_attribute name, "sameDomain" if name.downcase.match?(/^allowscriptaccess/)
     end
   end
 

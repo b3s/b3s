@@ -80,8 +80,8 @@ describe LayoutHelper do
         expect(options).to eq([["Discussions", helper.search_path],
                                ["Posts", helper.search_posts_path],
                                ["This discussion",
-                                helper.polymorphic_path([:search_posts,
-                                                         exchange])]])
+                                helper.polymorphic_path([:search, exchange,
+                                                         :posts])]])
       end
     end
   end

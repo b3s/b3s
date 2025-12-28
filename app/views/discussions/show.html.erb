@@ -19,32 +19,32 @@
 
     <% if current_user.hidden?(@exchange) -%>
       <%= link_to("Unhide",
-                  unhide_discussion_path(@exchange,
-                                         page: @posts.current_page)) %>
+                  unhide_discussion_relationship_path(@exchange, page: @posts.current_page),
+                  method: :delete) %>
     <% else %>
       <%= link_to("Hide",
-                  hide_discussion_path(@exchange,
-                                       page: @posts.current_page)) %>
+                  hide_discussion_relationship_path(@exchange, page: @posts.current_page),
+                  method: :post) %>
     <% end %> /
 
     <% if current_user.following?(@exchange) -%>
       <%= link_to("Stop following",
-                  unfollow_discussion_path(@exchange,
-                                           page: @posts.current_page)) %>
+                  unfollow_discussion_relationship_path(@exchange, page: @posts.current_page),
+                  method: :delete) %>
     <% else %>
       <%= link_to("Follow",
-                  follow_discussion_path(@exchange,
-                                         page: @posts.current_page)) %>
+                  follow_discussion_relationship_path(@exchange, page: @posts.current_page),
+                  method: :post) %>
     <% end %> /
 
     <% if current_user.favorite?(@exchange) %>
       <%= link_to("Remove Favorite",
-                  unfavorite_discussion_path(@exchange,
-                                             page: @posts.current_page)) %>
+                  unfavorite_discussion_relationship_path(@exchange, page: @posts.current_page),
+                  method: :delete) %>
     <% else %>
       <%= link_to("Favorite",
-                  favorite_discussion_path(@exchange,
-                                           page: @posts.current_page)) %>
+                  favorite_discussion_relationship_path(@exchange, page: @posts.current_page),
+                  method: :post) %>
     <% end %>
   <% end %>
 </div>

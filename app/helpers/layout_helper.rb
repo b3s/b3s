@@ -25,7 +25,7 @@ module LayoutHelper
                ["Posts", search_posts_path]]
     if exchange&.id
       options << ["This #{exchange.type.downcase}",
-                  polymorphic_path([:search_posts, exchange])]
+                  polymorphic_path([:search, exchange, :posts])]
     end
     options
   end
@@ -34,9 +34,7 @@ module LayoutHelper
     section = options[:section] || name.downcase.to_sym
 
     classes = [section.to_s] + Array(options[:class])
-    if respond_to?(:current_section) && section == current_section
-      classes << "current"
-    end
+    classes << "current" if respond_to?(:current_section) && section == current_section
 
     tag.li(link_to(name, url, id: options[:id] || "#{section}_link"),
            class: classes)
