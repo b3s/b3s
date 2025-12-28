@@ -4,7 +4,7 @@
 <h2 class="section">
   <%= link_to "Users", users_path %> &raquo;
   <%= profile_link(@user) %> &raquo;
-  <%= link_to "Posts", posts_user_path(id: @user.username) %>
+  <%= link_to "Posts", user_profile_posts_path( @user.username) %>
 </h2>
 
 <% if @posts %>

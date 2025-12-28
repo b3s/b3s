@@ -4,9 +4,9 @@
 <% if current_user? %>
   <div class="functions">
     <% if @user == current_user %>
-      <%= link_to "Edit your profile", edit_user_path(id: @user.username) %>
+      <%= link_to "Edit your profile", edit_user_profile_path( @user.username) %>
     <% elsif current_user.user_admin? %>
-      <%= link_to "Edit", edit_user_path(id: @user.username) %> /
+      <%= link_to "Edit", edit_user_profile_path( @user.username) %> /
     <% end %>
     <% unless @user == current_user %>
       <%= link_to("Start a conversation",
@@ -59,23 +59,22 @@
     </div>
   <% end %>
 
-  <% if !B3S.config.signups_allowed && current_user? &&
-    current_user.user_admin? && !@user.user_admin? %>
+  <% if !B3S.config.signups_allowed && current_user? && current_user.user_admin? && !@user.user_admin? %>
     <p class="grant_invites">
       <strong>
         Invites:
       </strong>
       <%= @user.available_invites %> &ndash;
       <%= link_to("Grant one",
-                  grant_invite_user_path(id: @user.username),
+                  user_invites_path(user_id: @user.username),
                   method: :post) %>
       or
       <%= link_to("revoke all",
-                  revoke_invites_user_path(id: @user.username),
-                  method: :post,
+                  user_invites_path(user_id: @user.username),
+                  method: :delete,
                   data: {
                     confirm: "Are you sure you want to revoke all invites?"
-      }) %>
+                  }) %>
       <br />
     </p>
   <% end %>
@@ -83,20 +82,20 @@
   <p class="posts_and_discussions">
     <% if @user.discussions.viewable_by(current_user).any? %>
       <%= link_to("View discussions",
-                  discussions_user_path(id: @user.username)) %>
+                  user_profile_discussions_path( @user.username)) %>
       (<%= @user.discussions.viewable_by(current_user).count %>)
       <br />
     <% end %>
 
     <% if @user.participated_discussions.viewable_by(current_user).any? %>
       <%= link_to("View participated discussions",
-                  participated_user_path(id: @user.username)) %>
+                  participated_user_profile_discussions_path( @user.username)) %>
       (<%= @user.participated_discussions.viewable_by(current_user).count %>)
       <br />
     <% end %>
 
     <% if @user.discussion_posts.viewable_by(current_user).any? %>
-      <%= link_to "View posts", posts_user_path(id: @user.username) %>
+      <%= link_to "View posts", user_profile_posts_path( @user.username) %>
       (<%= @user.discussion_posts.viewable_by(current_user).count %>)
       <br />
     <% end %>
@@ -107,11 +106,11 @@
       <br />
       <% if current_user.muted?(@user) %>
         <%= link_to("Unmute user",
-                    unmute_user_path(id: @user.username),
+                    unmute_user_profile_path( @user.username),
                     method: :post) %>
       <% else %>
         <%= link_to("Mute user",
-                    mute_user_path(id: @user.username),
+                    mute_user_profile_path( @user.username),
                     method: :post) %>
       <% end %>
     <% end %>
@@ -216,7 +215,7 @@
         <%= link_to "check out some discussions", discussions_path %>,
         and maybe introduce yourself?<br />
         Or maybe
-        <%= link_to "edit your profile", edit_user_path(id: @user.username) %>
+        <%= link_to "edit your profile", edit_user_profile_path( @user.username) %>
         and add some more info about yourself?
       </p>
     </div>

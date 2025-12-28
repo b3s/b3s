@@ -2,7 +2,7 @@
 
 <section class="login">
   <div id="login" class="login_box">
-    <%= form_tag(authenticate_users_path, class: "form") do %>
+    <%= form_tag(session_path, class: "form") do %>
       <p>
         <label>Email</label>
         <%= text_field_tag "email", "", class: :text %>

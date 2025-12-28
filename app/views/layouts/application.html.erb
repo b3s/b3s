@@ -39,14 +39,15 @@
       <% if current_user? %>
         Hello, <%= profile_link(current_user) %>!
         (<%= link_to("Sign out",
-                     logout_users_path,
+                     session_path,
+                     method: :delete,
                      data: { confirm: "Do you really want to sign out?" }) %>)
       <% else %>
         <% if B3S.config.signups_allowed %>
-          <%= link_to("Sign up", new_user_path) %>
+          <%= link_to("Sign up", new_registration_path) %>
           or
         <% end %>
-        <%= link_to "Log in", login_users_path %>
+        <%= link_to "Log in", new_session_path %>
       <% end %>
     </div>
 
@@ -69,7 +70,7 @@
             <%= header_tab 'Conversations', conversations_path %>
           <% end %>
         <% end %>
-        <%= header_tab 'Users', online_users_path %>
+        <%= header_tab 'Users', users_path %>
         <% if current_user? && (current_user.invites? || current_user.available_invites?) %>
           <% if !current_user.user_admin? && current_user.available_invites? %>
             <%= header_tab(

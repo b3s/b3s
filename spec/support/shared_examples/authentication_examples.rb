@@ -8,7 +8,7 @@ RSpec.shared_examples "authentication is required" do
       allow(B3S).to receive(:public_browsing?).and_return(false)
     end
 
-    it { is_expected.to redirect_to(login_users_url) }
+    it { is_expected.to redirect_to(new_session_url) }
   end
 end
 

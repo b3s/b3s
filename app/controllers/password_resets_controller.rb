@@ -11,7 +11,7 @@ class PasswordResetsController < ApplicationController
     @user = User.where(email: params[:email]).first if params[:email]
     deliver_password_reset(@user) if @user
     flash[:notice] = t("password_reset.sent")
-    redirect_to login_users_url
+    redirect_to new_session_url
   end
 
   def update
@@ -35,7 +35,7 @@ class PasswordResetsController < ApplicationController
 
   def fail_reset(message)
     flash[:notice] = message
-    redirect_to login_users_url
+    redirect_to new_session_url
   end
 
   def find_by_token

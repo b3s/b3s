@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "CreateUsers" do
+RSpec.describe "Registrations" do
   subject { response }
 
   let(:invite) { create(:invite) }
@@ -12,10 +12,10 @@ RSpec.describe "CreateUsers" do
     create(:user) # Ensures the first user exists
   end
 
-  describe "GET /users/new" do
+  describe "GET /registrations/new" do
     let(:params) { { token: invite.token } }
 
-    before { get new_user_path, params: }
+    before { get new_registration_path, params: }
 
     it { is_expected.to have_http_status(:success) }
 
@@ -27,7 +27,7 @@ RSpec.describe "CreateUsers" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
     end
 
@@ -39,19 +39,20 @@ RSpec.describe "CreateUsers" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
     end
   end
 
-  describe "POST /users" do
+  describe "POST /registrations" do
     let(:user_params) do
-      attributes_for(:user)
-        .slice(:username, :email, :password, :password_confirmation, :realname)
+      attributes_for(:user).slice(
+        :username, :email, :password, :password_confirmation, :realname
+      )
     end
     let(:params) { { token: invite.token, user: user_params } }
 
-    before { post users_path, params: }
+    before { post registrations_path, params: }
 
     context "with a valid invite token" do
       it "redirects to user profile" do
@@ -61,7 +62,9 @@ RSpec.describe "CreateUsers" do
       end
 
       it "creates a new user" do
-        expect(User.find_by(username: user_params[:username])).to be_present
+        expect(User.find_by(username: user_params[:username])).to(
+          be_present
+        )
       end
     end
 
@@ -73,7 +76,7 @@ RSpec.describe "CreateUsers" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
     end
 
@@ -85,7 +88,7 @@ RSpec.describe "CreateUsers" do
       end
 
       it "redirects to login" do
-        expect(response).to redirect_to(login_users_url)
+        expect(response).to redirect_to(new_session_url)
       end
     end
 
