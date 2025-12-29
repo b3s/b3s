@@ -11,7 +11,7 @@
       <%= link_to "Contact moderators", new_conversation_path %>
     <% elsif @recipient %>
       <%= link_to("New conversation with #{@recipient.username}",
-                  new_conversation_with_path(username: @recipient.username)) %>
+                  new_with_conversations_path(username: @recipient.username)) %>
     <% else %>
       <%= link_to "New", new_conversation_path %>
     <% end %>

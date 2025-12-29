@@ -21,7 +21,6 @@ AllCops:
 
 Layout/LineLength:
   AutoCorrect: true
-  Max: 80
   Exclude:
     - "db/migrate/*"
     - "config/environments/*.rb"
@@ -44,7 +43,6 @@ Metrics/BlockLength:
 
 Metrics/ClassLength:
   Exclude:
-    - "app/controllers/users_controller.rb"
     - "db/migrate/*"
 
 Metrics/MethodLength:

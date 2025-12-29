@@ -10,7 +10,7 @@
     <% unless !current_user? || @user == current_user %>
       <p>
         <%= link_to("Start a conversation",
-                    new_conversation_with_path(username: @user.username)) %>
+                    new_with_conversations_path(username: @user.username)) %>
         <br />
         <% if current_user.muted?(@user) %>
           <%= link_to("Unmute user",
