@@ -94,6 +94,11 @@ en:
     not_removeable: You can't do that!
     user_removed: "%{username} has been removed from the conversation"
     you_have_been_removed: You have been removed from the conversation
+  participants:
+    added:
+      one: "%{count} participant has been added"
+      other: "%{count} participants have been added"
+    none_added: No participants could be added
   user:
     muted: "%{username} has been muted."
     unmuted: "%{username} has been unmuted."
