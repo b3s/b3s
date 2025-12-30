@@ -13,9 +13,9 @@ export default function InviteParticipant(props: Props) {
   const [username, setUsername] = useState("");
   const [users, setUsers] = useState<UserAttributes[]>([]);
 
-  const csrfToken = document
-    .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
-    ?.content;
+  const csrfToken = document.querySelector<HTMLMetaElement>(
+    'meta[name="csrf-token"]'
+  )?.content;
 
   const loadUsernames = async () => {
     if (!loading) {
@@ -31,11 +31,7 @@ export default function InviteParticipant(props: Props) {
     <div className="invite">
       <h2>Invite someone</h2>
       <form method="POST" action={url}>
-        <input
-          type="hidden"
-          name="authenticity_token"
-          value={csrfToken}
-        />
+        <input type="hidden" name="authenticity_token" value={csrfToken} />
         <TypeaheadTextField
           label="Username"
           name="username"
