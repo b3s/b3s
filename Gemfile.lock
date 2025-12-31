@@ -8,7 +8,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    action_text-trix (2.1.15)
+    action_text-trix (2.1.16)
       railties
     actioncable (8.1.1)
       actionpack (= 8.1.1)
@@ -227,7 +227,7 @@ GEM
     mime-types-data (3.2025.0924)
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (6.0.0)
+    minitest (6.0.1)
       prism (~> 1.5)
     mission_control-jobs (1.1.0)
       actioncable (>= 7.1)
