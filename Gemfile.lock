@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/b3s/b3s_emoticons.git
-  revision: 590e1c2248fb1f335fb7b6fcb8f0091fbb060879
-  branch: master
+  revision: 1c957b26084886ac9dc56e77748b68d87a546076
+  branch: main
   specs:
     b3s_emoticons (0.0.2)
 
