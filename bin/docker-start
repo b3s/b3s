@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+# Template nginx config (substitute cache size)
+NGINX_CACHE_MAX_SIZE="${NGINX_CACHE_MAX_SIZE:-2g}"
+sed "s|\${NGINX_CACHE_MAX_SIZE}|${NGINX_CACHE_MAX_SIZE}|g" \
+  /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+
+# Start Puma in background
+./bin/rails server -p 3000 &
+
+# Start nginx in foreground (becomes PID 1 after exec)
+exec nginx -g 'daemon off;'

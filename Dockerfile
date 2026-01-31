@@ -19,7 +19,7 @@ RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 # Install dependencies
 RUN apt-get update -qq && apt-get -yq upgrade && \
     apt-get install -yq --no-install-recommends \
-    libvips libpq-dev postgresql-client-$PG_MAJOR && \
+    libvips libpq-dev postgresql-client-$PG_MAJOR nginx && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     truncate -s 0 /var/log/*log
@@ -62,9 +62,12 @@ WORKDIR /app
 # Entrypoint prepares the database.
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
-# Start server via Thruster by default, this can be overwritten at runtime
+# Create nginx cache directory
+RUN mkdir -p /var/cache/nginx/images
+
+# Start server via nginx + Puma, this can be overwritten at runtime
 EXPOSE 80
-CMD ["./bin/thrust", "./bin/rails", "server"]
+CMD ["./bin/docker-start"]
 
 
 #### Development ##############################################################
@@ -119,3 +122,6 @@ ENV LANG=C.UTF-8 \
 
 COPY --from=assets /app/app/assets/builds ./app/assets/builds
 COPY --from=assets /app/public/assets ./public/assets
+
+# Install nginx config template
+COPY config/nginx.conf.template /etc/nginx/nginx.conf.template

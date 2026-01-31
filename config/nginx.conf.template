@@ -1,0 +1,94 @@
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                  '$status $body_bytes_sent "$http_referer" '
+                  '"$http_user_agent" $upstream_cache_status';
+
+  access_log /dev/stdout main;
+  error_log /dev/stderr;
+
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+
+  # Gzip compression (replaces Thruster's compression)
+  gzip on;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_comp_level 6;
+  gzip_min_length 256;
+  gzip_types
+    application/javascript
+    application/json
+    application/xml
+    application/rss+xml
+    application/atom+xml
+    font/opentype
+    image/svg+xml
+    text/css
+    text/javascript
+    text/plain
+    text/xml;
+
+  # Image cache: bounded disk with LRU eviction
+  proxy_cache_path /var/cache/nginx/images
+    levels=1:2
+    keys_zone=images:10m
+    max_size=${NGINX_CACHE_MAX_SIZE}
+    inactive=60d
+    use_temp_path=off;
+
+  upstream puma {
+    server 127.0.0.1:3000;
+  }
+
+  server {
+    listen 80;
+    server_name _;
+
+    root /app/public;
+
+    # Serve static files directly (replaces Thruster's static file serving)
+    location / {
+      try_files $uri @puma;
+    }
+
+    # Cached image routes
+    location ~ ^/(avatars|post_images)/ {
+      proxy_cache images;
+      proxy_cache_valid 200 365d;
+      proxy_cache_lock on;
+      proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+      add_header X-Cache-Status $upstream_cache_status;
+
+      proxy_pass http://puma;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      proxy_buffering on;
+    }
+
+    # All other routes proxied without caching
+    location @puma {
+      proxy_pass http://puma;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      proxy_buffering on;
+    }
+  }
+}

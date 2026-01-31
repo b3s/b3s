@@ -36,14 +36,15 @@ env:
   clear:
     RAILS_ENV: "production"
     WEB_CONCURRENCY: 2
+    NGINX_CACHE_MAX_SIZE: "20g"
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_URL
     - OEMBED_FACEBOOK_TOKEN
 
-# Use a persistent storage volume.
-# volumes:
-#   - "app_storage:/app/storage"
+# Persistent nginx image cache across deploys
+volumes:
+  - "b3s-nginx-cache:/var/cache/nginx"
 
 asset_path: /app/public/assets
 
