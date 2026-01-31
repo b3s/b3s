@@ -7,10 +7,10 @@ ssh:
 
 servers:
   web:
-    - binky.elektronaut.no
+    - vimes.elektronaut.no
   jobs:
     hosts:
-      - binky.elektronaut.no
+      - vimes.elektronaut.no
     cmd: bin/jobs
 
 proxy:
@@ -21,7 +21,7 @@ proxy:
     - www.b3s.me
     - butt3rscotch.org
     - www.butt3rscotch.org
-    - b3s.binky.elektronaut.no
+    - b3s.vimes.elektronaut.no
 
 registry:
   server: ghcr.io
@@ -53,7 +53,7 @@ logging:
 
 accessories:
   postgres:
-    image: postgres:15
+    image: postgres:18
     roles:
       - web
     env:
@@ -64,19 +64,18 @@ accessories:
         - POSTGRES_PASSWORD
     cmd: "postgres -c shared_buffers=512MB"
     directories:
-      - data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql
   postgres-backups:
-    image: eeshugerman/postgres-backup-s3:15
+    image: siemens/postgres-backup-s3:18
     roles:
       - web
     env:
       clear:
         SCHEDULE: "@daily"
         BACKUP_KEEP_DAYS: 14
-        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
-        S3_BUCKET: b3s-backups
+        S3_BUCKET: b3s-db-backups
         S3_PREFIX: postgres
-        S3_REGION: auto
+        S3_REGION: eu-central-1
         POSTGRES_USER: "b3s"
         POSTGRES_DATABASE: "b3s"
         POSTGRES_HOST: "b3s-postgres"
