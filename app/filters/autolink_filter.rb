@@ -15,7 +15,7 @@ class AutolinkFilter < Filter
   private
 
   def autolink(url)
-    if url.match?(/.(jpg|jpeg|gif|png|gifv)$/i)
+    if url.match?(/.(jpg|jpeg|gif|png|gifv|webp|avif)$/i)
       "<img src=\"#{url.gsub(/\.gifv$/, '.gif')}\">"
     elsif oembeddable?(url)
       oembed(url)

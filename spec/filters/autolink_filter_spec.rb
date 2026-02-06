@@ -36,6 +36,24 @@ describe AutolinkFilter do
     end
   end
 
+  context "when input contains a URL to a WebP file" do
+    let(:input) { "http://example.com/folder/image.webp" }
+    let(:output) { '<img src="http://example.com/folder/image.webp">' }
+
+    it "embeds the image" do
+      expect(filter.to_html).to eq(output)
+    end
+  end
+
+  context "when input contains a URL to an AVIF file" do
+    let(:input) { "http://example.com/folder/image.avif" }
+    let(:output) { '<img src="http://example.com/folder/image.avif">' }
+
+    it "embeds the image" do
+      expect(filter.to_html).to eq(output)
+    end
+  end
+
   context "when input contains an image tag" do
     let(:input) { '<img src="http://example.com/folder/image.jpg">' }
 
