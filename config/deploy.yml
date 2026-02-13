@@ -15,7 +15,7 @@ servers:
 
 proxy:
   ssl: true
-  app_port: 80
+  app_port: 8080
   hosts:
     - b3s.me
     - www.b3s.me
@@ -46,7 +46,7 @@ env:
 volumes:
   - "b3s-nginx-cache:/var/cache/nginx"
 
-asset_path: /app/public/assets
+asset_path: /rails/public/assets
 
 logging:
   options:
