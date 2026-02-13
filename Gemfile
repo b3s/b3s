@@ -37,14 +37,9 @@ gem "b3s_emoticons",
     branch: :main
 gem "cssbundling-rails"
 gem "gemoji"
-# gem "propshaft", "~> 1.2.1"
 gem "jsbundling-rails"
+gem "propshaft", "~> 1.2.1"
 gem "react-rails"
-gem "sprockets-rails" # TODO: Switch to Propshaft
-gem "terser"
-
-# Used to generate non-digested assets for inclusion in third-party themes.
-gem "non-stupid-digest-assets"
 
 # 3rd party monitoring
 gem "sentry-rails"
