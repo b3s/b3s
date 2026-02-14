@@ -38,12 +38,8 @@ gem "b3s_emoticons",
 gem "cssbundling-rails"
 gem "gemoji"
 gem "jsbundling-rails"
+gem "propshaft", "~> 1.2.1"
 gem "react-rails"
-gem "sprockets-rails"
-gem "terser"
-
-# Used to generate non-digested assets for inclusion in third-party themes.
-gem "non-stupid-digest-assets"
 
 # 3rd party monitoring
 gem "sentry-rails"
@@ -58,7 +54,9 @@ group :development do
 end
 
 group :development, :test do
-  gem "pry"
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
+  gem "debug", platforms: %i[mri windows], require: "debug/prelude"
 
   gem "capybara"
   gem "factory_bot_rails"

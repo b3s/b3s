@@ -1,127 +1,100 @@
-#### Rails image ##############################################################
+# syntax=docker/dockerfile:1
+# check=error=true
 
-ARG RUBY_VERSION='4.0.0'
+# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
+# docker build -t b3s .
+# docker run -d -p 8080:8080 -e RAILS_MASTER_KEY=<value from config/master.key> --name b3s b3s
 
-FROM ruby:$RUBY_VERSION-bookworm AS runtime
+# For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
-ARG RUBYGEMS_VERSION='4.0.3'
-ARG BUNDLER_VERSION='4.0.3'
-ARG NVM_VERSION='0.40.3'
-ARG NODE_VERSION='24.1.0'
-ARG PG_MAJOR='15'
+# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+ARG RUBY_VERSION=4.0.1
+FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Rails app lives here
+WORKDIR /rails
 
-# Add PostgreSQL to sources list
-RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-        && echo 'deb http://apt.postgresql.org/pub/repos/apt/ bookworm-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
+# Install base packages
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      curl libjemalloc2 libvips42 nginx postgresql-client && \
+    ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install dependencies
-RUN apt-get update -qq && apt-get -yq upgrade && \
-    apt-get install -yq --no-install-recommends \
-    libvips libpq-dev postgresql-client-$PG_MAJOR nginx && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    truncate -s 0 /var/log/*log
+# Set production environment variables and enable jemalloc for reduced memory usage and latency.
+ENV RAILS_ENV="production" \
+    BUNDLE_DEPLOYMENT="1" \
+    BUNDLE_PATH="/usr/local/bundle" \
+    BUNDLE_WITHOUT="development:test" \
+    LD_PRELOAD="/usr/local/lib/libjemalloc.so"
 
-# Install nvm and node
-RUN mkdir /usr/local/nvm
-ENV NVM_DIR=/usr/local/nvm
-ENV NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh | bash && \
-    . $NVM_DIR/nvm.sh && \
-    nvm install $NODE_VERSION && \
-    nvm alias default $NODE_VERSION && \
-    nvm use default
+# Throw-away build stage to reduce size of final image
+FROM base AS build
+
+# Install packages needed to build gems and node modules
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential git libpq-dev libyaml-dev node-gyp pkg-config python-is-python3 && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install JavaScript dependencies
+ARG NODE_VERSION=25.6.0
+ENV PATH=/usr/local/node/bin:$PATH
+RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
+    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
+    rm -rf /tmp/node-build-master
 
 # Install pnpm
-RUN npm install --global pnpm
-
-# Configure bundler
-ENV LANG=C.UTF-8 \
-        BUNDLE_JOBS=8 \
-        BUNDLE_RETRY=3
-
-# Install required Bundler version
-RUN gem update --system $RUBYGEMS_VERSION && \
-        rm /usr/local/lib/ruby/gems/*/specifications/default/bundler-*.gemspec && \
-        gem uninstall bundler && \
-        gem install bundler -v $BUNDLER_VERSION
-
-# Default environment variables
-ENV LANG=C.UTF-8 \
-        RAILS_ENV=production \
-        RAILS_LOG_TO_STDOUT=1 \
-        RAILS_SERVE_STATIC_FILES=1
-
-# Create a directory for the app code
-RUN mkdir -p /app
-WORKDIR /app
-
-# Entrypoint prepares the database.
-ENTRYPOINT ["/app/bin/docker-entrypoint"]
-
-# Create nginx cache directory
-RUN mkdir -p /var/cache/nginx/images
-
-# Start server via nginx + Puma, this can be overwritten at runtime
-EXPOSE 80
-CMD ["./bin/docker-start"]
-
-
-#### Development ##############################################################
-
-FROM runtime AS development
-
-RUN bundle config --local without ''
-
-
-#### Gems #####################################################################
-
-FROM runtime AS gems
-
-# Install gems
-COPY Gemfile Gemfile.lock ./
-RUN bundle config --local without 'development test' && \
-    bundle install
-
-
-#### App w/ dependencies ######################################################
-
-FROM runtime AS app
-
-# Install pnpm dependencies
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+RUN npm install --global pnpm
+
+# Install application gems
+# COPY vendor/* ./vendor/
+COPY Gemfile Gemfile.lock ./
+
+RUN bundle install && \
+    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+    # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
+    bundle exec bootsnap precompile -j 1 --gemfile
+
+# Install node modules
 COPY package.json pnpm-lock.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Copy gems
-COPY --from=gems /usr/local/bundle/ /usr/local/bundle/
+# Copy application code
+COPY . .
 
-# Install the app
-COPY . ./
+# Precompile bootsnap code for faster boot times.
+# -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
+RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
-
-#### Precompile assets ########################################################
-
-FROM app AS assets
-
-RUN SECRET_KEY_BASE_DUMMY=1 RAILS_ENV=production bin/rails assets:precompile
+# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 
-#### Production ###############################################################
+RUN rm -rf node_modules
 
-FROM app AS prod
 
-ENV LANG=C.UTF-8 \
-        RAILS_ENV=production \
-        RAILS_LOG_TO_STDOUT=1 \
-        RAILS_SERVE_STATIC_FILES=1
+# Final stage for app image
+FROM base
 
-COPY --from=assets /app/app/assets/builds ./app/assets/builds
-COPY --from=assets /app/public/assets ./public/assets
+# Prepare nginx directories writable by non-root user
+RUN mkdir -p /var/cache/nginx/images /var/lib/nginx /var/log/nginx && \
+    chown -R 1000:1000 /var/cache/nginx /var/lib/nginx /var/log/nginx /run
 
-# Install nginx config template
-COPY config/nginx.conf.template /etc/nginx/nginx.conf.template
+# Run and own only the runtime files as a non-root user for security
+RUN groupadd --system --gid 1000 rails && \
+    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash
+USER 1000:1000
+
+# Copy built artifacts: gems, application
+COPY --chown=rails:rails --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+COPY --chown=rails:rails --from=build /rails /rails
+
+# Entrypoint prepares the database.
+ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+
+# Start server via nginx + Puma
+EXPOSE 8080
+CMD ["./bin/docker-start"]

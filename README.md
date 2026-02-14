@@ -7,20 +7,23 @@ written in Ruby on Rails.
 
 ## Dependencies
 
-* [Ruby 2.0+](https://www.ruby-lang.org/en/)
-* [Bundler](http://bundler.io/)
-* [Java](http://www.java.com/en/download/index.jsp)
-* libmagic
-* [PostgreSQL](http://www.postgresql.org/)
+* [Ruby 4.0+](https://www.ruby-lang.org/en/)
+* [Node.js 24+](https://nodejs.org/)
+* [pnpm](https://pnpm.io/)
+* [PostgreSQL](https://www.postgresql.org/)
+* libvips
 
 ## Deployment
 
 The following environment variables are required for a production deployment:
 
-Environment variable | Info
----------------------|------------------
-RAILS_MASTER_KEY     | Rails master key
-DATABASE_URL         | URL to Postgres
+Environment variable   | Info
+-----------------------|------------------
+RAILS_MASTER_KEY       | Rails master key
+DATABASE_URL           | URL to Postgres
+OEMBED_FACEBOOK_TOKEN  | Facebook oEmbed access token
+WEB_CONCURRENCY        | Puma worker count (default: 2)
+NGINX_CACHE_MAX_SIZE   | Max size of nginx image cache (default: 2g)
 
 ## Credits
 

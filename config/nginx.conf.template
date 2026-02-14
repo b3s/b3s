@@ -1,5 +1,5 @@
 worker_processes auto;
-pid /run/nginx.pid;
+pid /tmp/nginx.pid;
 
 events {
   worker_connections 1024;
@@ -22,7 +22,7 @@ http {
   keepalive_timeout 65;
   client_max_body_size 20m;
 
-  # Gzip compression (replaces Thruster's compression)
+  # Gzip compression
   gzip on;
   gzip_vary on;
   gzip_proxied any;
@@ -54,12 +54,12 @@ http {
   }
 
   server {
-    listen 80;
+    listen 8080;
     server_name _;
 
-    root /app/public;
+    root /rails/public;
 
-    # Serve static files directly (replaces Thruster's static file serving)
+    # Serve static files directly
     location / {
       try_files $uri @puma;
     }

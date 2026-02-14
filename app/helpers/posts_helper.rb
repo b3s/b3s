@@ -20,7 +20,7 @@ module PostsHelper
         src: emoji_path(emoji),
         style: "vertical-align:middle",
         width: 16, height: 16)
-  rescue Sprockets::Rails::Helper::AssetNotFound
+  rescue ActionView::Template::Error
     # Return the unicode character for the emoji
     emoji.raw || ":#{alt}:"
   end
