@@ -1,5 +1,5 @@
 body {
-  background: #fff url("header_bg.png") top center repeat-x;
+  background: #fff linear-gradient(to bottom, #ECEAE4, #AEADA5 95px, #A3A29C 95px, #F7FAFF 96px, #ECEAEB 99px, #FEFEFE 120px) top center / auto 120px no-repeat;
 }
 
 #header {
@@ -58,13 +58,13 @@ body {
       margin: 0;
       text-decoration: none;
       padding: 1px 10px 1px 10px;
-      background: #888 url("tab_bg.png") repeat-x;
+      background: linear-gradient(to bottom, #8F867E, #5F544B);
       border: 1px solid #787878;
       border-bottom: 1px solid #666;
       color: #fff;
     }
     a:hover {
-      background: #666 url("tab_hover_bg.png") repeat-x;
+      background: linear-gradient(to bottom, #625C58, #554E4C);
       border: 1px solid #666;
       border-bottom: 1px solid #666;
       color: #fff;
@@ -72,7 +72,7 @@ body {
     &.current {
       a,
       a:visited {
-        background: #f9f9f9 url("tab_current_bg.png") repeat-x;
+        background: linear-gradient(to bottom, #E7E7E3, #F9F9F9);
         padding-top: 2px;
         color: #000;
         border: 1px solid #aaa;

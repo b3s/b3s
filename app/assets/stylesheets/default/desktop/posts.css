@@ -49,7 +49,7 @@
     margin-top: -20px;
   }
   .title {
-    background: transparent url("discussion_title_bg.png") 0px 14px no-repeat;
+    background: transparent repeating-linear-gradient(to bottom, #E2DCBF, #E2DCBF 1px, #fff 1px, #fff 2px) 0px 14px / 8px 7px no-repeat;
     font-size: 1.3em;
     font-weight: bold;
     padding: 7px 0 7px 19px;
