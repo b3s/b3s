@@ -1,5 +1,15 @@
 body {
-  background: #fff linear-gradient(to bottom, #ECEAE4, #AEADA5 95px, #A3A29C 95px, #F7FAFF 96px, #ECEAEB 99px, #FEFEFE 120px) top center / auto 120px no-repeat;
+  background: #fff
+    linear-gradient(
+      to bottom,
+      #eceae4,
+      #aeada5 95px,
+      #a3a29c 95px,
+      #f7faff 96px,
+      #eceaeb 99px,
+      #fefefe 120px
+    )
+    top center / auto 120px no-repeat;
 }
 
 #header {
@@ -58,13 +68,13 @@ body {
       margin: 0;
       text-decoration: none;
       padding: 1px 10px 1px 10px;
-      background: linear-gradient(to bottom, #8F867E, #5F544B);
+      background: linear-gradient(to bottom, #8f867e, #5f544b);
       border: 1px solid #787878;
       border-bottom: 1px solid #666;
       color: #fff;
     }
     a:hover {
-      background: linear-gradient(to bottom, #625C58, #554E4C);
+      background: linear-gradient(to bottom, #625c58, #554e4c);
       border: 1px solid #666;
       border-bottom: 1px solid #666;
       color: #fff;
@@ -72,7 +82,7 @@ body {
     &.current {
       a,
       a:visited {
-        background: linear-gradient(to bottom, #E7E7E3, #F9F9F9);
+        background: linear-gradient(to bottom, #e7e7e3, #f9f9f9);
         padding-top: 2px;
         color: #000;
         border: 1px solid #aaa;
