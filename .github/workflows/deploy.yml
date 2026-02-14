@@ -20,10 +20,10 @@ jobs:
       VERSION: ${{ github.sha }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install 1Password CLI
-        uses: 1password/install-cli-action@v1
-      - uses: webfactory/ssh-agent@v0.9.0
+        uses: 1password/install-cli-action@v2
+      - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Set up Docker Buildx
@@ -41,9 +41,9 @@ jobs:
     needs:
       - kamal
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Sentry Release
-        uses: getsentry/action-release@v1
+        uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: b3s
