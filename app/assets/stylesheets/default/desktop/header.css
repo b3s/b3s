@@ -1,5 +1,5 @@
 body {
-  background: #fff url("default/header_bg.png") top center repeat-x;
+  background: #fff url("header_bg.png") top center repeat-x;
 }
 
 #header {
@@ -58,13 +58,13 @@ body {
       margin: 0;
       text-decoration: none;
       padding: 1px 10px 1px 10px;
-      background: #888 url("default/tab_bg.png") repeat-x;
+      background: #888 url("tab_bg.png") repeat-x;
       border: 1px solid #787878;
       border-bottom: 1px solid #666;
       color: #fff;
     }
     a:hover {
-      background: #666 url("default/tab_hover_bg.png") repeat-x;
+      background: #666 url("tab_hover_bg.png") repeat-x;
       border: 1px solid #666;
       border-bottom: 1px solid #666;
       color: #fff;
@@ -72,7 +72,7 @@ body {
     &.current {
       a,
       a:visited {
-        background: #f9f9f9 url("default/tab_current_bg.png") repeat-x;
+        background: #f9f9f9 url("tab_current_bg.png") repeat-x;
         padding-top: 2px;
         color: #000;
         border: 1px solid #aaa;
@@ -83,14 +83,14 @@ body {
     &.new {
       a,
       a:visited {
-        background: #d14b40 url("default/tab_new_messages_bg.gif") repeat-x;
+        background: #d14b40 url("tab_new_messages_bg.gif") repeat-x;
         color: #fff;
         border: 1px solid #c24236;
         border-bottom: 1px solid #c98175;
         padding-left: 22px;
       }
       a:hover {
-        background: #d14b40 url("default/tab_new_messages_hover_bg.gif")
+        background: #d14b40 url("tab_new_messages_hover_bg.gif")
           repeat-x;
       }
     }
