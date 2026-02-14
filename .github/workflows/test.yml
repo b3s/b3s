@@ -107,6 +107,22 @@ jobs:
       - name: Check code
         run: bundle exec rubocop --format github
 
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BUNDLE_WITHOUT: development
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Run bundler-audit
+        run: bundle exec bundler-audit --update
+      - name: Run brakeman
+        run: bundle exec brakeman --no-pager
+
   tsc:
     name: TypeScript
     runs-on: ubuntu-latest
