@@ -2,7 +2,14 @@ module.exports = {
   plugins: [
     require("postcss-import-ext-glob"),
     require("postcss-import"),
-    require("postcss-image-inliner")({ assetPaths: ["app/assets/images"] }),
+    require("postcss-image-inliner")({
+      maxFileSize: 25600,
+      assetPaths: [
+        "app/assets/images/default",
+        "app/assets/images/b3s",
+        "app/assets/images/icons"
+      ]
+    }),
     require("postcss-url")([
       {
         filter: /webfonts\/fa-/,

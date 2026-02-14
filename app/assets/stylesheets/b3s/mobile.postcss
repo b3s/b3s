@@ -52,7 +52,8 @@ body[orient="landscape"] {
 }
 
 #header {
-  background: #111 url("mobile/header.png");
+  background: #111 url("mobile/header.jpg");
+  background-size: 480px 45px;
   height: 45px;
 }
 #header #navigationToggle {
@@ -100,6 +101,7 @@ body[orient="landscape"] #header h1.page_title {
   top: 0;
   left: 0;
   background: transparent url("mobile/b3slogo.png");
+  background-size: 49px 45px;
   height: 45px;
   width: 49px;
   text-indent: -9000px;
@@ -113,7 +115,7 @@ body[orient="landscape"] #header h1.page_title {
   overflow: auto;
   /*border-top: 1px solid #aaa;*/
   background: #ddd;
-  background: #f2f2f2 url("mobile/navigation_bg.gif") no-repeat;
+  background: #f2f2f2 url("mobile/navigation_bg.jpg") no-repeat;
   padding-top: 2px;
   border-bottom: 1px solid #ddd;
   /*-webkit-box-shadow: #888 0px 4px 4px;*/
@@ -229,7 +231,8 @@ label {
 }
 
 .content {
-  background: #fff url("mobile/contentbg.gif") repeat-x;
+  background: #fff url("mobile/contentbg.png") repeat-x;
+  background-size: auto 24px;
   padding-bottom: 10px;
   min-height: 285px;
   -webkit-user-select: auto;
@@ -267,7 +270,8 @@ body[orient="landscape"] .page_content textarea {
   color: #555;
 }
 .discussions .discussion {
-  background: #fff url("mobile/contentbg_light.gif") bottom left repeat-x;
+  background: #fff url("mobile/contentbg_light.png") bottom left repeat-x;
+  background-size: auto 12px;
 }
 
 .discussion .new_posts_count {
@@ -324,8 +328,9 @@ body[orient="landscape"] .conversation p {
 .discussions .new_posts,
 .conversations .new_posts {
   background: #fffde8;
-  background: #fffde8 url("mobile/contentbg_light_new_posts.gif") bottom left
+  background: #fffde8 url("mobile/contentbg_light_new_posts.png") bottom left
     repeat-x;
+  background-size: auto 12px;
   border-bottom: 1px solid #e4ddb5;
 }
 
@@ -723,30 +728,3 @@ section.login {
   padding-top: 20px;
 }
 
-/* Retina display overrides */
-@media only screen and (-webkit-min-device-pixel-ratio: 2) {
-  #header {
-    background: #111 url("mobile/header_x2.png");
-    background-size: 480px 45px;
-  }
-  #header h1.page_title .site_name,
-  #header h1.page_title .site_name a,
-  #header h1.page_title .site_name a:visited {
-    background: transparent url("mobile/b3slogo_x2.png");
-    background-size: 49px 45px;
-  }
-  .content {
-    background: #fff url("mobile/contentbg_x2.png") repeat-x;
-    background-size: 23px 24px;
-  }
-  .discussions .discussion {
-    background: #fff url("mobile/contentbg_light_x2.png") bottom left repeat-x;
-    background-size: 23px 12px;
-  }
-  .discussions .new_posts,
-  .conversations .new_posts {
-    background: #fffde8 url("mobile/contentbg_light_new_posts_x2.png") bottom
-      left repeat-x;
-    background-size: 240px 12px;
-  }
-}
