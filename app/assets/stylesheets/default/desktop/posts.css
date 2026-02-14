@@ -49,8 +49,7 @@
     margin-top: -20px;
   }
   .title {
-    background: transparent url("discussion_title_bg.png") 0px 14px
-      no-repeat;
+    background: transparent url("discussion_title_bg.png") 0px 14px no-repeat;
     font-size: 1.3em;
     font-weight: bold;
     padding: 7px 0 7px 19px;

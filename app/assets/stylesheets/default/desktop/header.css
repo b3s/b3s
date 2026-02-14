@@ -90,8 +90,7 @@ body {
         padding-left: 22px;
       }
       a:hover {
-        background: #d14b40 url("tab_new_messages_hover_bg.gif")
-          repeat-x;
+        background: #d14b40 url("tab_new_messages_hover_bg.gif") repeat-x;
       }
     }
   }

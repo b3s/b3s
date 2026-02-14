@@ -82,8 +82,7 @@ table.discussions {
     max-width: 588px;
     margin-top: 2px;
     &.loading {
-      background: transparent url("ajax_spinner_small.gif") 0 2px
-        no-repeat;
+      background: transparent url("ajax_spinner_small.gif") 0 2px no-repeat;
       padding: 2px 24px;
       border: 0;
       color: #84806d;
