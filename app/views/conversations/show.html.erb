@@ -19,9 +19,8 @@
                }) %>
   </div>
   <%= react_component(
-    "InviteParticipant", {
-      url: conversation_participants_path(@exchange)
-    }
+    "InviteParticipant",
+    props: { url: conversation_participants_path(@exchange) }
   ) %>
 <% end %>
 

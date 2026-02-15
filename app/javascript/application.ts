@@ -32,7 +32,6 @@ readyHandler.start(() => {
 });
 
 // React
+import * as Tombolo from "tombolo";
 import * as Components from "./components";
-import ReactRailsUJS from "react_ujs";
-ReactRailsUJS.getConstructor = (className: string) =>
-  Components[className] as React.FC;
+Tombolo.start(Components);

@@ -38,16 +38,12 @@ gem "b3s_emoticons",
 gem "cssbundling-rails"
 gem "gemoji"
 gem "jsbundling-rails"
-gem "propshaft", "~> 1.2.1"
-gem "react-rails"
+gem "propshaft"
+gem "tombolo"
 
 # 3rd party monitoring
 gem "sentry-rails"
 gem "sentry-ruby"
-
-# Pin connection_pool to 2.x until react-rails releases a version
-# compatible with connection_pool 3.x
-gem "connection_pool", "~> 2.4"
 
 group :development do
   gem "web-console"

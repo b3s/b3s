@@ -4,7 +4,7 @@
     "target": "es6",
     "lib": ["es2022", "dom", "dom.iterable"],
     "module": "esnext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "outDir": "dist",
     "allowJs": true,
     "jsx": "react-jsx",

@@ -1,5 +1,6 @@
 <%= react_component(
-  "EditUserLinks", {
+  "EditUserLinks",
+  props: {
     labels: UserLink.labels,
     userLinks: UserLinkResource.new(@user.user_links.sorted).to_h
   }
