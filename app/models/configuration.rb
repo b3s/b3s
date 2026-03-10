@@ -52,8 +52,8 @@ class Configuration
   end
 
   def load
-    @configuration = Setting.all.each_with_object({}) do |setting, conf|
-      conf[setting.name.to_sym] = setting.value
+    @configuration = Setting.all.to_h do |setting|
+      [setting.name.to_sym, setting.value]
     end
   end
 
