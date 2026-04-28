@@ -74,7 +74,7 @@ jobs:
       - name: Build CSS
         run: |
           pnpm build:css
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1.305.0
         with:
           bundler-cache: true
       - name: Create database
@@ -101,7 +101,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev $(cat Aptfile | xargs)
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1.305.0
         with:
           bundler-cache: true
       - name: Check code
@@ -115,7 +115,7 @@ jobs:
       BUNDLE_WITHOUT: development
     steps:
       - uses: actions/checkout@v6
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1.305.0
         with:
           bundler-cache: true
       - name: Run bundler-audit
