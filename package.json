@@ -23,7 +23,7 @@
     "react-dom": "^19.0.0",
     "tombolo": "^0.10.0",
     "underscore": "^1.13.8",
-    "uuid": "^11.1.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
