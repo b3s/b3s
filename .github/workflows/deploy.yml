@@ -28,7 +28,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      - uses: ruby/setup-ruby@v1.305.0
+      - uses: ruby/setup-ruby@v1.306.0
         with:
           bundler-cache: true
       - name: Deploy with kamal
