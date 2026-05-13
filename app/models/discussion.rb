@@ -35,12 +35,7 @@ class Discussion < Exchange
   end
 
   def participants
-    User.find_by_sql(
-      "SELECT u.*, MAX(p.created_at) AS last_post_at " \
-      "FROM users u, posts p " \
-      "WHERE p.exchange_id = #{id} AND p.user_id = u.id " \
-      "GROUP BY u.id "
-    )
+    User.where(id: posts.select(:user_id))
   end
 
   def editable_by?(user)
