@@ -51,6 +51,8 @@ class Discussion < Exchange
   end
 
   def postable_by?(user)
-    user && (user.moderator? || !closed?) ? true : false
+    return false unless user
+
+    user.moderator? || !closed?
   end
 end
