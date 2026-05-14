@@ -15,7 +15,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6.0.6
         with:
-          version: 9
           run_install: true
       - name: Check code
         run: pnpm lint
@@ -28,7 +27,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6.0.6
         with:
-          version: 9
           run_install: true
       - name: Check code
         run: pnpm prettier
@@ -66,7 +64,6 @@ jobs:
           sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev $(cat Aptfile | xargs)
       - uses: pnpm/action-setup@v6.0.6
         with:
-          version: 9
           run_install: true
       - name: Build frontend
         run: |
@@ -131,7 +128,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6.0.6
         with:
-          version: 9
           run_install: true
       - name: Check code
         run: pnpm tsc --noEmit
