@@ -32,9 +32,6 @@ gem "mission_control-jobs"
 gem "solid_queue"
 
 # Frontend
-gem "b3s_emoticons",
-    git: "https://github.com/b3s/b3s_emoticons.git",
-    branch: :main
 gem "cssbundling-rails"
 gem "gemoji"
 gem "jsbundling-rails"

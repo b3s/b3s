@@ -1,0 +1,86 @@
+[
+    {
+        "name": "big-smile",
+        "image_filename": "ziggy/big-smile.gif"
+    },
+    {
+        "name": "blank-stare",
+        "image_filename": "ziggy/blank-stare.gif"
+    },
+    {
+        "name": "blushing",
+        "image_filename": "ziggy/blushing.gif"
+    },
+    {
+        "name": "butthurt",
+        "image_filename": "ziggy/butthurt.gif"
+    },
+    {
+        "name": "crying",
+        "image_filename": "ziggy/crying.gif"
+    },
+    {
+        "name": "deal-with-it",
+        "image_filename": "ziggy/deal-with-it.gif"
+    },
+    {
+        "name": "doh",
+        "image_filename": "ziggy/doh.gif"
+    },
+    {
+        "name": "evil",
+        "image_filename": "ziggy/evil.gif"
+    },
+    {
+        "name": "eye-roll",
+        "image_filename": "ziggy/eye-roll.gif"
+    },
+    {
+        "name": "fml",
+        "image_filename": "ziggy/fml.gif"
+    },
+    {
+        "name": "good",
+        "image_filename": "ziggy/good.gif"
+    },
+    {
+        "name": "kisses",
+        "image_filename": "ziggy/kisses.gif"
+    },
+    {
+        "name": "licking-lips",
+        "image_filename": "ziggy/licking-lips.gif"
+    },
+    {
+        "name": "mad",
+        "image_filename": "ziggy/mad.gif"
+    },
+    {
+        "name": "nerd",
+        "image_filename": "ziggy/nerd.gif"
+    },
+    {
+        "name": "sad",
+        "image_filename": "ziggy/sad.gif"
+    },
+    {
+        "name": "tongue-out",
+        "image_filename": "ziggy/tongue-out.gif"
+    },
+    {
+        "name": "toothy-smile",
+        "image_filename": "ziggy/toothy-smile.gif"
+    },
+    {
+        "name": "upso",
+        "image_filename": "ziggy/upso.gif"
+    },
+    {
+        "name": "warm-smile",
+        "image_filename": "ziggy/warm-smile.gif"
+    },
+    {
+        "name": "ziggy",
+        "image_filename": "ziggy/ziggy.gif"
+    }
+]

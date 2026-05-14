@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/b3s/b3s_emoticons.git
-  revision: 6dc446a33fc772b1f679a6e6e7bec98403f59ab4
-  branch: main
-  specs:
-    b3s_emoticons (0.0.2)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -532,7 +525,6 @@ PLATFORMS
 DEPENDENCIES
   acts_as_list
   alba
-  b3s_emoticons!
   bcrypt (~> 3.1.12)
   bootsnap (>= 1.1.0)
   brakeman
@@ -598,7 +590,6 @@ CHECKSUMS
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
   alba (3.10.0) sha256=52769d2328da35c4f1bbcfe96b3931b9c8595667307a902573868b1cf6d65d79
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
-  b3s_emoticons (0.0.2)
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   bcrypt (3.1.22) sha256=1f0072e88c2d705d94aff7f2c5cb02eb3f1ec4b8368671e19112527489f29032
   bcrypt_pbkdf (1.1.2) sha256=c2414c23ce66869b3eb9f643d6a3374d8322dfb5078125c82792304c10b94cf6
