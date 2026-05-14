@@ -29,6 +29,7 @@ gem "typhoeus"
 gem "validate_url"
 
 gem "mission_control-jobs"
+gem "solid_cache"
 gem "solid_queue"
 
 # Frontend

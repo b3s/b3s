@@ -21,42 +21,27 @@ default: &default
 
 
 development:
-  <<: *default
-  database: b3s_development
-
-  # The specified database role being used to connect to PostgreSQL.
-  # To create additional roles in PostgreSQL see `$ createuser --help`.
-  # When left blank, PostgreSQL will use the default role. This is
-  # the same name as the operating system user running Rails.
-  #username: b3s
-
-  # The password associated with the PostgreSQL role (username).
-  #password:
-
-  # Connect on a TCP socket. Omitted by default since the client uses a
-  # domain socket that doesn't need configuration. Windows does not have
-  # domain sockets, so uncomment these lines.
-  #host: localhost
-
-  # The TCP port the server listens on. Defaults to 5432.
-  # If your server runs on a different port number, change accordingly.
-  #port: 5432
-
-  # Schema search path. The server defaults to $user,public
-  #schema_search_path: myapp,sharedapp,public
-
-  # Minimum log levels, in increasing order:
-  #   debug5, debug4, debug3, debug2, debug1,
-  #   log, notice, warning, error, fatal, and panic
-  # Defaults to warning.
-  #min_messages: notice
+  primary:
+    <<: *default
+    database: b3s_development
+  cache:
+    <<: *default
+    database: b3s_development_cache
+    migrations_paths: db/cache_migrate
+    schema_dump: cache_structure.sql
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: b3s_test
+  primary:
+    <<: *default
+    database: b3s_test
+  cache:
+    <<: *default
+    database: b3s_test_cache
+    migrations_paths: db/cache_migrate
+    schema_dump: cache_structure.sql
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -79,7 +64,15 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  database: b3s_production
-  username: b3s
-  password: <%= ENV["B3S_DATABASE_PASSWORD"] %>
+  primary:
+    <<: *default
+    database: b3s_production
+    username: b3s
+    password: <%= ENV["B3S_DATABASE_PASSWORD"] %>
+  cache:
+    <<: *default
+    database: b3s_cache
+    username: b3s
+    password: <%= ENV["B3S_DATABASE_PASSWORD"] %>
+    migrations_paths: db/cache_migrate
+    schema_dump: cache_structure.sql

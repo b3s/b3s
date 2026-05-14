@@ -38,6 +38,7 @@ jobs:
     env:
       BUNDLE_WITHOUT: development
       DATABASE_URL: postgres://postgres@localhost:5432/${{ inputs.postgres_db }}
+      CACHE_DATABASE_URL: postgres://postgres@localhost:5432/${{ inputs.postgres_db }}_cache
       PGHOST: localhost
       PGUSER: postgres
       PGPASSWORD: postgres
@@ -79,7 +80,7 @@ jobs:
           bundler-cache: true
       - name: Create database
         run: |
-          bin/rails db:migrate
+          bin/rails db:prepare
       - name: Run tests
         run: bundle exec rspec
       - name: Upload screenshots
