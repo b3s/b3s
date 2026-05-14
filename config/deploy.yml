@@ -40,7 +40,6 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_URL
-    - CACHE_DATABASE_URL
     - OEMBED_FACEBOOK_TOKEN
 
 # Persistent nginx image cache across deploys
