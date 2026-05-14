@@ -18,13 +18,14 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 WORKDIR /rails
 
-# Install runtime packages. libpq5 is the runtime lib for the pg gem (replaces the heavier postgresql-client).
+# Install runtime packages. libpq5 is the runtime lib for the pg gem; postgresql-client
+# provides psql, which Rails shells out to when loading structure.sql via db:prepare.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-      curl libjemalloc2 libpq5 libvips42 nginx && \
+      curl libjemalloc2 libpq5 libvips42 nginx postgresql-client && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so
 
 ENV RAILS_ENV="production" \
