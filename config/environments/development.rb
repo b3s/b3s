@@ -28,7 +28,7 @@ Rails.application.configure do
   end
 
   # Change to :null_store to avoid any caching.
-  config.cache_store = :memory_store
+  config.cache_store = :solid_cache_store
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
