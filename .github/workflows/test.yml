@@ -61,7 +61,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev $(cat Aptfile | xargs)
+          sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev postgresql-client-18 $(cat Aptfile | xargs)
       - uses: pnpm/action-setup@v6.0.6
         with:
           run_install: true
