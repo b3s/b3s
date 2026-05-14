@@ -46,7 +46,7 @@ jobs:
       RAILS_ENV: test
     services:
       postgres:
-        image: postgres:15
+        image: postgres:18
         ports:
           - 5432:5432
         env:
