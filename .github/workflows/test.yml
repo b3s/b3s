@@ -60,6 +60,9 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install system dependencies
         run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
           sudo apt-get update
           sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev postgresql-client-18 $(cat Aptfile | xargs)
       - uses: pnpm/action-setup@v6.0.6
