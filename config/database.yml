@@ -63,7 +63,6 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
-<% _db_url = ENV["DATABASE_URL"] && URI.parse(ENV["DATABASE_URL"]) %>
 production:
   primary:
     <<: *default
@@ -72,10 +71,6 @@ production:
     password: <%= ENV["B3S_DATABASE_PASSWORD"] %>
   cache:
     <<: *default
-    database: b3s_cache
-    host: <%= _db_url&.host %>
-    port: <%= _db_url&.port %>
-    username: <%= _db_url&.user %>
-    password: <%= _db_url&.password %>
+    url: <%= ENV["DATABASE_URL"]&.sub(%r{/[^/?]+(\?|$)}, '/b3s_cache\1') %>
     migrations_paths: db/cache_migrate
     schema_dump: cache_structure.sql
