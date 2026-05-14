@@ -71,6 +71,6 @@ production:
     password: <%= ENV["B3S_DATABASE_PASSWORD"] %>
   cache:
     <<: *default
-    url: <%= ENV["DATABASE_URL"]&.sub(%r{/[^/?]+(\?|$)}, '/b3s_cache\1') %>
+    url: <%= ENV["CACHE_DATABASE_URL"] %>
     migrations_paths: db/cache_migrate
     schema_dump: cache_structure.sql
