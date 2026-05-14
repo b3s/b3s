@@ -44,5 +44,7 @@ module B3s
     config.generators.system_tests = nil
 
     config.active_record.schema_format = :sql
+
+    config.solid_queue.connects_to = { database: { writing: :queue } }
   end
 end

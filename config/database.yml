@@ -29,6 +29,11 @@ development:
     database: b3s_development_cache
     migrations_paths: db/cache_migrate
     schema_dump: cache_structure.sql
+  queue:
+    <<: *default
+    database: b3s_development_queue
+    migrations_paths: db/queue_migrate
+    schema_dump: queue_structure.sql
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -42,6 +47,11 @@ test:
     database: b3s_test_cache
     migrations_paths: db/cache_migrate
     schema_dump: cache_structure.sql
+  queue:
+    <<: *default
+    database: b3s_test_queue
+    migrations_paths: db/queue_migrate
+    schema_dump: queue_structure.sql
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -74,3 +84,8 @@ production:
     url: <%= ENV["CACHE_DATABASE_URL"] %>
     migrations_paths: db/cache_migrate
     schema_dump: cache_structure.sql
+  queue:
+    <<: *default
+    url: <%= ENV["QUEUE_DATABASE_URL"] %>
+    migrations_paths: db/queue_migrate
+    schema_dump: queue_structure.sql

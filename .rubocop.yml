@@ -23,12 +23,14 @@ Layout/LineLength:
   AutoCorrect: true
   Exclude:
     - "db/migrate/*"
+    - "db/queue_migrate/*"
     - "config/environments/*.rb"
     - "config/initializers/content_security_policy.rb"
 
 Metrics/AbcSize:
   Exclude:
     - "db/migrate/*"
+    - "db/queue_migrate/*"
 
 Metrics/BlockLength:
   Exclude:
@@ -36,6 +38,7 @@ Metrics/BlockLength:
     - "config/environments/*"
     - "config/routes.rb"
     - "db/migrate/*"
+    - "db/queue_migrate/*"
     - "**/*_spec.rb"
     - "**/*.rake"
     - "spec/factories.rb"
@@ -44,10 +47,12 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Exclude:
     - "db/migrate/*"
+    - "db/queue_migrate/*"
 
 Metrics/MethodLength:
   Exclude:
     - "db/migrate/*"
+    - "db/queue_migrate/*"
 
 Style/FormatStringToken:
   Exclude:
