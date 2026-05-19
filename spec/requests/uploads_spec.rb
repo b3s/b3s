@@ -65,7 +65,7 @@ RSpec.describe "Uploads" do
       end
     end
 
-    context "with an invalid image file" do
+    context "with an invalid image file", :suppress_stderr do
       let(:file) do
         Rack::Test::UploadedFile.new(
           Rails.root.join("spec/support/invalid_header.png"),
@@ -73,10 +73,10 @@ RSpec.describe "Uploads" do
         )
       end
 
-      it { is_expected.to have_http_status(:ok) }
+      it { is_expected.to have_http_status(:unprocessable_content) }
 
-      it "returns an empty JSON response" do
-        expect(response.parsed_body).to eq({})
+      it "returns an error message" do
+        expect(response.parsed_body["error"]).to eq("Invalid image")
       end
 
       it "does not create a PostImage record" do
@@ -92,10 +92,14 @@ RSpec.describe "Uploads" do
         )
       end
 
-      it { is_expected.to have_http_status(:internal_server_error) }
+      it { is_expected.to have_http_status(:unprocessable_content) }
 
       it "returns an error message" do
         expect(response.parsed_body["error"]).to eq("Invalid image")
+      end
+
+      it "does not create a PostImage record" do
+        expect(PostImage.count).to eq(0)
       end
     end
 
