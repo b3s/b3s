@@ -53,7 +53,7 @@ module Users
 
     def load_user
       @user = User.find_by(username: params[:id]) ||
-              User.find(params[:id])
+              User.find(params.expect(:id))
     end
 
     def detect_edit_page

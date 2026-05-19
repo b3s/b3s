@@ -96,7 +96,7 @@ class DiscussionsController < ApplicationController
   end
 
   def current_section
-    params[:action].in?(%w[favorites following]) ? params[:action].to_sym : super
+    params.expect(:action).in?(%w[favorites following]) ? params.expect(:action).to_sym : super
   end
 
   def exchange_params
@@ -104,7 +104,7 @@ class DiscussionsController < ApplicationController
   end
 
   def find_exchange
-    @exchange = Exchange.find(params[:id])
+    @exchange = Exchange.find(params.expect(:id))
 
     if !@exchange.is_a?(Discussion)
       redirect_to @exchange

@@ -39,7 +39,7 @@ class DiscussionRelationshipsController < ApplicationController
   private
 
   def find_discussion
-    @discussion = Discussion.find(params[:discussion_id])
+    @discussion = Discussion.find(params.expect(:discussion_id))
     render_error 403 unless @discussion.viewable_by?(current_user)
   end
 end

@@ -43,7 +43,7 @@ class ConversationParticipantsController < ApplicationController
   end
 
   def find_conversation
-    @conversation = Conversation.find(params[:conversation_id])
+    @conversation = Conversation.find(params.expect(:conversation_id))
     render_error 403 unless @conversation.viewable_by?(current_user)
   end
 

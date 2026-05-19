@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def current_section
-    params[:controller].to_sym
+    params.expect(:controller).to_sym
   end
 
   def current_user_context
