@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6.0.6
+      - uses: pnpm/action-setup@v6.0.8
         with:
           run_install: true
       - name: Check code
@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6.0.6
+      - uses: pnpm/action-setup@v6.0.8
         with:
           run_install: true
       - name: Check code
@@ -67,7 +67,7 @@ jobs:
           echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
           sudo apt-get update
           sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev postgresql-client-18 $(cat Aptfile | xargs)
-      - uses: pnpm/action-setup@v6.0.6
+      - uses: pnpm/action-setup@v6.0.8
         with:
           run_install: true
       - name: Build frontend
@@ -76,7 +76,7 @@ jobs:
       - name: Build CSS
         run: |
           pnpm build:css
-      - uses: ruby/setup-ruby@v1.306.0
+      - uses: ruby/setup-ruby@v1.308.0
         with:
           bundler-cache: true
       - name: Create database
@@ -103,7 +103,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev $(cat Aptfile | xargs)
-      - uses: ruby/setup-ruby@v1.306.0
+      - uses: ruby/setup-ruby@v1.308.0
         with:
           bundler-cache: true
       - name: Check code
@@ -117,7 +117,7 @@ jobs:
       BUNDLE_WITHOUT: development
     steps:
       - uses: actions/checkout@v6
-      - uses: ruby/setup-ruby@v1.306.0
+      - uses: ruby/setup-ruby@v1.308.0
         with:
           bundler-cache: true
       - name: Run bundler-audit
@@ -131,7 +131,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6.0.6
+      - uses: pnpm/action-setup@v6.0.8
         with:
           run_install: true
       - name: Check code
