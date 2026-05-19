@@ -6,6 +6,8 @@ class UploadsController < ApplicationController
 
   def create
     post_image = find_or_create_post_image(upload_params[:file])
+    return upload_error("Invalid image") unless post_image.valid?
+
     respond_to do |format|
       format.json { render json: post_image_response(post_image) }
     end
@@ -30,8 +32,6 @@ class UploadsController < ApplicationController
   end
 
   def post_image_response(post_image)
-    return {} unless post_image.valid?
-
     {
       name: post_image.filename,
       type: post_image.content_type,
@@ -42,7 +42,7 @@ class UploadsController < ApplicationController
   def upload_error(error)
     response = { error: }
     respond_to do |format|
-      format.json { render json: response, status: :internal_server_error }
+      format.json { render json: response, status: :unprocessable_content }
     end
   end
 
