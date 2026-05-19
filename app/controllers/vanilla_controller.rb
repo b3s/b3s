@@ -12,7 +12,7 @@ class VanillaController < ApplicationController
   def discussion
     headers["Status"] = "301 Moved Permanently"
     redirect_to polymorphic_url(
-      Exchange.find(params[:DiscussionID]),
+      Exchange.find(params.expect(:DiscussionID)),
       page: params[:page]
     )
   end

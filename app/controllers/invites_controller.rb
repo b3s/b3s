@@ -80,7 +80,7 @@ class InvitesController < ApplicationController
   end
 
   def find_invite
-    @invite = Invite.find(params[:id])
+    @invite = Invite.find(params.expect(:id))
   end
 
   def find_invite_by_token

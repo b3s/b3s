@@ -24,7 +24,7 @@ module Users
 
     def load_user
       @user = User.find_by(username: params[:user_id]) ||
-              User.find(params[:user_id])
+              User.find(params.expect(:user_id))
     end
   end
 end

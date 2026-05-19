@@ -103,7 +103,7 @@ class ConversationsController < ApplicationController
   end
 
   def find_exchange
-    @exchange = Conversation.find(params[:id])
+    @exchange = Conversation.find(params.expect(:id))
     render_error 403 unless @exchange.viewable_by?(current_user)
   end
 
