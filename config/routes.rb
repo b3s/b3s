@@ -18,9 +18,12 @@ Rails.application.routes.draw do
   get "/search/:query" => "discussions#search", as: :search_with_query
   match "/search" => "discussions#search", as: :search, via: %i[get post]
 
-  # Search posts
-  get "/posts/search/:query" => "posts#search"
-  match "/posts/search" => "posts#search", as: :search_posts, via: %i[get post]
+  # Posts
+  resources :posts, only: [:show], constraints: { id: /\d+/ } do
+    collection do
+      match "search(/:query)", action: :search, as: :search, via: %i[get post]
+    end
+  end
 
   # Sessions
   resource :session, only: %i[new create destroy]
