@@ -25,15 +25,14 @@
     <% elsif current_user.available_invites? %>
       <p>
         You have
-        <% if current_user.available_invites == 1 %>
-          <strong>one available invite</strong>,
-          <%= link_to "click here to use it", new_invite_path %>.
-        <% else %>
-          <strong>
+        <strong>
+          <% if current_user.available_invites == 1 %>
+            one available invite
+          <% else %>
             <%= current_user.available_invites %> available invites
-          </strong>,
-          <%= link_to "click here to invite someone", new_invite_path %>.
-        <% end %>
+          <% end %>
+        </strong>,
+        <%= link_to "click here to invite someone", new_invite_path %>.
         Sent invites will expire after 14 days, and will be returned if
         unused or cancelled.
       </p>

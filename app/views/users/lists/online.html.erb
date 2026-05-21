@@ -12,24 +12,20 @@
 
 <%= render partial: "users/lists/navigation" %>
 
+<div class="content">
+  <p>
+    <% if @users.length == 1 %>
+      <strong>1</strong> user is online right now.
+    <% elsif @users.length > 1 %>
+      <strong><%= @users.length %></strong> users are online right now.
+    <% else %>
+      No users are online.
+    <% end %>
+  </p>
+</div>
 <% if @users.length > 0 %>
-  <div class="content">
-    <p>
-      <% if @users.length == 1 %>
-        <strong>1</strong> user is online right now.
-      <% else %>
-        <strong><%= @users.length %></strong> users are online right now.
-      <% end %>
-    </p>
-  </div>
   <%= render(partial: "users/lists/listing",
              locals: {
                users: @users,
                columns: [:username, :location, :member_since, :status] }) %>
-<% else %>
-  <div class="content">
-    <p>
-      No users are online.
-    </p>
-  </div>
 <% end %>
