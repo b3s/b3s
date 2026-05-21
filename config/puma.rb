@@ -42,3 +42,9 @@ plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 # Specify the PID file. Defaults to tmp/pids/server.pid in development.
 # In other environments, only set the PID file if requested.
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
+
+# SemanticLogger's appender thread does not survive Puma's fork when the app is
+# preloaded; reopen it in each worker so request logs are emitted.
+on_worker_boot do
+  SemanticLogger.reopen if defined?(SemanticLogger)
+end
