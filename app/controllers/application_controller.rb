@@ -32,6 +32,11 @@ class ApplicationController < ActionController::Base
     { id: current_user.id, username: current_user.username }
   end
 
+  def append_info_to_payload(payload)
+    super
+    payload[:user_id] = current_user&.id
+  end
+
   # Renders an error
   def render_error(error, options = {})
     options[:status] ||= error if error.is_a?(Numeric)

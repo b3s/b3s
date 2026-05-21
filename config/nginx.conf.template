@@ -9,11 +9,23 @@ http {
   include /etc/nginx/mime.types;
   default_type application/octet-stream;
 
-  log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-                  '$status $body_bytes_sent "$http_referer" '
-                  '"$http_user_agent" $upstream_cache_status';
+  log_format json escape=json
+    '{'
+      '"source":"nginx",'
+      '"time":"$time_iso8601",'
+      '"remote_addr":"$remote_addr",'
+      '"request_id":"$request_id",'
+      '"method":"$request_method",'
+      '"path":"$request_uri",'
+      '"status":$status,'
+      '"bytes_sent":$body_bytes_sent,'
+      '"request_time":$request_time,'
+      '"referer":"$http_referer",'
+      '"user_agent":"$http_user_agent",'
+      '"cache_status":"$upstream_cache_status"'
+    '}';
 
-  access_log /dev/stdout main;
+  access_log /dev/stdout json;
   error_log /dev/stderr;
 
   sendfile on;
@@ -77,6 +89,7 @@ http {
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Request-Id $request_id;
 
       proxy_buffering on;
     }
@@ -88,6 +101,7 @@ http {
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Request-Id $request_id;
 
       proxy_buffering on;
     }
