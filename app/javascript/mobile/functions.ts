@@ -87,8 +87,8 @@ readyHandler.start(function () {
   window.addEventListener("resize", updateLayout);
   updateLayout();
 
-  document.querySelectorAll(".toggle-navigation").forEach((a) => {
-    a.addEventListener("click", toggleNavigation);
+  document.querySelectorAll(".toggle-navigation").forEach((el) => {
+    el.addEventListener("click", toggleNavigation);
   });
 
   // Open images when clicked

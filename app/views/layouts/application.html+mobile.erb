@@ -20,10 +20,9 @@
   <body>
     <div id="header">
       <div id="navigationToggle">
-        <%= link_to("",
-                  "#",
-                  class: (current_user? && current_user.unread_conversations? ?
-                          "new toggle-navigation" : "toggle-navigation")) %>
+        <button type="button"
+                class="<%= current_user? && current_user.unread_conversations? ? "new toggle-navigation" : "toggle-navigation" %>"
+                aria-label="Toggle navigation"></button>
       </div>
       <h1 id="pageTitle" class="page_title">
         <span class="site_name">
