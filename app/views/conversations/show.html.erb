@@ -22,8 +22,6 @@
   ) %>
 <% end %>
 
-<a name="top" class="anchor"></a>
-
 <div class="functions">
   <% if current_user? %>
     <% if @exchange.editable_by?(current_user) %>
@@ -67,7 +65,6 @@
              locals: { exchange: @exchange, posts: @posts }) %>
 <% end %>
 
-<a name="bottom"></a>
 <div class="bottomlinks">
   <%= link_to "Back to discussions", discussions_path, id: "back_link" %>,
   <% if current_user? && current_user.following?(@exchange) %>

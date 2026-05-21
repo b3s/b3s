@@ -16,7 +16,7 @@
         <%= render(partial: "exchanges/post_list",
                    locals: { posts: context_posts }) %>
       </div>
-      <a name="start" id="startAnchor"></a>
+      <span id="start"></span>
     <% end %>
     <%= render(partial: "exchanges/post_list",
                locals: { posts: page_posts, previous_post: context_posts.last }) %>

@@ -44,10 +44,6 @@
   padding-top: 15px;
   padding-bottom: 15px;
   border-bottom: 1px solid #e2dcbf;
-  .anchor {
-    position: absolute;
-    margin-top: -20px;
-  }
   .title {
     background: transparent
       repeating-linear-gradient(

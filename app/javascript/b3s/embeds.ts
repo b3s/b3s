@@ -50,14 +50,6 @@ readyHandler.ready(function () {
         postId = parseInt(post.dataset.post_id);
       } else if (post.id.includes("post-")) {
         postId = parsePostIdString(post.id);
-      } else {
-        const anchor = post.querySelector(".anchor");
-        if (anchor) {
-          const anchorName = anchor.getAttribute("name");
-          if (anchorName) {
-            postId = parsePostIdString(anchorName);
-          }
-        }
       }
       return postId;
     };
