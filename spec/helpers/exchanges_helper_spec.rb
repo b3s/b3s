@@ -101,10 +101,4 @@ describe ExchangesHelper do
       it { is_expected.to eq(path) }
     end
   end
-
-  describe "#post_page" do
-    subject(:result) { helper.post_page(post) }
-
-    it { is_expected.to eq(1) }
-  end
 end

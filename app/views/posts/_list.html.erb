@@ -1,0 +1,7 @@
+<%# locals: (posts:) %>
+<div class="posts">
+  <% posts.each do |post| %>
+    <%= render(partial: "posts/post",
+               locals: { post: post, title: true, hide_nsfw: true }) %>
+  <% end %>
+</div>

@@ -12,12 +12,13 @@
 <%= render partial: "search/tips" %>
 
 <% if @posts && @posts.length > 0 %>
-  <%= render(partial: "posts/posts",
-             locals: {
-               posts: @posts,
-               title: true,
-               hide_nsfw: true,
-               pagination_params: { q: search_query }}) %>
+  <%= render(partial: "components/pagination",
+             locals: { p: @posts, anchor: :start,
+                       pagination_params: { q: search_query } }) %>
+  <%= render(partial: "posts/list", locals: { posts: @posts }) %>
+  <%= render(partial: "components/pagination",
+             locals: { p: @posts, anchor: :start,
+                       pagination_params: { q: search_query } }) %>
 <% else %>
   <p>
     No posts were found.

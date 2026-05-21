@@ -197,11 +197,7 @@
 <div id="userPosts">
   <% if @posts && @posts.length > 0 %>
     <% cache [@user, "profile/posts"] do %>
-      <%= render(partial: "posts/posts",
-                 locals: { posts: @posts,
-                   title: true,
-                   no_pagination: true,
-                   hide_nsfw: true }) %>
+      <%= render(partial: "posts/list", locals: { posts: @posts }) %>
     <% end %>
   <% elsif current_user? && @user == current_user %>
     <div class="welcome">

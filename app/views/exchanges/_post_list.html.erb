@@ -1,0 +1,14 @@
+<%# locals: (posts:, previous_post: nil) %>
+<% [previous_post, *posts].each_cons(2) do |before, post| %>
+  <% if before %>
+    <% delta = post.created_at - before.created_at %>
+    <% if delta.abs >= 12.hours %>
+      <div class="post_distance">
+        <%= distance_of_time_in_words(post.created_at, before.created_at) %>
+        <%= delta.positive? ? "later" : "earlier" %>&hellip;
+      </div>
+    <% end %>
+  <% end %>
+  <%= render(partial: "posts/post",
+             locals: { post: post, functions: true }) %>
+<% end %>

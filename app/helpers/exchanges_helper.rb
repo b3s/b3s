@@ -34,14 +34,4 @@ module ExchangesHelper
 
     current_user.muted_user_ids(exchange:)
   end
-
-  def post_page(post, posts = nil)
-    # Speed optimization
-    if (controller.is_a?(DiscussionsController) || controller.is_a?(ConversationsController)) &&
-       params[:action] == "show" && posts
-      posts.current_page
-    else
-      post.page
-    end
-  end
 end

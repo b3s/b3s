@@ -1,8 +1,3 @@
-<%= render(partial: "posts/posts",
-           locals: {
-             posts: @posts,
-             discussion: @exchange,
-             functions: true,
-             permalink: true,
-             no_pagination: true,
-             no_container: true}) %>
+<%= render(partial: "posts/post",
+           collection: @posts,
+           locals: { functions: true }) %>

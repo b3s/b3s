@@ -8,8 +8,6 @@
 
 <% content_for(:page_title, @exchange.title) %>
 
-<% previous_post = nil %>
-
 <%= content_for :sidebar do %>
   <div class="participants">
     <%= render(partial: "conversations/participants",
@@ -65,19 +63,8 @@
 </h2>
 
 <% cache [@exchange, @page] do %>
-  <div id="discussion"
-       data-id="<%= @exchange.id %>"
-       data-posts-count="<%= @exchange.posts_count %>"
-       data-type="<%= @exchange.class %>">
-    <%= render(partial: "posts/posts",
-               locals: {
-                 posts: @posts,
-                 discussion: @exchange,
-                 functions: true,
-                 permalink: true,
-                 post_distance: true,
-                 new_posts_notifier: true }) %>
-  </div>
+  <%= render(partial: "exchanges/posts",
+             locals: { exchange: @exchange, posts: @posts }) %>
 <% end %>
 
 <a name="bottom"></a>

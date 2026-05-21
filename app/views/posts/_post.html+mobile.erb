@@ -1,0 +1,78 @@
+<%# locals: (post:, functions: false, title: false) %>
+<% if post.deleted? %>
+  <div class="post" data-post_id="<%= post.id %>">
+    <a name="post-<%= post.id %>" class="anchor"></a>
+    <div class="deleted-post">
+      This post has been deleted.
+    </div>
+  </div>
+<% else %>
+  <% if title %>
+    <div class="discussion">
+      <h2>
+        <% if post.exchange.labels? %>
+          <span class="labels">
+            [<%= post.exchange.labels.join(",") %>]
+          </span>
+        <% end %>
+        <%= link_to(post.exchange.title,
+                    last_viewed_page_path(post.exchange)) %>
+      </h2>
+    </div>
+  <% end %>
+  <div class="post post_by_user<%= post.user.id %><%= " me_post" if post.me_post? %>"
+       data-user_id="<%= post.user.id %>"
+       data-post_id="<%= post.id %>"
+       id="post-<%= post.id %>">
+    <% if post.me_post? %>
+      <div class="body">
+        <%= format_post post.body_html, post.user %>
+        <span class="date">
+          &ndash;
+          <% if post.persisted? %>
+            <%= time_tag post.created_at, class: "relative" %>
+          <% else %>
+            Preview
+          <% end %>
+        </span>
+      </div>
+    <% else %>
+      <div class="post_info">
+        <a name="post-<%= post.id %>" class="anchor"></a>
+        <span class="username">
+          <%= profile_link(post.user) %>
+        </span>
+        <span class="date">
+          <% if post.persisted? %>
+            <%= link_to(post_path(post),
+                        title: "Permalink to this post",
+                        class: "permalink") do %>
+              <%= time_tag post.created_at, class: "relative" %>
+            <% end %>
+          <% else %>
+            <%= tag.time "Preview", class: "relative" %>
+          <% end %>
+        </span>
+      </div>
+      <% if functions %>
+        <div class="functions">
+          <% if post.editable_by?(current_user) %>
+            <%= link_to "Edit", [:edit, post.exchange, post] %> /
+          <% end %>
+          <%= link_to("Quote",
+                      [post.exchange, post],
+                      class: "quote_post",
+                      id: "quotePost-#{post.id}") %>
+        </div>
+      <% end %>
+      <div class="body">
+        <%= format_post post.body_html, post.user %>
+      </div>
+      <% if post.edited? %>
+        <div class="post_edited">
+          Edited <%= time_tag post.edited_at, class: "relative" %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

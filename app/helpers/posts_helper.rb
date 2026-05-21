@@ -39,6 +39,17 @@ module PostsHelper
     Renderer.render(string)
   end
 
+  def post_timestamp_link(post)
+    if post.persisted?
+      link_to(time_tag(post.created_at, class: "relative date"),
+              post_path(post),
+              title: "Permalink to this post",
+              class: "permalink")
+    else
+      tag.time("Preview", class: "relative date")
+    end
+  end
+
   private
 
   def safe_scan_and_replace(content, pattern)

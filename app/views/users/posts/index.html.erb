@@ -8,8 +8,11 @@
 </h2>
 
 <% if @posts %>
-  <%= render(partial: "posts/posts",
-             locals: { posts: @posts, title: true, hide_nsfw: true }) %>
+  <%= render(partial: "components/pagination",
+             locals: { p: @posts, anchor: :start }) %>
+  <%= render(partial: "posts/list", locals: { posts: @posts }) %>
+  <%= render(partial: "components/pagination",
+             locals: { p: @posts, anchor: :start }) %>
 <% else %>
   <p>
     No posts were found.
