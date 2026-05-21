@@ -22,7 +22,11 @@
 </h2>
 
 <%= form_for @exchange, builder: B3SFormBuilder do |f| %>
-  <%= render partial: "exchanges/form", locals: {f: f} %>
+  <%= render partial: "exchanges/form",
+             locals: { f: f,
+                       exchange: @exchange,
+                       recipient: @recipient,
+                       moderators: @moderators } %>
   <p>
     <button type="submit">
       Create <%= @exchange.class.to_s.downcase %>

@@ -1,3 +1,4 @@
+<%# locals: (f:, user:) %>
 <% if current_user.user_admin? %>
   <fieldset>
     <h2>
@@ -12,7 +13,7 @@
   </fieldset>
 <% end %>
 
-<% if !B3S.config.signups_allowed && !@user.user_admin? %>
+<% if !B3S.config.signups_allowed && !user.user_admin? %>
   <fieldset>
     <h2>
       <%= t("user.edit.invites") %>

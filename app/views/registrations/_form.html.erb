@@ -1,9 +1,10 @@
+<%# locals: (f:, invite: nil) %>
 <%
   mode ||= false
 %>
 
-<% if @invite %>
-  <%= hidden_field_tag "token", @invite.token %>
+<% if invite %>
+  <%= hidden_field_tag "token", invite.token %>
 <% end %>
 
 <%= f.labelled_text_field :username %>

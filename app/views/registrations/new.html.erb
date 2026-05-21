@@ -19,7 +19,7 @@
 <div id="password">
   <%= form_for @user, url: registrations_path,
                builder: B3SFormBuilder do |f| %>
-    <%= render partial: "form", locals: { f: f } %>
+    <%= render partial: "form", locals: { f: f, invite: @invite } %>
     <p>
       <button type="submit">
         <%= t("user.sign_up") %>
