@@ -1,28 +1,25 @@
-<%
-  columns ||= [:username, :location, :last_active, :member_since, :status]
-  users   ||= []
-%>
+<% columns ||= [:username, :location, :last_active, :member_since, :status]
+  users   ||= [] %>
+
 <table class="list users_list">
   <tr>
     <% columns.each do |column| %>
       <th>
-        <%=
-        case column
+        <%= case column
         when :discussions_and_posts
           "Discussions/Posts"
         else
           column.to_s.humanize
-        end
-        %>
+        end %>
       </th>
     <% end %>
   </tr>
+
   <% users.each do |user| %>
     <tr>
       <% columns.each do |column| %>
         <td class="<%= column.to_s %>">
-          <%=
-          case column
+          <%= case column
           when :username
             profile_link(user)
           when :location
@@ -44,8 +41,7 @@
             user_status_label(user)
           else
             "#{column} not defined"
-          end
-          %>
+          end %>
         </td>
       <% end %>
     </tr>

@@ -1,9 +1,7 @@
 <div class="compose" id="compose">
   <ul id="reply-tabs" class="tabs">
     <li class="tab" id="write-tab">
-      <a href="#replyText">
-        Write
-      </a>
+      <a href="#replyText"> Write </a>
     </li>
   </ul>
 
@@ -17,6 +15,7 @@
                    }
                  }) do |f| %>
       <%= f.hidden_field(:format, class: "format") %>
+
       <p>
         <%= f.text_area(:body,
                         id: "compose-body",
@@ -27,11 +26,14 @@
                           remember_format: true
                         }) %>
       </p>
+
       <p id="button-container">
         <span class="status"></span>
+
         <button type="submit">
           Post
         </button>
+
         <button type="button" class="preview">
           Preview
         </button>

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
+
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <%= page_title_tag %>
 
     <%= stylesheet_link_tag "application" %>
+
     <% if current_user? && current_user.mobile_stylesheet_url? %>
       <%= stylesheet_link_tag current_user.mobile_stylesheet_url %>
     <% else %>
@@ -14,28 +16,38 @@
     <%= icon_tags %>
     <%= csrf_meta_tag %>
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    >
   </head>
+
   <body>
     <div id="header">
       <div id="navigationToggle">
-        <button type="button"
-                class="<%= current_user? && current_user.unread_conversations? ? "new toggle-navigation" : "toggle-navigation" %>"
-                aria-label="Toggle navigation"></button>
+        <button
+          type="button"
+          class="<%= current_user? && current_user.unread_conversations? ? "new toggle-navigation" : "toggle-navigation" %>"
+          aria-label="Toggle navigation"
+        ></button>
       </div>
+
       <h1 id="pageTitle" class="page_title">
         <span class="site_name">
           <%= link_to "#{B3S.config.forum_short_name}:", discussions_path %>
         </span>
+
         <%= content_for(:page_title) %>
       </h1>
     </div>
+
     <% if current_user? || B3S.public_browsing? %>
-      <div id="navigation"><ul>
+      <div id="navigation">
+        <ul>
           <li>
             <%= link_to "Discussions", discussions_path %>
           </li>
+
           <% if current_user? %>
             <li>
               <%= link_to "Popular", popular_discussions_path %>
@@ -48,19 +60,19 @@
             </li>
             <li>
               <% if current_user.unread_conversations? %>
-
-                <strong><%= link_to "Conversations", conversations_path %></strong>
-
+                <strong>
+                  <%= link_to "Conversations", conversations_path %>
+                </strong>
               <% else %>
-
                 <%= link_to "Conversations", conversations_path %>
-
               <% end %>
             </li>
           <% end %>
+
           <li>
             <%= link_to "Users", users_path %>
           </li>
+
           <% if current_user? %>
             <li>
               <%= link_to "New discussion", new_discussion_path %>
@@ -78,10 +90,10 @@
                       data: { confirm: "Are you sure you want to log out?" }) %>
             </li>
           <% end %>
+
           <li class="search">
             <%= form_tag((@search_path || search_path), method: "get") do %>
-              Search for
-              <%= text_field_tag "q", search_query, class: :query %>
+              Search for <%= text_field_tag "q", search_query, class: :query %>
               <%= select_tag "search_mode", options_for_select(
             search_mode_options(@exchange),
             @search_path || search_path
@@ -89,8 +101,10 @@
               <%= submit_tag "Go", name: nil %>
             <% end %>
           </li>
-        </ul></div>
+        </ul>
+      </div>
     <% end %>
+
     <% if flash[:notice] %>
       <div id="notice">
         <p>
@@ -98,14 +112,18 @@
         </p>
       </div>
     <% end %>
+
     <div class="content">
       <%= yield %>
     </div>
+
     <div id="footer">
       <%= link_to "Discussions", discussions_path %> |
       <% if current_user? %>
-        <%= link_to "Following", following_discussions_path %> |
-        <%= link_to "Favorites", favorites_discussions_path %> |
+        <%= link_to "Following", following_discussions_path %>
+        |
+        <%= link_to "Favorites", favorites_discussions_path %>
+        |
       <% end %>
       <%= link_to "Regular site", {mobile_format: 'html'}, class: 'regular_site' %>
     </div>

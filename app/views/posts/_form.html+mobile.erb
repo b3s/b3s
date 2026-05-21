@@ -1,4 +1,5 @@
 <%= f.hidden_field(:format, class: "format") %>
+
 <p>
   <%= f.text_area(
     :body,
@@ -8,6 +9,7 @@
     "data-formats"         => "markdown html"
   ) %>
 </p>
+
 <p>
   <%= submit_tag "Post" %>
 </p>

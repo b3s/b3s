@@ -1,14 +1,12 @@
-<%
-  anchor ||= nil
+<% anchor ||= nil
   pagination_params ||= {}
 
   # Solr results have offset, while ARel results need offset_value
-  offset = paginated.respond_to?(:offset_value) ? paginated.offset_value : paginated.offset
-%>
+  offset = paginated.respond_to?(:offset_value) ? paginated.offset_value : paginated.offset %>
+
 <div class="pagination">
   <% if paginated.total_pages > 1 %>
     <div class="links">
-
       <%# Previous page %>
       <span class="prev_page">
         <% if paginated.previous_page %>
@@ -37,13 +35,9 @@
             <% end %>
           </span>
         <% end %>
-
         <% if np.first > 2 %>
-          <span class="ellipsis">
-            &hellip;
-          </span>
+          <span class="ellipsis"> &hellip; </span>
         <% end %>
-
         <% np.each do |np| %>
           <span class="number_page">
             <% if paginated.current_page == np %>
@@ -55,13 +49,9 @@
             <% end %>
           </span>
         <% end %>
-
         <% if np.last < (paginated.total_pages - 1) %>
-          <span class="ellipsis">
-            &hellip;
-          </span>
+          <span class="ellipsis"> &hellip; </span>
         <% end %>
-
         <% if np.last < paginated.total_pages %>
           <span class="last_page">
             <% if paginated.current_page == paginated.total_pages %>
@@ -90,21 +80,12 @@
           <i class="icon icon-chevron-right"></i>
         <% end %>
       </span>
-
     </div>
   <% end %>
 
   <div class="items">
-    <span class="shown_items">
-      <%= offset + 1 %>
-    </span>
-    to
-    <span class="shown_items_count">
-      <%= offset + paginated.length %>
-    </span>
-    of
-    <span class="total_items_count">
-      <%= paginated.total_count %>
-    </span>
+    <span class="shown_items"><%= offset + 1 %></span> to
+    <span class="shown_items_count"><%= offset + paginated.length %></span> of
+    <span class="total_items_count"><%= paginated.total_count %></span>
   </div>
 </div>

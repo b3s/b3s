@@ -2,7 +2,9 @@
 
 <h2 class="section">
   <% if @exchange.labels? %>
-    [<%= @exchange.labels.join(",") %>]
+    [
+    <%= @exchange.labels.join(",") %>
+    ]
   <% end %>
   <%= link_to @exchange.title, @exchange %> &raquo;
   <%= link_to "New post", [:new, @exchange, :posts] %>
@@ -12,5 +14,8 @@
   <p>
     <%= f.text_area(:body, cols: 80, rows: 20) %>
   </p>
-  <p><button type="submit">Save</button></p>
+
+  <p>
+    <button type="submit">Save</button>
+  </p>
 <% end %>

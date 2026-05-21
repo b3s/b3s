@@ -1,6 +1,8 @@
 <%# locals: (posts:) %>
 <%= render(partial: "components/pagination", locals: { paginated: posts }) %>
+
 <div class="posts">
   <%= render(partial: "exchanges/post_list", locals: { posts: posts }) %>
 </div>
+
 <%= render(partial: "components/pagination", locals: { paginated: posts }) %>

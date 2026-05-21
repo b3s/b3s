@@ -1,4 +1,5 @@
 <% content_for(:body_class, "new_discussion discussion_form") %>
+
 <% content_for :page_title do %>
   New <%= @exchange.class.to_s.downcase %>
   <%= " with #{@recipient.username}" if @recipient %>
@@ -6,7 +7,8 @@
 
 <h2 class="section">
   <% if @exchange.kind_of?(Conversation) %>
-    <%= link_to "Conversations", conversations_path %> &raquo;
+    <%= link_to "Conversations", conversations_path %>
+    &raquo;
     <% if @moderators %>
       <%= link_to "Contact moderators", new_conversation_path %>
     <% elsif @recipient %>
@@ -16,7 +18,8 @@
       <%= link_to "New", new_conversation_path %>
     <% end %>
   <% else %>
-    <%= link_to "Discussions", discussions_path %> &raquo;
+    <%= link_to "Discussions", discussions_path %>
+    &raquo;
     <%= link_to "New", new_discussion_path %>
   <% end %>
 </h2>
@@ -27,6 +30,7 @@
                        exchange: @exchange,
                        recipient: @recipient,
                        moderators: @moderators } %>
+
   <p>
     <button type="submit">
       Create <%= @exchange.class.to_s.downcase %>

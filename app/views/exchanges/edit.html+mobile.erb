@@ -3,6 +3,7 @@
 <div class="page_content">
   <%= form_for(@exchange) do |f| %>
     <%= render partial: "exchanges/form", locals: { f: f, exchange: @exchange } %>
+
     <p>
       <%= submit_tag "Save" %>
     </p>

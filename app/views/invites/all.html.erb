@@ -15,20 +15,25 @@
       <th>Expires</th>
       <th></th>
     </tr>
+
     <% @invites.each do |invite| %>
       <tr>
         <td class="email">
           <%= invite.email %>
         </td>
+
         <td class="user">
           <%= profile_link(invite.user) %>
         </td>
+
         <td class="created_at">
           <%= time_tag invite.created_at, class: "relative" %>
         </td>
+
         <td class="expires_at">
           <%= invite.expires_at.strftime("%b %d, %Y") %>
         </td>
+
         <td class="actions">
           <%= link_to("Cancel",
                       invite_path(invite),

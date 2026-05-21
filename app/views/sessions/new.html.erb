@@ -6,25 +6,23 @@
 </h2>
 
 <div id="login">
-
   <%= form_tag(session_path,
                class: "form username_and_password") do %>
     <fieldset>
-      <label>
-        Email
-      </label>
+      <label> Email </label>
       <%= text_field_tag "email", "", class: :text %>
     </fieldset>
+
     <fieldset>
-      <label>
-        Password
-      </label>
+      <label> Password </label>
       <%= password_field_tag "password", "", class: :text %>
     </fieldset>
+
     <fieldset>
       <button type="submit">
         Sign in
       </button>
+
       <%= link_to(new_password_reset_path, class: "password_reset") do %>
         <strong>Help!</strong> I forgot my password!
       <% end %>

@@ -6,11 +6,13 @@
     <th>Username</th>
     <th><%= @label %></th>
   </tr>
+
   <% @users.each do |user| %>
     <tr>
       <td class="username">
         <%= profile_link(user) %>
       </td>
+
       <td class="user-links">
         <ul>
           <% user.user_links.sorted.with_label(@label).each do |ul| %>

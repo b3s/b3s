@@ -3,10 +3,11 @@
 
 <h2 class="section">
   <% if @exchange.labels? %>
-    [<%= @exchange.labels.join(",") %>]
+    [
+    <%= @exchange.labels.join(",") %>
+    ]
   <% end %>
-  <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
-  &raquo;
+  <%= link_to @exchange.title, @exchange, id: "discussionLink" %> &raquo;
   Search: <em><%= search_query %></em>
 </h2>
 

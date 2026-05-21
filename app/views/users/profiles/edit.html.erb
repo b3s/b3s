@@ -2,8 +2,7 @@
 <% content_for(:page_title, t("user.edit.edit_profile")) %>
 
 <h2 class="section">
-  <%= link_to "Users", users_path %> &raquo;
-  <%= profile_link(@user) %> &raquo;
+  <%= link_to "Users", users_path %> &raquo; <%= profile_link(@user) %> &raquo;
   <%= link_to "Edit", edit_user_profile_path( @user.username) %>
 </h2>
 
@@ -12,24 +11,29 @@
     <%= link_to(t("user.edit.tabs.info"),
                 edit_user_profile_path(@user.username, page: "info")) %>
   </li>
+
   <li class="tab<%= " active" if @page == "links" %>">
     <%= link_to(t("user.edit.tabs.links"),
                 edit_user_profile_path(@user.username, page: "links")) %>
   </li>
+
   <li class="tab<%= " active" if @page == "location" %>">
     <%= link_to(t("user.edit.tabs.location"),
                 edit_user_profile_path(@user.username, page: "location")) %>
   </li>
+
   <li class="tab<%= " active" if @page == "settings" %>">
     <%= link_to(t("user.edit.tabs.settings"),
                 edit_user_profile_path(@user.username, page: "settings")) %>
   </li>
+
   <% if current_user == @user %>
     <li class="tab<%= " active" if @page == "hiatus" %>">
       <%= link_to(t("user.edit.tabs.hiatus"),
                   edit_user_profile_path(@user.username, page: "hiatus")) %>
     </li>
   <% end %>
+
   <% if current_user.user_admin? %>
     <li class="tab<%= " active" if @page == "admin" %>">
       <%= link_to(t("user.edit.tabs.admin"),
@@ -41,6 +45,7 @@
 <%= form_for @user, url: user_profile_path(@user.username), builder: B3SFormBuilder, multipart: true do |f| %>
   <%= hidden_field_tag :page, @page %>
   <%= render partial: "edit_#{@page}", locals: { f: f, user: @user } %>
+
   <p>
     <button type="submit">
       <%= t("save") %>

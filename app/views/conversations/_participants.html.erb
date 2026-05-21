@@ -1,8 +1,10 @@
 <h2>Participants</h2>
+
 <ul>
   <% participants.each do |participant| %>
     <li>
       <%= profile_link(participant) %>
+
       <% if exchange.removeable_by?(participant, current_user) %>
         <%= link_to("Remove",
                     conversation_participant_path(

@@ -1,9 +1,11 @@
 <%# locals: (f:, exchange:, recipient: nil, moderators: nil) %>
 <%= f.hidden_field :type %>
 <%= f.hidden_field(:format, class: "format") %>
+
 <% if recipient %>
   <%= hidden_field_tag :recipient_id, recipient.id %>
 <% end %>
+
 <% if moderators %>
   <%= hidden_field_tag :moderators, true %>
 <% end %>
@@ -21,6 +23,7 @@
 
 <p>
   <label>Enter your first post</label>
+
   <%= f.text_area(:body,
                   id: 'compose-body',
                   class: :rich,
@@ -32,20 +35,24 @@
 </p>
 
 <p>
-  <%= f.check_box(:nsfw) %> Mark as NSFW<br>
+  <%= f.check_box(:nsfw) %> Mark as NSFW
+  <br>
   <% if exchange.closeable_by?(current_user) %>
-    <%= f.check_box(:closed) %> Closed<br>
+    <%= f.check_box(:closed) %>
+    Closed
+    <br>
   <% end %>
   <% if exchange.kind_of?(Discussion) && current_user.moderator? %>
-    <%= f.check_box(:sticky) %> Sticky<br>
+    <%= f.check_box(:sticky) %>
+    Sticky
+    <br>
   <% end %>
 </p>
 
 <% if exchange.moderators? %>
   <p>
-    <label>
-      Moderators
-    </label>
+    <label> Moderators </label>
+
     <%= safe_join(exchange.moderators.map { |u| profile_link(u) },
                   ", ") %>
   </p>

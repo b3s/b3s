@@ -6,6 +6,7 @@
     <th>Username</th>
     <th>Last active</th>
   </tr>
+
   <% @users.each do |user| %>
     <tr>
       <td class="username">
@@ -15,6 +16,7 @@
           <%= profile_link(user) %>
         <% end %>
       </td>
+
       <td class="last_active">
         <%= user.online? ?
              tag.strong("Online now") :

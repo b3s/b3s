@@ -1,7 +1,6 @@
-<%
-  anchor ||= nil
-  pagination_params ||= {}
-%>
+<% anchor ||= nil
+  pagination_params ||= {} %>
+
 <div class="pagination">
   <% if paginated.total_pages > 1 %>
     <div class="links">
@@ -14,6 +13,7 @@
                            }.merge(pagination_params),
                            class: :first_page_link) %>
       </span>
+
       <span class="link">
         <%= link_to_if(paginated.previous_page,
                        "Previous",
@@ -23,6 +23,7 @@
                        }.merge(pagination_params),
                        class: :prev_page_link) %>
       </span>
+
       <span class="link">
         <%= link_to_if(paginated.next_page,
                        "Next",
@@ -32,6 +33,7 @@
                        }.merge(pagination_params),
                        class: :next_page_link) %>
       </span>
+
       <span class="link">
         <%= link_to_unless((paginated.current_page == paginated.total_pages),
                            "Last",

@@ -4,13 +4,15 @@
   <div class="login_box">
     <%= form_tag(password_reset_path, class: "form") do %>
       <p>
-        Enter your email address, and we'll send you a link where you
-        can reset your password.
+        Enter your email address, and we'll send you a link where you can reset
+        your password.
       </p>
+
       <p>
         <label>Email</label>
         <%= text_field_tag "email", "", class: :text %>
       </p>
+
       <p>
         <%= submit_tag "Send" %>
       </p>

@@ -2,8 +2,7 @@
 <% content_for(:page_title, "User links") %>
 
 <h2 class="section">
-  <%= link_to "Users", users_path %>
-  &raquo;
+  <%= link_to "Users", users_path %> &raquo;
   <%= link_to "Links", user_links_path %>
 </h2>
 
@@ -14,11 +13,13 @@
     <th>Type</th>
     <th>Count</th>
   </tr>
+
   <% @labels.each do |label| %>
     <tr>
       <td class="label">
         <%= link_to(label, user_links_path(type: label)) %>
       </td>
+
       <td>
         <%= UserLink.active.with_label(label).count %>
       </td>

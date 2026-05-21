@@ -8,6 +8,7 @@
 
 <%= form_for @exchange, builder: B3SFormBuilder do |f| %>
   <%= render partial: "exchanges/form", locals: { f: f, exchange: @exchange } %>
+
   <p>
     <button type="submit">
       Save

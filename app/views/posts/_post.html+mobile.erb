@@ -10,22 +10,24 @@
     <div class="discussion">
       <h2>
         <% if post.exchange.labels? %>
-          <span class="labels">
-            [<%= post.exchange.labels.join(",") %>]
-          </span>
+          <span class="labels">[<%= post.exchange.labels.join(",") %>]</span>
         <% end %>
+
         <%= link_to(post.exchange.title,
                     last_viewed_page_path(post.exchange)) %>
       </h2>
     </div>
   <% end %>
-  <div class="post post_by_user<%= post.user.id %><%= " me_post" if post.me_post? %>"
-       data-user-id="<%= post.user.id %>"
-       data-post-id="<%= post.id %>"
-       id="post-<%= post.id %>">
+  <div
+    class="post post_by_user<%= post.user.id %><%= " me_post" if post.me_post? %>"
+    data-user-id="<%= post.user.id %>"
+    data-post-id="<%= post.id %>"
+    id="post-<%= post.id %>"
+  >
     <% if post.me_post? %>
       <div class="body">
         <%= format_post post.body_html, post.user %>
+
         <span class="date">
           &ndash;
           <% if post.persisted? %>
@@ -37,9 +39,8 @@
       </div>
     <% else %>
       <div class="post_info">
-        <span class="username">
-          <%= profile_link(post.user) %>
-        </span>
+        <span class="username"><%= profile_link(post.user) %></span>
+
         <span class="date">
           <% if post.persisted? %>
             <%= link_to(post_path(post),
@@ -55,8 +56,10 @@
       <% if functions %>
         <div class="functions">
           <% if post.editable_by?(current_user) %>
-            <%= link_to "Edit", [:edit, post.exchange, post] %> /
+            <%= link_to "Edit", [:edit, post.exchange, post] %>
+            /
           <% end %>
+
           <%= link_to("Quote",
                       [post.exchange, post],
                       class: "quote_post",

@@ -3,6 +3,7 @@
 <div class="page_content user_profile">
   <div class="avatar">
     <%= avatar_image_tag @user %>
+
     <h2>
       <%= @user.username %>
     </h2>
@@ -11,7 +12,9 @@
       <p>
         <%= link_to("Start a conversation",
                     new_with_conversations_path(username: @user.username)) %>
+
         <br>
+
         <% if current_user.muted?(@user) %>
           <%= link_to("Unmute user",
                       unmute_user_profile_path(@user.username),
@@ -65,6 +68,7 @@
         <th>
           <%= ul.label %>
         </th>
+
         <td>
           <%= user_link(ul) %>
         </td>
@@ -85,6 +89,7 @@
 
     <tr>
       <th>Last active</th>
+
       <td>
         <% if @user.online? %>
           <strong>Online now</strong>
@@ -96,6 +101,7 @@
 
     <tr>
       <th>Discussions</th>
+
       <td>
         <%= link_to(@user.discussions.viewable_by(current_user).count,
                     user_profile_discussions_path(@user.username)) %>
@@ -104,6 +110,7 @@
 
     <tr>
       <th>Participated</th>
+
       <td>
         <%= link_to(@user.participated_discussions.viewable_by(current_user).count,
                     participated_user_profile_discussions_path(@user.username)) %>
@@ -112,6 +119,7 @@
 
     <tr>
       <th>Posts</th>
+
       <td>
         <%= @user.discussion_posts.viewable_by(current_user).count %>
       </td>
@@ -125,6 +133,7 @@
     <% if @user.previous_usernames.any? %>
       <tr>
         <th>Previously Known As</th>
+
         <td>
           <ul>
             <% @user.previous_usernames.uniq.each do |username| %>

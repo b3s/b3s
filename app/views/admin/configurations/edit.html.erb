@@ -8,85 +8,87 @@
 
 <ul class="tabs topTabs">
   <li class="tab">
-    <a href="#general">
-      <%= t("configuration.general_settings") %>
-    </a>
+    <a href="#general"><%= t("configuration.general_settings") %></a>
   </li>
+
   <li class="tab">
-    <a href="#themes">
-      <%= t("configuration.themes") %>
-    </a>
+    <a href="#themes"><%= t("configuration.themes") %></a>
   </li>
+
   <li class="tab">
     <a href="#integration">
       <%= t("configuration.services_and_integration") %>
     </a>
   </li>
+
   <li class="tab">
-    <a href="#documents">
-      <%= t("configuration.documents") %>
-    </a>
+    <a href="#documents"><%= t("configuration.documents") %></a>
   </li>
 </ul>
-
 
 <%= form_for(B3S.config,
              url: admin_configuration_path,
              method: :patch,
              builder: B3SFormBuilder) do |f| %>
-
   <div id="general">
     <fieldset>
       <h2>
         <%= t("configuration.forum_name") %>
       </h2>
+
       <%= f.labelled_text_field :forum_name, size: 48 %>
+
       <%= f.labelled_text_field(
             :forum_title,
             size: 48,
             description: t("configuration.forum_title_description")
       ) %>
+
       <%= f.labelled_text_field(
             :forum_short_name,
             size: 10,
             description: t("configuration.forum_short_name_description")
       ) %>
     </fieldset>
+
     <fieldset>
       <h2>
         <%= t("configuration.domain_and_email") %>
       </h2>
+
       <%= f.labelled_text_field(
             :domain_names,
             size: 48,
             description: t("configuration.domain_names_description")
       ) %>
+
       <%= f.labelled_text_field(
             :mail_sender,
             size: 48,
             description: t("configuration.mail_sender_description")
       ) %>
     </fieldset>
+
     <fieldset>
       <h2>
         <%= t("configuration.login_and_signup") %>
       </h2>
+
       <p class="field">
-        <label>
-          <%= t("configuration.access_control") %>
-        </label>
+        <label><%= t("configuration.access_control") %></label>
         <%= f.radio_button :public_browsing, true %>
         <%= t("configuration.anyone_can_browse") %>
+
         <br>
         <%= f.radio_button :public_browsing, false %>
         <%= t("configuration.browsing_requires_login") %>
       </p>
+
       <p class="field">
-        <label>
-          <%= t("configuration.signing_up") %>
-        </label>
+        <label><%= t("configuration.signing_up") %></label>
         <%= f.radio_button :signups_allowed, true %>
         <%= t("configuration.users_can_sign_up") %>
+
         <br>
         <%= f.radio_button :signups_allowed, false %>
         <%= t("configuration.users_must_be_invited") %>
@@ -99,15 +101,19 @@
       <h2>
         <%= t("configuration.themes") %>
       </h2>
+
       <%= f.labelled_select(:default_theme,
                             Theme.all.map { |t| [t.full_name, t.id] }) %>
+
       <%= f.labelled_select(:default_mobile_theme,
                             Theme.mobile.map { |t| [t.full_name, t.id] }) %>
     </fieldset>
+
     <fieldset>
       <h2>
         <%= t("configuration.emoticons") %>
       </h2>
+
       <%= f.labelled_text_field :emoticons, size: 48 %>
     </fieldset>
   </div>
@@ -117,15 +123,18 @@
       <h2>
         <%= t("configuration.google_analytics") %>
       </h2>
+
       <%= f.labelled_text_field(
             :google_analytics,
             description: t("configuration.google_analytics_description")
       ) %>
     </fieldset>
+
     <fieldset>
       <h2>
         <%= t("configuration.amazon_associates") %>
       </h2>
+
       <%= f.labelled_text_field(
             :amazon_associates_id,
             description: t("configuration.amazon_associates_id_description")
@@ -138,6 +147,7 @@
       <h2>
         <%= t("configuration.documents") %>
       </h2>
+
       <%= f.labelled_text_area(
             :code_of_conduct,
             size: "40x15",

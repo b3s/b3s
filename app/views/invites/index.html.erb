@@ -19,30 +19,24 @@
                     all_invites_path) %>.
       </p>
       <p>
-        Sent invites will expire after 14 days, and will be returned if
-        unused or cancelled.
+        Sent invites will expire after 14 days, and will be returned if unused
+        or cancelled.
       </p>
     <% elsif current_user.available_invites? %>
       <p>
         You have
-        <strong>
-          <% if current_user.available_invites == 1 %>
-            one available invite
-          <% else %>
-            <%= current_user.available_invites %> available invites
-          <% end %>
-        </strong>,
-        <%= link_to "click here to invite someone", new_invite_path %>.
-        Sent invites will expire after 14 days, and will be returned if
-        unused or cancelled.
+        <strong><% if current_user.available_invites == 1 %>one available invite<% else %><%= current_user.available_invites %>available invites<% end %></strong>,
+        <%= link_to "click here to invite someone", new_invite_path %>. Sent
+        invites will expire after 14 days, and will be returned if unused or
+        cancelled.
       </p>
     <% end %>
   <% else %>
     <p>
       You don't currently have any available invites.
       <% if current_user.invites? %>
-        You can cancel one of your invites to reclaim it, or wait
-        until they expire.
+        You can cancel one of your invites to reclaim it, or wait until they
+        expire.
       <% end %>
     </p>
   <% end %>
@@ -56,17 +50,21 @@
       <th>Expires</th>
       <th></th>
     </tr>
+
     <% @invites.each do |invite| %>
       <tr>
         <td class="email">
           <%= invite.email %>
         </td>
+
         <td class="created_at">
           <%= time_tag invite.created_at, class: "relative" %>
         </td>
+
         <td class="expires_at">
           <%= invite.expires_at.strftime("%b %d, %Y") %>
         </td>
+
         <td class="actions">
           <%= link_to("Cancel",
                       invite_path(invite),

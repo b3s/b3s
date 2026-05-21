@@ -15,14 +15,17 @@
 <div class="content">
   <p>
     <% if @users.length == 1 %>
-      <strong>1</strong> user is online right now.
+      <strong>1</strong>
+      user is online right now.
     <% elsif @users.length > 1 %>
-      <strong><%= @users.length %></strong> users are online right now.
+      <strong><%= @users.length %></strong>
+      users are online right now.
     <% else %>
       No users are online.
     <% end %>
   </p>
 </div>
+
 <% if @users.length > 0 %>
   <%= render(partial: "users/lists/listing",
              locals: {

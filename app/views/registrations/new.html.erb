@@ -3,11 +3,12 @@
 
 <h2 class="section">
   <% if current_user? || B3S.public_browsing? -%>
-    <%= link_to "Users", users_path %> &raquo;
+    <%= link_to "Users", users_path %>
+    &raquo;
   <% end -%>
+
   <%= link_to t("user.sign_up"), new_registration_path %>
 </h2>
-
 
 <ul id="signup-tabs" class="topTabs">
   <li class="tab" id="regular-tab">
@@ -20,6 +21,7 @@
   <%= form_for @user, url: registrations_path,
                builder: B3SFormBuilder do |f| %>
     <%= render partial: "form", locals: { f: f, invite: @invite } %>
+
     <p>
       <button type="submit">
         <%= t("user.sign_up") %>

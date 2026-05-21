@@ -2,6 +2,7 @@
 <%= f.labelled_text_field :username, disabled: !current_user.user_admin? %>
 <%= f.labelled_text_field :realname, size: 50 %>
 <%= f.labelled_text_field :pronouns, size: 50 %>
+
 <%= f.labelled_date_select(:birthday,
                            end_year: 1900,
                            start_year: Time.now.year,

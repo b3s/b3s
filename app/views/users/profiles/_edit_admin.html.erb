@@ -4,7 +4,9 @@
     <h2>
       <%= t("user.edit.account_status") %>
     </h2>
+
     <%= f.labelled_select(:status, status_options) %>
+
     <div class="banned-until">
       <%= f.labelled_datetime_select(:banned_until,
                                      minute_step: 15,
@@ -18,6 +20,7 @@
     <h2>
       <%= t("user.edit.invites") %>
     </h2>
+
     <p class="field">
       <%= f.text_field(:available_invites, size: 4) %>
       <%= t("user.edit.invites_count") %>
@@ -30,14 +33,17 @@
     <h2>
       <%= t("user.edit.administator_privileges") %>
     </h2>
+
     <%= f.labelled_check_box(
           :moderator,
           description: t("user.edit.moderator_description")
     ) %>
+
     <%= f.labelled_check_box(
           :user_admin,
           description: t("user.edit.user_admin_description")
     ) %>
+
     <%= f.labelled_check_box(
           :admin,
           description: t("user.edit.admin_description")

@@ -1,7 +1,5 @@
 <% content_for(:body_class) do %>
-  discussion
-  conversation
-  discussion_by_user<%= @exchange.poster_id %>
+  discussion conversation discussion_by_user<%= @exchange.poster_id %>
   <%= @exchange.labels.map(&:downcase).join(" ") %>
   <%= "last_page" if @posts.last_page? %>
 <% end %>
@@ -16,6 +14,7 @@
                  participants: @exchange.participants
                }) %>
   </div>
+
   <%= react_component(
     "InviteParticipant",
     props: { url: conversation_participants_path(@exchange) }
@@ -55,8 +54,11 @@
 
 <h2 class="section">
   <% if @exchange.labels? %>
-    [<%= @exchange.labels.join(",") %>]
+    [
+    <%= @exchange.labels.join(",") %>
+    ]
   <% end %>
+
   <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
 </h2>
 
@@ -68,7 +70,8 @@
 <div class="bottomlinks">
   <%= link_to "Back to discussions", discussions_path, id: "back_link" %>,
   <% if current_user? && current_user.following?(@exchange) %>
-    <%= link_to "Back to followed", following_discussions_path %>,
+    <%= link_to "Back to followed", following_discussions_path %>
+    ,
   <% end %>
   <%= link_to "Top of page", "#top" %>
 </div>
