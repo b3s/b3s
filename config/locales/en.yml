@@ -160,6 +160,9 @@ en:
         provide a bit more information:
     sign_up: Sign up
   invite:
+    available:
+      one: one available invite
+      other: "%{count} available invites"
     cancelled: Your invite has been cancelled.
     expired: Your invite has expired!
     failed: >-
