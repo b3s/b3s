@@ -25,9 +25,9 @@
       <button type="submit">
         Sign in
       </button>
-      <%= link_to("<strong>Help!</strong> I forgot my password!".html_safe,
-                  new_password_reset_path,
-                  class: "password_reset") %>
+      <%= link_to(new_password_reset_path, class: "password_reset") do %>
+        <strong>Help!</strong> I forgot my password!
+      <% end %>
     </fieldset>
   <% end %>
 </div>

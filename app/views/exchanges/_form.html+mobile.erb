@@ -46,7 +46,7 @@
     <label>
       Moderators
     </label>
-    <%= safe_join(exchange.moderators.map { |u| profile_link(u).html_safe },
+    <%= safe_join(exchange.moderators.map { |u| profile_link(u) },
                   ", ") %>
   </p>
 <% end %>

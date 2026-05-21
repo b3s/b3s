@@ -29,7 +29,7 @@
             h(user.location)
           when :last_active
             user.online? ?
-              "<strong>Online now</strong>".html_safe :
+              tag.strong("Online now") :
               time_tag(user.last_active, class: "relative")
           when :member_since
             time_tag user.created_at, class: "relative"
@@ -41,23 +41,7 @@
           when :posts_per_day
             number_with_precision(user.posts_per_day, precision: 2)
           when :status
-            if user.memorialized?
-              '<span class="memorialized">Memorialized</span>'.html_safe
-            elsif user.banned?
-              '<span class="banned">Banned</span>'.html_safe
-            elsif user.inactive?
-              '<span class="banned">Inactive</span>'.html_safe
-            elsif user.time_out?
-              ('<span class="banned">On time out</span> for ' +
-               distance_of_time_in_words(Time.now, user.banned_until)).html_safe
-            elsif user.hiatus?
-              ('<span class="banned">On hiatus</span> for ' +
-               distance_of_time_in_words(Time.now, user.banned_until)).html_safe
-            elsif user.user_admin? || user.moderator?
-              ('<span class="admin">' +
-               user.admin_labels.to_sentence +
-               '</span>').html_safe
-            end
+            user_status_label(user)
           else
             "#{column} not defined"
           end

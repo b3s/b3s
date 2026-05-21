@@ -1,9 +1,4 @@
-<%
-  no_exchanges ||= "No discussions here yet. " +
-                   link_to("Create the first!", new_discussion_path)
-  pagination_params ||= {}
-%>
-
+<%# locals: (exchanges:, no_exchanges: nil, pagination_params: {}) %>
 <% if exchanges.any? %>
   <div class="discussions">
     <% exchanges.each do |d| %>
@@ -50,6 +45,11 @@
                pagination_params: pagination_params }) %>
 <% else %>
   <p>
-    <%= no_exchanges %>
+    <% if no_exchanges %>
+      <%= no_exchanges %>
+    <% else %>
+      No discussions here yet.
+      <%= link_to "Create the first!", new_discussion_path %>
+    <% end %>
   </p>
 <% end %>

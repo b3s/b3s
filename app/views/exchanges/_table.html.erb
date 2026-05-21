@@ -1,12 +1,4 @@
-<%
-  no_exchanges ||= "No discussions here yet. " +
-                   (current_user? ?
-                    link_to("Create the first!", new_discussion_path) :
-                    '')
-
-  pagination_params ||= {}
-%>
-
+<%# locals: (exchanges:, no_exchanges: nil, pagination_params: {}) %>
 <% if exchanges.any? %>
   <%= pagination ||= render(partial: "components/pagination",
                             locals: {
@@ -89,7 +81,14 @@
 <% else %>
   <div class="content">
     <p>
-      <%= no_exchanges.html_safe %>
+      <% if no_exchanges %>
+        <%= no_exchanges %>
+      <% else %>
+        No discussions here yet.
+        <% if current_user? %>
+          <%= link_to "Create the first!", new_discussion_path %>
+        <% end %>
+      <% end %>
     </p>
   </div>
 <% end %>

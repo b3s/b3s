@@ -16,8 +16,8 @@
         <% end %>
       </td>
       <td class="last_active">
-        <%= (user.online?) ?
-             "<strong>Online now</strong>".html_safe :
+        <%= user.online? ?
+             tag.strong("Online now") :
              time_tag(user.last_active, class: "relative") %>
       </td>
     </tr>

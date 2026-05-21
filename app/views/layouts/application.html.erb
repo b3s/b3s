@@ -18,7 +18,7 @@
 <body class="<%= body_class %>">
 
   <div id="header">
-    <h1><%= B3S.config.forum_title.html_safe %></h1>
+    <h1><%= sanitize(B3S.config.forum_title) %></h1>
 
     <%# Search form %>
     <% if current_user? || B3S.public_browsing? %>
@@ -92,7 +92,7 @@
     <%# Notice %>
     <% if flash[:notice] %>
       <div class="notice">
-        <%= raw flash[:notice] %>
+        <%= flash[:notice] %>
       </div>
     <% end %>
 
