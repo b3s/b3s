@@ -1,137 +1,139 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <%= page_title_tag %>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <%= page_title_tag %>
 
-  <%= stylesheet_link_tag "application" %>
-  <% if current_user? && current_user.mobile_stylesheet_url? %>
-    <%= stylesheet_link_tag current_user.mobile_stylesheet_url %>
-  <% else %>
-    <%= stylesheet_link_tag mobile_theme.mobile_stylesheet_path %>
-  <% end %>
+    <%= stylesheet_link_tag "application" %>
+    <% if current_user? && current_user.mobile_stylesheet_url? %>
+      <%= stylesheet_link_tag current_user.mobile_stylesheet_url %>
+    <% else %>
+      <%= stylesheet_link_tag mobile_theme.mobile_stylesheet_path %>
+    <% end %>
 
-  <%= icon_tags %>
-  <%= csrf_meta_tag %>
+    <%= icon_tags %>
+    <%= csrf_meta_tag %>
 
-  <meta name="viewport"
+    <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1">
-</head>
-<body>
-  <div id="header">
-    <div id="navigationToggle">
-      <%= link_to("",
+  </head>
+  <body>
+    <div id="header">
+      <div id="navigationToggle">
+        <%= link_to("",
                   "#",
                   class: (current_user? && current_user.unread_conversations? ?
                           "new toggle-navigation" : "toggle-navigation")) %>
+      </div>
+      <h1 id="pageTitle" class="page_title">
+        <span class="site_name">
+          <%= link_to "#{B3S.config.forum_short_name}:", discussions_path %>
+        </span>
+        <%= content_for(:page_title) %>
+      </h1>
     </div>
-    <h1 id="pageTitle" class="page_title">
-      <span class="site_name">
-        <%= link_to "#{B3S.config.forum_short_name}:", discussions_path %>
-      </span>
-      <%= content_for(:page_title) %>
-    </h1>
-  </div>
-  <% if current_user? || B3S.public_browsing? %>
-    <div id="navigation"><ul>
-      <li>
-        <%= link_to "Discussions", discussions_path %>
-      </li>
-      <% if current_user? %>
-        <li>
-          <%= link_to "Popular", popular_discussions_path %>
-        </li>
-        <li>
-          <%= link_to "Following", following_discussions_path %>
-        </li>
-        <li>
-          <%= link_to "Favorites", favorites_discussions_path %>
-        </li>
-        <% if current_user.unread_conversations? %>
+    <% if current_user? || B3S.public_browsing? %>
+      <div id="navigation"><ul>
           <li>
-            <strong><%= link_to "Conversations", conversations_path %></strong>
+            <%= link_to "Discussions", discussions_path %>
           </li>
-        <% else %>
+          <% if current_user? %>
+            <li>
+              <%= link_to "Popular", popular_discussions_path %>
+            </li>
+            <li>
+              <%= link_to "Following", following_discussions_path %>
+            </li>
+            <li>
+              <%= link_to "Favorites", favorites_discussions_path %>
+            </li>
+            <li>
+              <% if current_user.unread_conversations? %>
+
+                <strong><%= link_to "Conversations", conversations_path %></strong>
+
+              <% else %>
+
+                <%= link_to "Conversations", conversations_path %>
+
+              <% end %>
+            </li>
+          <% end %>
           <li>
-            <%= link_to "Conversations", conversations_path %>
+            <%= link_to "Users", users_path %>
           </li>
-        <% end %>
-      <% end %>
-      <li>
-        <%= link_to "Users", users_path %>
-      </li>
-      <% if current_user? %>
-        <li>
-          <%= link_to "New discussion", new_discussion_path %>
-        </li>
-        <% if @exchange && !@exchange.new_record? &&
+          <% if current_user? %>
+            <li>
+              <%= link_to "New discussion", new_discussion_path %>
+            </li>
+            <% if @exchange && !@exchange.new_record? &&
               @exchange.editable_by?(current_user) %>
-          <li>
-            <%= link_to "Edit discussion", edit_discussion_path(@exchange) %>
-          </li>
-        <% end %>
-        <li>
-          <%= link_to("Log out",
+              <li>
+                <%= link_to "Edit discussion", edit_discussion_path(@exchange) %>
+              </li>
+            <% end %>
+            <li>
+              <%= link_to("Log out",
                       session_path,
                       method: :delete,
                       data: { confirm: "Are you sure you want to log out?" }) %>
-        </li>
-      <% end %>
-      <li class="search">
-        <%= form_tag((@search_path || search_path), method: "get") do %>
-          Search for
-          <%= text_field_tag "q", search_query, class: :query %>
-          <%= select_tag "search_mode", options_for_select(
+            </li>
+          <% end %>
+          <li class="search">
+            <%= form_tag((@search_path || search_path), method: "get") do %>
+              Search for
+              <%= text_field_tag "q", search_query, class: :query %>
+              <%= select_tag "search_mode", options_for_select(
             search_mode_options(@exchange),
             @search_path || search_path
           ) %>
-          <%= submit_tag "Go", name: nil %>
-        <% end %>
-      </li>
-    </ul></div>
-  <% end %>
-  <% if flash[:notice] %>
-    <div id="notice">
-      <p>
-        <%= raw flash[:notice] %>
-      </p>
-    </div>
-  <% end %>
-  <div class="content">
-    <%= yield %>
-  </div>
-  <div id="footer">
-    <%= link_to "Discussions", discussions_path %> |
-    <% if current_user? %>
-      <%= link_to "Following", following_discussions_path %> |
-      <%= link_to "Favorites", favorites_discussions_path %> |
+              <%= submit_tag "Go", name: nil %>
+            <% end %>
+          </li>
+        </ul></div>
     <% end %>
-    <%= link_to "Regular site", {mobile_format: 'html'}, class: 'regular_site' %>
-  </div>
+    <% if flash[:notice] %>
+      <div id="notice">
+        <p>
+          <%= raw flash[:notice] %>
+        </p>
+      </div>
+    <% end %>
+    <div class="content">
+      <%= yield %>
+    </div>
+    <div id="footer">
+      <%= link_to "Discussions", discussions_path %> |
+      <% if current_user? %>
+        <%= link_to "Following", following_discussions_path %> |
+        <%= link_to "Favorites", favorites_discussions_path %> |
+      <% end %>
+      <%= link_to "Regular site", {mobile_format: 'html'}, class: 'regular_site' %>
+    </div>
 
-  <%= javascript_include_tag "mobile" %>
+    <%= javascript_include_tag "mobile" %>
 
-  <%# B3S configuration %>
-  <script>
-    B3S.Configuration = <%= frontend_configuration.to_json.html_safe %>;
-  </script>
-
-  <%# Muted users %>
-  <script>
-    window.mutedUsers = <%= muted_user_ids(@exchange).to_json %>;
-  </script>
-
-  <% if B3S.config.google_analytics %>
+    <%# B3S configuration %>
     <script>
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '<%= B3S.config.google_analytics %>']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
+      B3S.Configuration = <%= frontend_configuration.to_json.html_safe %>;
     </script>
-  <% end %>
-</body>
+
+    <%# Muted users %>
+    <script>
+      window.mutedUsers = <%= muted_user_ids(@exchange).to_json %>;
+    </script>
+
+    <% if B3S.config.google_analytics %>
+      <script>
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', '<%= B3S.config.google_analytics %>']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+      </script>
+    <% end %>
+  </body>
 </html>

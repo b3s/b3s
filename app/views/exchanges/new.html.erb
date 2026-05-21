@@ -1,6 +1,6 @@
 <% content_for(:body_class, "new_discussion discussion_form") %>
 <% content_for :page_title do %>
-  <%= "New #{@exchange.class.to_s.downcase}" %>
+  New <%= @exchange.class.to_s.downcase %>
   <%= " with #{@recipient.username}" if @recipient %>
 <% end %>
 

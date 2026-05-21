@@ -1,6 +1,6 @@
 <% content_for(:body_class) do %>
   discussion
-  <%= "discussion_by_user#{@exchange.poster_id}" %>
+  discussion_by_user<%= @exchange.poster_id %>
   <%= @exchange.labels.map(&:downcase).join(" ") %>
   <%= "last_page" if @posts.last_page? %>
 <% end %>

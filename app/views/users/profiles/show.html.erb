@@ -25,7 +25,7 @@
     <%= avatar_image_tag @user %>
     <%= profile_link(@user, @user.username, class: "username") %>
     <% if @user.realname? || @user.location? %>
-      <br />
+      <br>
       <% if @user.realname? %>
         <%= h @user.realname %>
       <% end %>
@@ -34,7 +34,7 @@
       <% end %>
     <% end %>
     <% if @user.pronouns? %>
-      <br /><%= @user.pronouns %>
+      <br><%= @user.pronouns %>
     <% end %>
   </p>
 
@@ -75,7 +75,7 @@
                   data: {
                     confirm: "Are you sure you want to revoke all invites?"
                   }) %>
-      <br />
+      <br>
     </p>
   <% end %>
 
@@ -84,26 +84,26 @@
       <%= link_to("View discussions",
                   user_profile_discussions_path( @user.username)) %>
       (<%= @user.discussions.viewable_by(current_user).count %>)
-      <br />
+      <br>
     <% end %>
 
     <% if @user.participated_discussions.viewable_by(current_user).any? %>
       <%= link_to("View participated discussions",
                   participated_user_profile_discussions_path( @user.username)) %>
       (<%= @user.participated_discussions.viewable_by(current_user).count %>)
-      <br />
+      <br>
     <% end %>
 
     <% if @user.discussion_posts.viewable_by(current_user).any? %>
       <%= link_to "View posts", user_profile_posts_path( @user.username) %>
       (<%= @user.discussion_posts.viewable_by(current_user).count %>)
-      <br />
+      <br>
     <% end %>
 
     <% unless !current_user? || @user == current_user %>
       <%= link_to("Start a conversation with #{@user.username}",
                   new_with_conversations_path(username: @user.username)) %>
-      <br />
+      <br>
       <% if current_user.muted?(@user) %>
         <%= link_to("Unmute user",
                     unmute_user_profile_path( @user.username),
@@ -122,21 +122,21 @@
         Birthday
       </strong>:
       <%= @user.birthday.strftime("%b %d") %>
-      <br />
+      <br>
     <% end %>
 
     <strong>
       Member since
     </strong>:
     <%= time_tag @user.created_at, class: "relative" %>
-    <br />
+    <br>
 
     <% if @user.inviter %>
       <strong>
         Invited by
       </strong>:
       <%= profile_link(@user.inviter) %>
-      <br />
+      <br>
     <% end %>
 
     <strong>
@@ -153,14 +153,14 @@
 
     <% if @user.memorialized? %>
       This account has been memorialized.
-      <br />
+      <br>
     <% elsif @user.deactivated? %>
       This account has been deactivated.
-      <br />
+      <br>
     <% elsif @user.admin? %>
       <%= @user.username %> is an
       <span class="admin"><strong>admin</strong></span>.
-      <br />
+      <br>
     <% end %>
   </p>
 
@@ -209,7 +209,7 @@
       <p>
         Why don't you go
         <%= link_to "check out some discussions", discussions_path %>,
-        and maybe introduce yourself?<br />
+        and maybe introduce yourself?<br>
         Or maybe
         <%= link_to "edit your profile", edit_user_profile_path( @user.username) %>
         and add some more info about yourself?

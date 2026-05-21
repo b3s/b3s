@@ -1,7 +1,7 @@
 <% content_for(:body_class) do %>
   discussion
   conversation
-  <%= "discussion_by_user#{@exchange.poster_id}" %>
+  discussion_by_user<%= @exchange.poster_id %>
   <%= @exchange.labels.map(&:downcase).join(" ") %>
   <%= "last_page" if @posts.last_page? %>
 <% end %>
@@ -59,7 +59,7 @@
   <% if @exchange.labels? %>
     [<%= @exchange.labels.join(",") %>]
   <% end %>
-  <%= link_to @exchange.title, @exchange, id: "discussionLink"  %>
+  <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
 </h2>
 
 <% cache [@exchange, @page] do %>

@@ -34,21 +34,23 @@
           <%
             other_participants = d.participants.reject { |p| p == current_user }
           %>
-          <% if other_participants.length == 0 %>
-            <td class="participants">
+          <td class="participants">
+            <% if other_participants.length == 0 %>
+
               Conversation with nobody
-            </td>
-          <% elsif other_participants.length > 3 %>
-            <td class="participants">
+
+            <% elsif other_participants.length > 3 %>
+
               Conversation with <%= other_participants.length %> participants
-            </td>
-          <% else %>
-            <td class="participants">
+
+            <% else %>
+
               Conversation with
               <%= safe_join(other_participants.map {|p| profile_link(p) },
                             ", ") %>
-            </td>
-          <% end %>
+
+            <% end %>
+          </td>
         <% else %>
           <td class="started_by">
             Started by <%= profile_link(d.poster) %>

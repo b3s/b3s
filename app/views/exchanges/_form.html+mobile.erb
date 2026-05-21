@@ -31,12 +31,12 @@
 </p>
 
 <p>
-  <%= f.check_box(:nsfw) %> Mark as NSFW<br />
+  <%= f.check_box(:nsfw) %> Mark as NSFW<br>
   <% if @exchange.closeable_by?(current_user) %>
-    <%= f.check_box(:closed) %> Closed<br />
+    <%= f.check_box(:closed) %> Closed<br>
   <% end %>
   <% if @exchange.kind_of?(Discussion) && current_user.moderator? %>
-    <%= f.check_box(:sticky) %> Sticky<br />
+    <%= f.check_box(:sticky) %> Sticky<br>
   <% end %>
 </p>
 

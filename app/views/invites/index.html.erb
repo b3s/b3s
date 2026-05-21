@@ -8,17 +8,22 @@
 </h2>
 
 <div class="content">
-  <p>
-    <% if current_user.available_invites? %>
-      <% if current_user.user_admin? %>
+  <% if current_user.available_invites? %>
+    <% if current_user.user_admin? %>
+      <p>
         You are a user admin, and can
         <%= link_to("invite as many people as you like",
                     new_invite_path) %>.
         You can also grant other users invites from their profile pages.
         <%= link_to("Click here to view everyone's invites",
                     all_invites_path) %>.
-        </p><p>
-      <% elsif current_user.available_invites? %>
+      </p>
+      <p>
+        Sent invites will expire after 14 days, and will be returned if
+        unused or cancelled.
+      </p>
+    <% elsif current_user.available_invites? %>
+      <p>
         You have
         <% if current_user.available_invites == 1 %>
           <strong>one available invite</strong>,
@@ -29,17 +34,19 @@
           </strong>,
           <%= link_to "click here to invite someone", new_invite_path %>.
         <% end %>
-      <% end %>
-      Sent invites will expire after 14 days, and will be returned if
-      unused or cancelled.
-    <% else %>
+        Sent invites will expire after 14 days, and will be returned if
+        unused or cancelled.
+      </p>
+    <% end %>
+  <% else %>
+    <p>
       You don't currently have any available invites.
       <% if current_user.invites? %>
         You can cancel one of your invites to reclaim it, or wait
         until they expire.
       <% end %>
-    <% end %>
-  </p>
+    </p>
+  <% end %>
 </div>
 
 <% if @invites && @invites.length > 0 %>
