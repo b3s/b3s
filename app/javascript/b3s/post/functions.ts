@@ -35,14 +35,14 @@ function editPost(post: Post, elem: HTMLDivElement) {
 }
 
 function postAttributes(elem: HTMLDivElement): Partial<PostAttributes> {
-  if (!elem.dataset.post_id) {
+  if (!elem.dataset.postId) {
     return {};
   }
   return {
-    id: parseInt(elem.dataset.post_id, 10),
-    user_id: parseInt(elem.dataset.user_id, 10),
-    exchange_id: parseInt(elem.dataset.exchange_id),
-    exchange_type: elem.dataset.exchange_type
+    id: parseInt(elem.dataset.postId, 10),
+    user_id: parseInt(elem.dataset.userId, 10),
+    exchange_id: parseInt(elem.dataset.exchangeId),
+    exchange_type: elem.dataset.exchangeType
   };
 }
 

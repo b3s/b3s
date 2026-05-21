@@ -1,7 +1,7 @@
 <%# locals: (post:, functions: false, title: false, hide_nsfw: false) %>
 
   <% if post.deleted? %>
-    <div class="post" id="post-<%= post.id %>" data-post_id="<%= post.id %>">
+    <div class="post" id="post-<%= post.id %>" data-post-id="<%= post.id %>">
       <div class="deleted-post">
         This post has been deleted.
       </div>
@@ -9,10 +9,10 @@
   <% else %>
     <div class="post post_by_user<%= post.user.id %><%= " me_post" if post.me_post? && !post.deleted? %>"
          id="post-<%= post.id %>"
-         data-user_id="<%= post.user.id %>"
-         data-exchange_id="<%= post.exchange_id %>"
-         data-exchange_type="<%= post.exchange.type %>"
-         data-post_id="<%= post.id %>" >
+         data-user-id="<%= post.user.id %>"
+         data-exchange-id="<%= post.exchange_id %>"
+         data-exchange-type="<%= post.exchange.type %>"
+         data-post-id="<%= post.id %>" >
       <% if title %>
         <div class="title">
           <% if post.exchange.labels? %>

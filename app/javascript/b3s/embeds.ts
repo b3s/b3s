@@ -46,8 +46,8 @@ readyHandler.ready(function () {
      */
     const getPostId = (post: HTMLElement) => {
       let postId = 0;
-      if (post.dataset.post_id) {
-        postId = parseInt(post.dataset.post_id);
+      if (post.dataset.postId) {
+        postId = parseInt(post.dataset.postId);
       } else if (post.id.includes("post-")) {
         postId = parsePostIdString(post.id);
       }

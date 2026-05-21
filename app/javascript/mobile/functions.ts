@@ -152,7 +152,7 @@ readyHandler.start(function () {
 
   // Muted posts
   document.querySelectorAll(".post").forEach((post: HTMLDivElement) => {
-    const userId = parseInt(post.dataset.user_id);
+    const userId = parseInt(post.dataset.userId);
     const mutedUsers = window.mutedUsers as number[] | null;
 
     if (mutedUsers && mutedUsers.indexOf(userId) !== -1) {

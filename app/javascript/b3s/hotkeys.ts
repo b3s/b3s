@@ -39,7 +39,7 @@ type KeySequence = [RegExp, () => void];
     if (match) {
       const postId = match[1];
       return (
-        document.querySelector(`.post[data-post_id="${postId}"]`) || undefined
+        document.querySelector(`.post[data-post-id="${postId}"]`) || undefined
       );
     }
   };

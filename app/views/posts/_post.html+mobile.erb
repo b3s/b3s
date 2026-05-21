@@ -1,6 +1,6 @@
 <%# locals: (post:, functions: false, title: false) %>
 <% if post.deleted? %>
-  <div class="post" id="post-<%= post.id %>" data-post_id="<%= post.id %>">
+  <div class="post" id="post-<%= post.id %>" data-post-id="<%= post.id %>">
     <div class="deleted-post">
       This post has been deleted.
     </div>
@@ -20,8 +20,8 @@
     </div>
   <% end %>
   <div class="post post_by_user<%= post.user.id %><%= " me_post" if post.me_post? %>"
-       data-user_id="<%= post.user.id %>"
-       data-post_id="<%= post.id %>"
+       data-user-id="<%= post.user.id %>"
+       data-post-id="<%= post.id %>"
        id="post-<%= post.id %>">
     <% if post.me_post? %>
       <div class="body">
