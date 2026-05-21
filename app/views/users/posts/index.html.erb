@@ -9,10 +9,10 @@
 
 <% if @posts %>
   <%= render(partial: "components/pagination",
-             locals: { p: @posts, anchor: :start }) %>
+             locals: { paginated: @posts, anchor: :start }) %>
   <%= render(partial: "posts/list", locals: { posts: @posts }) %>
   <%= render(partial: "components/pagination",
-             locals: { p: @posts, anchor: :start }) %>
+             locals: { paginated: @posts, anchor: :start }) %>
 <% else %>
   <p>
     No posts were found.

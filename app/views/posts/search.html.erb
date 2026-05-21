@@ -13,11 +13,11 @@
 
 <% if @posts && @posts.length > 0 %>
   <%= render(partial: "components/pagination",
-             locals: { p: @posts, anchor: :start,
+             locals: { paginated: @posts, anchor: :start,
                        pagination_params: { q: search_query } }) %>
   <%= render(partial: "posts/list", locals: { posts: @posts }) %>
   <%= render(partial: "components/pagination",
-             locals: { p: @posts, anchor: :start,
+             locals: { paginated: @posts, anchor: :start,
                        pagination_params: { q: search_query } }) %>
 <% else %>
   <p>

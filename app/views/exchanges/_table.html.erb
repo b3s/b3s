@@ -10,7 +10,7 @@
 <% if exchanges.any? %>
   <%= pagination ||= render(partial: "components/pagination",
                             locals: {
-                              p: exchanges,
+                              paginated: exchanges,
                               pagination_params: pagination_params }) %>
   <table class="discussions">
     <% exchanges.each do |d| %>
@@ -84,7 +84,7 @@
   </table>
   <%= pagination ||= render(partial: "components/pagination",
                             locals: {
-                              p: exchanges,
+                              paginated: exchanges,
                               pagination_params: pagination_params }) %>
 <% else %>
   <div class="content">

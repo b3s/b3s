@@ -2,12 +2,12 @@
 
 <% if @posts %>
   <%= render(partial: "components/pagination",
-             locals: { p: @posts, pagination_params: { q: search_query } }) %>
+             locals: { paginated: @posts, pagination_params: { q: search_query } }) %>
   <div class="posts">
     <%= render(partial: "posts/post", collection: @posts) %>
   </div>
   <%= render(partial: "components/pagination",
-             locals: { p: @posts, pagination_params: { q: search_query } }) %>
+             locals: { paginated: @posts, pagination_params: { q: search_query } }) %>
 <% else %>
   <div class="page_content">
     <p>

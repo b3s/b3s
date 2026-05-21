@@ -9,7 +9,7 @@
      data-posts-count="<%= exchange.posts_count %>"
      data-type="<%= exchange.class %>">
   <%= render(partial: "components/pagination",
-             locals: { p: posts, anchor: :start }) %>
+             locals: { paginated: posts, anchor: :start }) %>
   <div class="posts">
     <% if context_posts.any? %>
       <div class="context">
@@ -23,5 +23,5 @@
   </div>
   <div id="newPosts"></div>
   <%= render(partial: "components/pagination",
-             locals: { p: posts, anchor: :start }) %>
+             locals: { paginated: posts, anchor: :start }) %>
 </div>
