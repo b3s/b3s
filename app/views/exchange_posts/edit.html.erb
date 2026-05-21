@@ -4,7 +4,9 @@
 <% unless request.xhr? %>
   <h2 class="section">
     <% if @exchange.labels? %>
-      [<%= @exchange.labels.join(",") %>]
+      [
+      <%= @exchange.labels.join(",") %>
+      ]
     <% end %>
     <%= link_to h(@exchange.title), @exchange %> &raquo;
     <%= link_to "Edit post", [:edit, @exchange, @post] %>
@@ -13,6 +15,7 @@
 
 <%= form_for([@exchange, @post]) do |f| %>
   <%= f.hidden_field(:format, class: "format") %>
+
   <p>
     <%= f.text_area(
       :body,
@@ -22,6 +25,7 @@
       "data-formats"        => "markdown html"
     ) %>
   </p>
+
   <p>
     <button type="submit">
       Save

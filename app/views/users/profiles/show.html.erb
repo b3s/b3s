@@ -6,8 +6,10 @@
     <% if @user == current_user %>
       <%= link_to "Edit your profile", edit_user_profile_path( @user.username) %>
     <% elsif current_user.user_admin? %>
-      <%= link_to "Edit", edit_user_profile_path( @user.username) %> /
+      <%= link_to "Edit", edit_user_profile_path( @user.username) %>
+      /
     <% end %>
+
     <% unless @user == current_user %>
       <%= link_to("Start a conversation",
                   new_with_conversations_path(username: @user.username)) %>
@@ -16,33 +18,35 @@
 <% end %>
 
 <h2 class="section">
-  <%= link_to "Users", users_path %> &raquo;
-  <%= profile_link(@user) %>
+  <%= link_to "Users", users_path %> &raquo; <%= profile_link(@user) %>
 </h2>
 
 <div id="userinfo">
   <p class="avatar_and_name clearfix">
     <%= avatar_image_tag @user %>
     <%= profile_link(@user, @user.username, class: "username") %>
+
     <% if @user.realname? || @user.location? %>
-      <br />
+      <br>
       <% if @user.realname? %>
         <%= h @user.realname %>
       <% end %>
       <% if @user.location? %>
-        <small>from</small> <%= h @user.location %>
+        <small>from</small>
+        <%= h @user.location %>
       <% end %>
     <% end %>
+
     <% if @user.pronouns? %>
-      <br /><%= @user.pronouns %>
+      <br>
+      <%= @user.pronouns %>
     <% end %>
   </p>
 
   <% if @user.previous_usernames.any? %>
     <div class="previous_usernames">
-      <b>
-        Previously Known As:
-      </b>
+      <b> Previously Known As: </b>
+
       <ul>
         <% @user.previous_usernames.uniq.each do |username| %>
           <li>
@@ -61,10 +65,7 @@
 
   <% if !B3S.config.signups_allowed && current_user? && current_user.user_admin? && !@user.user_admin? %>
     <p class="grant_invites">
-      <strong>
-        Invites:
-      </strong>
-      <%= @user.available_invites %> &ndash;
+      <strong> Invites: </strong> <%= @user.available_invites %> &ndash;
       <%= link_to("Grant one",
                   user_invites_path(user_id: @user.username),
                   method: :post) %>
@@ -75,7 +76,7 @@
                   data: {
                     confirm: "Are you sure you want to revoke all invites?"
                   }) %>
-      <br />
+      <br>
     </p>
   <% end %>
 
@@ -83,27 +84,33 @@
     <% if @user.discussions.viewable_by(current_user).any? %>
       <%= link_to("View discussions",
                   user_profile_discussions_path( @user.username)) %>
-      (<%= @user.discussions.viewable_by(current_user).count %>)
-      <br />
+      (
+      <%= @user.discussions.viewable_by(current_user).count %>
+      )
+      <br>
     <% end %>
 
     <% if @user.participated_discussions.viewable_by(current_user).any? %>
       <%= link_to("View participated discussions",
                   participated_user_profile_discussions_path( @user.username)) %>
-      (<%= @user.participated_discussions.viewable_by(current_user).count %>)
-      <br />
+      (
+      <%= @user.participated_discussions.viewable_by(current_user).count %>
+      )
+      <br>
     <% end %>
 
     <% if @user.discussion_posts.viewable_by(current_user).any? %>
       <%= link_to "View posts", user_profile_posts_path( @user.username) %>
-      (<%= @user.discussion_posts.viewable_by(current_user).count %>)
-      <br />
+      (
+      <%= @user.discussion_posts.viewable_by(current_user).count %>
+      )
+      <br>
     <% end %>
 
     <% unless !current_user? || @user == current_user %>
       <%= link_to("Start a conversation with #{@user.username}",
                   new_with_conversations_path(username: @user.username)) %>
-      <br />
+      <br>
       <% if current_user.muted?(@user) %>
         <%= link_to("Unmute user",
                     unmute_user_profile_path( @user.username),
@@ -118,34 +125,27 @@
 
   <p>
     <% if @user.birthday? %>
-      <strong>
-        Birthday
-      </strong>:
+      <strong> Birthday </strong>
+      :
       <%= @user.birthday.strftime("%b %d") %>
-      <br />
+      <br>
     <% end %>
 
-    <strong>
-      Member since
-    </strong>:
+    <strong> Member since </strong>:
     <%= time_tag @user.created_at, class: "relative" %>
-    <br />
+    <br>
+
 
     <% if @user.inviter %>
-      <strong>
-        Invited by
-      </strong>:
+      <strong> Invited by </strong>
+      :
       <%= profile_link(@user.inviter) %>
-      <br />
+      <br>
     <% end %>
 
-    <strong>
-      Last active
-    </strong>:
+    <strong> Last active </strong>:
     <% if @user.online? %>
-      <strong>
-        Online now
-      </strong>
+      <strong> Online now </strong>
     <% else %>
       <%= time_tag(@user.last_active, class: "relative") %>
     <% end %>
@@ -153,14 +153,16 @@
 
     <% if @user.memorialized? %>
       This account has been memorialized.
-      <br />
+      <br>
     <% elsif @user.deactivated? %>
       This account has been deactivated.
-      <br />
+      <br>
     <% elsif @user.admin? %>
-      <%= @user.username %> is an
-      <span class="admin"><strong>admin</strong></span>.
-      <br />
+      <%= @user.username %>
+      is an
+      <span class="admin"><strong>admin</strong></span>
+      .
+      <br>
     <% end %>
   </p>
 
@@ -170,6 +172,7 @@
         <div class="label">
           <%= ul.label %>
         </div>
+
         <div class="link">
           <%= user_link(ul) %>
         </div>
@@ -182,38 +185,38 @@
       <h3>
         <%= @user.username %> has invited <%= @user.invitees.count %> users:
       </h3>
+
       <ul>
         <% @user.invitees.each do |invitee| %>
           <li>
-            <%= profile_link(invitee) %>
-            (joined <%= time_tag invitee.created_at, class: "relative" %>)
+            <%= profile_link(invitee) %> (joined
+            <%= time_tag invitee.created_at, class: "relative" %>)
           </li>
         <% end %>
       </ul>
     </div>
   <% end %>
-
 </div>
+
 <div id="userPosts">
   <% if @posts && @posts.length > 0 %>
     <% cache [@user, "profile/posts"] do %>
-      <%= render(partial: "posts/posts",
-                 locals: { posts: @posts,
-                   title: true,
-                   no_pagination: true,
-                   hide_nsfw: true }) %>
+      <%= render(partial: "posts/list", locals: { posts: @posts }) %>
     <% end %>
   <% elsif current_user? && @user == current_user %>
     <div class="welcome">
       <h2>Welcome to <%= B3S.config.forum_name %>!</h2>
+
       <p>
-        This is your user profile. Normally your posts will show up in
-        this space, but you haven't posted anything yet.
+        This is your user profile. Normally your posts will show up in this
+        space, but you haven't posted anything yet.
       </p>
+
       <p>
         Why don't you go
-        <%= link_to "check out some discussions", discussions_path %>,
-        and maybe introduce yourself?<br />
+        <%= link_to "check out some discussions", discussions_path %>, and maybe
+        introduce yourself?
+        <br>
         Or maybe
         <%= link_to "edit your profile", edit_user_profile_path( @user.username) %>
         and add some more info about yourself?

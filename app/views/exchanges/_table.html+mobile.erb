@@ -1,9 +1,4 @@
-<%
-  no_exchanges ||= "No discussions here yet. " +
-                   link_to("Create the first!", new_discussion_path)
-  pagination_params ||= {}
-%>
-
+<%# locals: (exchanges:, no_exchanges: nil, pagination_params: {}) %>
 <% if exchanges.any? %>
   <div class="discussions">
     <% exchanges.each do |d| %>
@@ -13,32 +8,35 @@
             <%= new_posts_count(d) %>
           </div>
         <% end %>
+
         <h2>
           <% if d.labels? %>
-            <span class="labels">
-              [<%= d.labels.join(',') %>]
-            </span>
+            <span class="labels">[<%= d.labels.join(',') %>]</span>
           <% end %>
+
           <%= link_to d.title, last_viewed_page_path(d) %>
         </h2>
+
         <p>
           <% if d.kind_of?(Conversation) %>
-            <%
-              others = d.participants.reject { |p| p == current_user }
-            %>
+            <% others = d.participants.reject { |p| p == current_user } %>
             <% if others.length == 0 %>
               With nobody,
             <% elsif others.length > 2 %>
-              With <%= others.length %> participants,
+              With
+              <%= others.length %>
+              participants,
             <% else %>
-              With <%= safe_join others.map { |p| profile_link(p) }, ", " %>,
+              With
+              <%= safe_join others.map { |p| profile_link(p) }, ", " %>
+              ,
             <% end %>
           <% else %>
-            By <%= d.poster.username %>,
+            By
+            <%= d.poster.username %>
+            ,
           <% end %>
-          <%= d.posts_count %> posts.
-          Last:
-          <%= d.last_poster.username %>
+          <%= d.posts_count %> posts. Last: <%= d.last_poster.username %>
           <%= time_tag d.last_post_at, class: 'relative' %>
         </p>
       </div>
@@ -46,10 +44,15 @@
   </div>
   <%= render(partial: 'components/pagination',
              locals: {
-               p: exchanges,
+               paginated: exchanges,
                pagination_params: pagination_params }) %>
 <% else %>
   <p>
-    <%= no_exchanges %>
+    <% if no_exchanges %>
+      <%= no_exchanges %>
+    <% else %>
+      No discussions here yet.
+      <%= link_to "Create the first!", new_discussion_path %>
+    <% end %>
   </p>
 <% end %>

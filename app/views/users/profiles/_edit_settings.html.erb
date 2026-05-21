@@ -2,6 +2,7 @@
   <h2>
     <%= t("user.edit.account_info") %>
   </h2>
+
   <%= f.labelled_text_field :email, size: 50 %>
   <%= f.labelled_password_field :password %>
   <%= f.labelled_password_field :password_confirmation %>
@@ -11,6 +12,7 @@
   <h2>
     <%= t("user.edit.settings") %>
   </h2>
+
   <%= f.labelled_select(:preferred_format,
                         [["Markdown", "markdown"], ["HTML", "html"]]) %>
 </fieldset>
@@ -19,15 +21,19 @@
   <h2>
     <%= t("user.edit.theme") %>
   </h2>
+
   <%= f.labelled_select(:theme,
                         Theme.all.map { |t| [t.full_name, t.id] }) %>
+
   <%= f.labelled_select(:mobile_theme,
                         Theme.mobile.map { |t| [t.full_name, t.id] }) %>
+
   <%= f.labelled_text_field(
         :stylesheet_url,
         size: 80,
         description: t("user.edit.stylesheet_url_description")
   ) %>
+
   <%= f.labelled_text_field(
         :mobile_stylesheet_url,
         size: 80,

@@ -3,22 +3,26 @@
 
 <h2 class="section">
   <% if @exchange.labels? %>
-    [<%= @exchange.labels.join(",") %>]
+    [
+    <%= @exchange.labels.join(",") %>
+    ]
   <% end %>
-  <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
-  &raquo;
+  <%= link_to @exchange.title, @exchange, id: "discussionLink" %> &raquo;
   Search: <em><%= search_query %></em>
 </h2>
 
 <%= render partial: "search/tips" %>
 
 <% if @posts && @posts.length > 0 %>
-  <%= render(partial: "posts/posts",
-             locals: {
-               posts: @posts,
-               title: false,
-               permalink: true,
-               pagination_params: { q: search_query }}) %>
+  <%= render(partial: "components/pagination",
+             locals: { paginated: @posts, anchor: :start,
+                       pagination_params: { q: search_query } }) %>
+  <div class="posts">
+    <%= render(partial: "posts/post", collection: @posts) %>
+  </div>
+  <%= render(partial: "components/pagination",
+             locals: { paginated: @posts, anchor: :start,
+                       pagination_params: { q: search_query } }) %>
 <% else %>
   <p>
     No posts were found.

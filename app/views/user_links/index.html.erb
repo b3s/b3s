@@ -2,10 +2,8 @@
 <% content_for(:page_title, "User links") %>
 
 <h2 class="section">
-  <%= link_to "Users", users_path %>
-  &raquo;
-  <%= link_to "Links", user_links_path %>
-  &raquo;
+  <%= link_to "Users", users_path %> &raquo;
+  <%= link_to "Links", user_links_path %> &raquo;
   <%= link_to @label, user_links_path(type: @label) %>
 </h2>
 
@@ -16,11 +14,13 @@
     <th>Username</th>
     <th><%= @label %></th>
   </tr>
+
   <% @users.each do |user| %>
     <tr>
       <td class="username">
         <%= profile_link(user) %>
       </td>
+
       <td class="user-links">
         <ul>
           <% user.user_links.sorted.with_label(@label).each do |ul| %>

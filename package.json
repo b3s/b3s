@@ -29,6 +29,8 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
+    "@herb-tools/formatter": "^0.10.1",
+    "@herb-tools/linter": "^0.10.1",
     "@types/dropzone": "^5.7.9",
     "@types/rails__ujs": "^6.0.4",
     "@types/react": "^19.2.14",
@@ -46,6 +48,9 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "lint": "eslint 'app/javascript'",
+    "lint:herb": "herb-lint",
+    "format:herb": "herb-format --check .",
+    "format:herb:fix": "herb-format .",
     "build": "pnpm run build-dev --minify",
     "build-dev": "esbuild app/javascript/application.ts app/javascript/mobile.ts --bundle --sourcemap --outdir=app/assets/builds --target=es2020",
     "build:css": "postcss './app/assets/stylesheets/**/*.postcss' --base ./app/assets/stylesheets --dir ./app/assets/builds --ext css",

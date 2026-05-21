@@ -1,142 +1,154 @@
 <!DOCTYPE html>
+
 <html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <%= page_title_tag %>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <%= page_title_tag %>
 
-  <%# Stylesheet %>
-  <%= stylesheet_link_tag "application" %>
-  <% if current_user? && current_user.stylesheet_url? %>
-    <%= stylesheet_link_tag current_user.stylesheet_url.strip %>
-  <% else %>
-    <%= stylesheet_link_tag theme.stylesheet_path %>
-  <% end %>
+    <%# Stylesheet %>
+    <%= stylesheet_link_tag "application" %>
 
-  <%= icon_tags %>
-  <%= csrf_meta_tag %>
-</head>
-<body class="<%= body_class %>">
+    <% if current_user? && current_user.stylesheet_url? %>
+      <%= stylesheet_link_tag current_user.stylesheet_url.strip %>
+    <% else %>
+      <%= stylesheet_link_tag theme.stylesheet_path %>
+    <% end %>
 
-  <div id="header">
-    <h1><%= B3S.config.forum_title.html_safe %></h1>
+    <%= icon_tags %>
+    <%= csrf_meta_tag %>
+  </head>
 
-    <%# Search form %>
-    <% if current_user? || B3S.public_browsing? %>
-      <div id="search">
-        <%= form_tag((@search_path || search_path), method: 'get') do %>
-          <%= text_field_tag 'q', search_query, class: :query %>
-          <%= select_tag 'search_mode', options_for_select(
+  <body class="<%= body_class %>">
+    <div id="header">
+      <h1><%= sanitize(B3S.config.forum_title) %></h1>
+
+      <%# Search form %>
+      <% if current_user? || B3S.public_browsing? %>
+        <div id="search">
+          <%= form_tag((@search_path || search_path), method: 'get') do %>
+            <%= text_field_tag 'q', search_query, class: :query %>
+
+            <%= select_tag 'search_mode', options_for_select(
             search_mode_options(@exchange),
             @search_path || search_path
           ) %>
-          <%= submit_tag "Search", name: nil %>
-        <% end %>
-      </div>
-    <% end -%>
 
-    <%# Account info %>
-    <div id="account">
-      <% if current_user? %>
-        Hello, <%= profile_link(current_user) %>!
-        (<%= link_to("Sign out",
+            <%= submit_tag "Search", name: nil %>
+          <% end %>
+        </div>
+      <% end -%>
+
+      <%# Account info %>
+      <div id="account">
+        <% if current_user? %>
+          Hello,
+          <%= profile_link(current_user) %>
+          ! (
+          <%= link_to("Sign out",
                      session_path,
                      method: :delete,
-                     data: { confirm: "Do you really want to sign out?" }) %>)
-      <% else %>
-        <% if B3S.config.signups_allowed %>
-          <%= link_to("Sign up", new_registration_path) %>
-          or
+                     data: { confirm: "Do you really want to sign out?" }) %>
+          )
+        <% else %>
+          <% if B3S.config.signups_allowed %>
+            <%= link_to("Sign up", new_registration_path) %>
+            or
+          <% end %>
+          <%= link_to "Log in", new_session_path %>
         <% end %>
-        <%= link_to "Log in", new_session_path %>
-      <% end %>
-    </div>
+      </div>
 
-    <%# Navigation tabs %>
-    <% if current_user? || B3S.public_browsing? %>
-      <ul id="navigation">
-        <%= header_tab 'Discussions', discussions_path %>
-        <% if current_user? %>
-          <%= header_tab 'Following', following_discussions_path %>
-          <%= header_tab 'Favorites', favorites_discussions_path %>
-          <% if current_user.unread_conversations? %>
-            <%= header_tab(
+      <%# Navigation tabs %>
+      <% if current_user? || B3S.public_browsing? %>
+        <ul id="navigation">
+          <%= header_tab 'Discussions', discussions_path %>
+
+          <% if current_user? %>
+            <%= header_tab 'Following', following_discussions_path %>
+            <%= header_tab 'Favorites', favorites_discussions_path %>
+            <% if current_user.unread_conversations? %>
+              <%= header_tab(
                 "Conversations (#{current_user.unread_conversations_count})",
                 conversations_path,
                 section: :conversations,
                 class:   'new'
-              )
-            %>
-          <% else %>
-            <%= header_tab 'Conversations', conversations_path %>
+              ) %>
+            <% else %>
+              <%= header_tab 'Conversations', conversations_path %>
+            <% end %>
           <% end %>
-        <% end %>
-        <%= header_tab 'Users', users_path %>
-        <% if current_user? && (current_user.invites? || current_user.available_invites?) %>
-          <% if !current_user.user_admin? && current_user.available_invites? %>
-            <%= header_tab(
+
+          <%= header_tab 'Users', users_path %>
+
+          <% if current_user? && (current_user.invites? || current_user.available_invites?) %>
+            <% if !current_user.user_admin? && current_user.available_invites? %>
+              <%= header_tab(
                 "Invites (#{current_user.available_invites})",
                 invites_path,
                 section: :invites
-              )
-            %>
-          <% else %>
-            <%= header_tab 'Invites', invites_path %>
+              ) %>
+            <% else %>
+              <%= header_tab 'Invites', invites_path %>
+            <% end %>
           <% end %>
-        <% end %>
-      </ul>
-    <% end %>
-  </div>
-
-  <div id="wrapper">
-
-    <%# Notice %>
-    <% if flash[:notice] %>
-      <div class="notice">
-        <%= raw flash[:notice] %>
-      </div>
-    <% end %>
-
-    <%# Sidebar %>
-    <% if content_for?(:sidebar) %>
-      <div id="sidebar">
-        <%= yield :sidebar %>
-      </div>
-    <% end %>
-
-    <%# Main content %>
-    <div id="content">
-      <%= yield %>
-      <% if mobile_user_agent? %>
-        <div class="mobile_link">
-          <p><%= link_to "mobile version", mobile_format: 'mobile' %></p>
-        </div>
+        </ul>
       <% end %>
     </div>
-  </div>
 
-  <%= javascript_include_tag "application" %>
+    <div id="wrapper">
+      <%# Notice %>
+      <% if flash[:notice] %>
+        <div class="notice">
+          <%= flash[:notice] %>
+        </div>
+      <% end %>
 
-  <%# B3S configuration %>
-  <script>
+      <%# Sidebar %>
+      <% if content_for?(:sidebar) %>
+        <div id="sidebar">
+          <%= yield :sidebar %>
+        </div>
+      <% end %>
+
+      <%# Main content %>
+      <div id="content">
+        <%= yield %>
+
+        <% if mobile_user_agent? %>
+          <div class="mobile_link">
+            <p><%= link_to "mobile version", mobile_format: 'mobile' %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%= javascript_include_tag "application", nonce: true %>
+
+    <%# B3S configuration %>
+    <script nonce="<%= request.content_security_policy_nonce %>">
     B3S.Configuration = <%= frontend_configuration.to_json.html_safe %>;
   </script>
 
-  <%# Muted users %>
-  <script>
+    <%# Muted users %>
+    <script nonce="<%= request.content_security_policy_nonce %>">
     window.mutedUsers = <%= muted_user_ids(@exchange).to_json %>;
   </script>
 
-  <%# Google Analytics %>
-  <% if B3S.config.google_analytics.present? %>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= B3S.config.google_analytics %>"></script>
-    <script>
+    <%# Google Analytics %>
+    <% if B3S.config.google_analytics.present? %>
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script
+        async
+        nonce="<%= request.content_security_policy_nonce %>"
+        src="https://www.googletagmanager.com/gtag/js?id=<%= B3S.config.google_analytics %>"
+      ></script>
+      <script nonce="<%= request.content_security_policy_nonce %>">
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', '<%= B3S.config.google_analytics %>', { 'anonymize_ip': true });
+      gtag('config', <%= B3S.config.google_analytics.to_json %>, { 'anonymize_ip': true });
     </script>
-  <% end %>
-</body>
+    <% end %>
+  </body>
 </html>

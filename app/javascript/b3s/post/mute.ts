@@ -4,7 +4,7 @@ declare const window: Window & {
 
 export default function mute(post: HTMLElement) {
   const mutedUsers = window.mutedUsers;
-  const userId = parseInt(post.dataset.user_id, 10);
+  const userId = parseInt(post.dataset.userId, 10);
 
   if (mutedUsers && mutedUsers.indexOf(userId) !== -1) {
     const notice = document.createElement("div");

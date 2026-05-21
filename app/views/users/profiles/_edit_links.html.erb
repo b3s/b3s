@@ -1,7 +1,8 @@
+<%# locals: (f:, user:) %>
 <%= react_component(
   "EditUserLinks",
   props: {
     labels: UserLink.labels,
-    userLinks: UserLinkResource.new(@user.user_links.sorted).to_h
+    userLinks: UserLinkResource.new(user.user_links.sorted).to_h
   }
 ) %>

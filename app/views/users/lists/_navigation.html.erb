@@ -3,26 +3,32 @@
                 users_path,
                 action: "index",
                 class: "AllUsersTab") %>
+
   <%= users_tab("Online",
                 online_users_path,
                 action: "online",
                 class: "OnlineUsersTab") %>
+
   <%= users_tab("Recently Joined",
                 recently_joined_users_path,
                 action: "recently_joined",
                 class: "RecentlyJoinedTab") %>
+
   <%= users_tab("Links",
                 all_user_links_path,
                 controller: "user_links",
                 class: "UserLinksTab") %>
+
   <%= users_tab("Top Posters",
                 top_posters_users_path,
                 action: "top_posters",
                 class: "TopPostersTab") %>
+
   <%= users_tab("Admins",
                 admins_users_path,
                 action: "admins",
                 class: "AdminsTab") %>
+
   <%= users_tab("Deactivated",
                 deactivated_users_path,
                 action: "deactivated",

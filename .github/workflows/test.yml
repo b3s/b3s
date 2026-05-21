@@ -19,6 +19,30 @@ jobs:
       - name: Check code
         run: pnpm lint
 
+  herb-lint:
+    name: Herb Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6.0.8
+        with:
+          run_install: true
+      - name: Check code
+        run: pnpm lint:herb
+
+  herb-format:
+    name: Herb Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6.0.8
+        with:
+          run_install: true
+      - name: Check code
+        run: pnpm format:herb
+
   prettier:
     name: Prettier
     runs-on: ubuntu-latest

@@ -2,39 +2,37 @@
   <h2>
     Discussions
   </h2>
+
   <ul class="meta">
     <li class="<%= "current" if discussion_action?("index") %>">
       <%= link_to "Everything", discussions_path %>
+
       <span class="count">
         <%= Discussion.viewable_by(current_user).count %>
       </span>
     </li>
+
     <% if current_user? %>
       <% if current_user.following_count > 0 %>
         <li class="<%= "current" if discussion_action?("following") %>">
           <%= link_to "Following", following_discussions_path %>
-          <span class="count">
-            <%= current_user.following_count %>
-          </span>
+          <span class="count"><%= current_user.following_count %></span>
         </li>
       <% end %>
       <% if current_user.favorites_count > 0 %>
         <li class="<%= "current" if discussion_action?("favorites") %>">
           <%= link_to "Favorites", favorites_discussions_path %>
-          <span class="count">
-            <%= current_user.favorites_count %>
-          </span>
+          <span class="count"><%= current_user.favorites_count %></span>
         </li>
       <% end %>
       <% if current_user.hidden_count > 0 %>
         <li class="<%= "current" if discussion_action?("hidden") %>">
           <%= link_to "Hidden", hidden_discussions_path %>
-          <span class="count">
-            <%= current_user.hidden_count %>
-          </span>
+          <span class="count"><%= current_user.hidden_count %></span>
         </li>
       <% end %>
     <% end %>
+
     <li class="<%= "current" if discussion_action?("popular") %>">
       <%= link_to "Popular", popular_discussions_path %>
     </li>
@@ -48,6 +46,7 @@
                   new_discussion_path,
                   class: "create button") %>
     </p>
+
     <p>
       <%= link_to("New private conversation",
                   new_conversation_path,
@@ -59,12 +58,14 @@
 <h2>
   Help
 </h2>
+
 <ul class="links">
   <% if B3S.config.code_of_conduct? %>
     <li>
       <%= link_to_unless_current "Code of Conduct", code_of_conduct_help_path %>
     </li>
   <% end %>
+
   <li>
     <%= link_to_unless_current "Keyboard shortcuts", keyboard_help_path %>
   </li>

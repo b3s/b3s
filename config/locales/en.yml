@@ -150,7 +150,7 @@ en:
       mobile_stylesheet_url_description: >-
         Enter a URL here to override the mobile theme
       warning: Warning
-      missing_time_zone_link: "You haven't %{link} yet!"
+      missing_time_zone_link_html: "You haven't %{link} yet!"
       chosen_a_time_zone: chosen a time zone
       social_media: Social Media
       messaging: Messaging
@@ -160,6 +160,9 @@ en:
         provide a bit more information:
     sign_up: Sign up
   invite:
+    available:
+      one: one available invite
+      other: "%{count} available invites"
     cancelled: Your invite has been cancelled.
     expired: Your invite has expired!
     failed: >-

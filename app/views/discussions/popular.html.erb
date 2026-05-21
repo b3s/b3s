@@ -6,8 +6,8 @@
 <% end %>
 
 <h2 class="section">
-  <%= link_to "Popular discussions", popular_discussions_path %>
-  (<%= "last #{@days > 1 ? "#{@days} days" : "day"}" %>)
+  <%= link_to "Popular discussions", popular_discussions_path %> (last
+  <%= @days > 1 ? "#{@days} days" : "day" %>)
 </h2>
 
 <%= render(partial: "exchanges/table",

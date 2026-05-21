@@ -12,12 +12,12 @@
       <label>Please enter your email address</label>
       <%= text_field_tag "email", "", class: :text %>
     </fieldset>
+
     <fieldset>
       <button type="submit">
         Send
       </button>
-      or
-      <%= link_to "Return to login screen", new_session_path %>
+      or <%= link_to "Return to login screen", new_session_path %>
     </fieldset>
   <% end %>
 </div>

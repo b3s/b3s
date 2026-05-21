@@ -1,41 +1,27 @@
 <% content_for(:page_title, "Please log in") %>
 
 <section class="login">
-  <div id="login" class="login_box">
+  <div class="login_box">
     <%= form_tag(session_path, class: "form") do %>
       <p>
         <label>Email</label>
         <%= text_field_tag "email", "", class: :text %>
       </p>
+
       <p>
         <label>Password</label>
         <%= password_field_tag "password", "", class: :text %>
       </p>
+
       <p>
         <%= submit_tag "Login" %>
       </p>
     <% end %>
   </div>
 
-  <div id="password-reminder" class="login_box">
-    <%= form_tag(password_reset_path, class: "form") do %>
-      <p>
-        Enter your email address, and we'll send you a link where you
-        can reset your password.
-      </p>
-      <p>
-        <label>Email</label>
-        <%= text_field_tag "email", "", class: :text %>
-      </p>
-      <p>
-        <%= submit_tag "Send" %>
-      </p>
-    <% end %>
-  </div>
-
   <div id="login-functions">
     <p>
-      <%= link_to "Password reminder", "#", class: "forgot-password" %>
+      <%= link_to "Password reminder", new_password_reset_path %>
       <span class="separator">|</span>
       <%= link_to "Regular site", mobile_format: "html" %>
     </p>

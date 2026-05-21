@@ -1,22 +1,17 @@
 <% content_for(:body_class) do %>
-  discussion
-  <%= "discussion_by_user#{@exchange.poster_id}" %>
+  discussion discussion_by_user<%= @exchange.poster_id %>
   <%= @exchange.labels.map(&:downcase).join(" ") %>
   <%= "last_page" if @posts.last_page? %>
 <% end %>
 
 <%= content_for(:page_title, @exchange.title) %>
 
-<% previous_post = nil %>
-
-<a name="top" class="anchor"></a>
-
 <div class="functions">
   <% if current_user? %>
     <% if @exchange.editable_by?(current_user) -%>
-      <%= link_to "Edit", [:edit, @exchange], class: :edit %> /
+      <%= link_to "Edit", [:edit, @exchange], class: :edit %>
+      /
     <% end %>
-
     <% if current_user.hidden?(@exchange) -%>
       <%= link_to("Unhide",
                   unhide_discussion_relationship_path(@exchange, page: @posts.current_page),
@@ -25,8 +20,8 @@
       <%= link_to("Hide",
                   hide_discussion_relationship_path(@exchange, page: @posts.current_page),
                   method: :post) %>
-    <% end %> /
-
+    <% end %>
+    /
     <% if current_user.following?(@exchange) -%>
       <%= link_to("Stop following",
                   unfollow_discussion_relationship_path(@exchange, page: @posts.current_page),
@@ -35,8 +30,8 @@
       <%= link_to("Follow",
                   follow_discussion_relationship_path(@exchange, page: @posts.current_page),
                   method: :post) %>
-    <% end %> /
-
+    <% end %>
+    /
     <% if current_user.favorite?(@exchange) %>
       <%= link_to("Remove Favorite",
                   unfavorite_discussion_relationship_path(@exchange, page: @posts.current_page),
@@ -51,32 +46,24 @@
 
 <h2 class="section">
   <% if @exchange.labels? %>
-    [<%= @exchange.labels.join(",") %>]
+    [
+    <%= @exchange.labels.join(",") %>
+    ]
   <% end %>
+
   <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
 </h2>
 
 <% cache [@exchange, @page] do %>
-  <div id="discussion"
-       data-id="<%= @exchange.id %>"
-       data-posts-count="<%= @exchange.posts_count %>"
-       data-type="<%= @exchange.class %>">
-    <%= render(partial: "posts/posts",
-               locals: {
-                 posts: @posts,
-                 discussion: @exchange,
-                 functions: true,
-                 permalink: true,
-                 post_distance: true,
-                 new_posts_notifier: true }) %>
-  </div>
+  <%= render(partial: "exchanges/posts",
+             locals: { exchange: @exchange, posts: @posts }) %>
 <% end %>
 
-<a name="bottom"></a>
 <div class="bottomlinks">
   <%= link_to "Back to discussions", discussions_path, id: "back_link" %>,
   <% if current_user? && current_user.following?(@exchange) %>
-    <%= link_to "Back to followed", following_discussions_path %>,
+    <%= link_to "Back to followed", following_discussions_path %>
+    ,
   <% end %>
   <%= link_to "Top of page", "#top" %>
 </div>

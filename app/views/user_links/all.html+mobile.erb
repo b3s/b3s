@@ -6,11 +6,13 @@
     <th>Type</th>
     <th>Count</th>
   </tr>
+
   <% @labels.each do |label| %>
     <tr>
       <td class="label">
         <%= link_to(label, user_links_path(type: label)) %>
       </td>
+
       <td>
         <%= UserLink.active.with_label(label).count %>
       </td>

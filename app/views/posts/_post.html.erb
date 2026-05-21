@@ -1,139 +1,76 @@
-<%
-  # Options
-  posts              ||= false
-  discussion         ||= false
-  functions          ||= false
-  permalink          ||= false
-  post_distance      ||= false
-  title              ||= false
-  preview            ||= false
-  hide_nsfw          ||= false
+<%# locals: (post:, functions: false, title: false, hide_nsfw: false) %>
 
-  previous_post      ||= nil
--%>
+<% if post.deleted? %>
+  <div class="post" id="post-<%= post.id %>" data-post-id="<%= post.id %>">
+    <div class="deleted-post">
+      This post has been deleted.
+    </div>
+  </div>
+<% else %>
+  <div
+    class="post post_by_user<%= post.user.id %><%= " me_post" if post.me_post? && !post.deleted? %>"
+    id="post-<%= post.id %>"
+    data-user-id="<%= post.user.id %>"
+    data-exchange-id="<%= post.exchange_id %>"
+    data-exchange-type="<%= post.exchange.type %>"
+    data-post-id="<%= post.id %>"
+  >
+    <% if title %>
+      <div class="title">
+        <% if post.exchange.labels? %>
+          <span class="labels">[<%= post.exchange.labels.join(',') %>]</span>
+        <% end %>
 
-  <% if post_distance && previous_post %>
-    <% if (post.created_at - previous_post.created_at) >= 12.hours %>
-      <div class="post_distance">
-        <%= distance_of_time_in_words(post.created_at,
-                                      previous_post.created_at) %>
-        later&hellip;
-      </div>
-    <% elsif (previous_post.created_at - post.created_at) >= 12.hours %>
-      <div class="post_distance">
-        <%= distance_of_time_in_words(post.created_at,
-                                      previous_post.created_at) %>
-        earlier&hellip;
+        <%= link_to(post.exchange.title, post_path(post)) %>
+
+        <small>
+          Started by <%= profile_link(post.exchange.poster) %>, Last active
+          <%= time_tag post.exchange.last_post_at, class: "relative" %>,
+          <%= post.exchange.posts_count %> posts
+        </small>
       </div>
     <% end %>
-  <% end %>
 
-  <% if post.deleted? %>
-    <div class="post" data-post_id="<%= post.id %>">
-      <a name="post-<%= post.id %>" class="anchor"></a>
-      <div class="deleted-post">
-        This post has been deleted.
-      </div>
-    </div>
-  <% else %>
-    <div class="post post_by_user<%= post.user.id %><%= " me_post" if post.me_post? && !post.deleted? %>"
-         data-user_id="<%= post.user.id %>"
-         data-exchange_id="<%= post.exchange_id %>"
-         data-exchange_type="<%= post.exchange.type %>"
-         data-post_id="<%= post.id %>" >
-      <a name="post-<%= post.id %>" class="anchor"></a>
-      <% if title %>
-        <div class="title">
-          <% if post.exchange.labels? %>
-            <span class="labels">
-              [<%= post.exchange.labels.join(',') %>]
-            </span>
-          <% end %>
-          <%= link_to(post.exchange.title,
-                      polymorphic_path(post.exchange,
-                                       page: post.page,
-                                       anchor: "post-#{post.id}")) %>
-          <small>
-            Started by
-            <%= profile_link(post.exchange.poster) %>,
-            Last active
-            <%= time_tag post.exchange.last_post_at, class: "relative" %>,
-            <%= post.exchange.posts_count %> posts
-          </small>
-        </div>
-      <% end %>
+    <% if functions %>
+      <div class="post_functions"></div>
+    <% end %>
 
-      <% if functions %>
-        <div class="post_functions"></div>
-      <% end %>
+    <% if post.me_post? %>
+      <div class="me_post_content">
+        <div class="avatar"><%= avatar_image_tag(post.user) %></div>
 
-      <% if post.me_post? %>
-        <div class="me_post_content">
-          <div class="avatar"><%= avatar_image_tag(post.user) %></div>
-          <div class="body" id="postBody-<%= post.id %>">
-            <span class="content">
-              <%= format_post post.body_html, post.user %>
-            </span>
-            <% if preview %>
-              <time class="relative date">
-                Preview
-              </time>
-            <% else %>
-              <% if permalink %>
-                <%= link_to(polymorphic_path((discussion||post.exchange),
-                                             page: post_page(post, @posts),
-                                             anchor: "post-#{post.id}"),
-                            title: "Permalink to this post",
-                            class: "permalink") do %>
-                  <%= time_tag post.created_at, class: "relative date" %>
-                <% end %>
-              <% else %>
-                <%= time_tag post.created_at, class: "relative date" %>
-              <% end %>
-            <% end %>
-          </div>
-        </div>
-
-      <% else %>
-        <div class="post_info">
-          <span class="avatar">
-            <%= avatar_image_tag(post.user) %>
-          </span>
-          <span class="username">
-            <%= profile_link(post.user) %>
-          </span>
-          <% if preview %>
-            <time class="relative date">
-              Preview
-            </time>
-          <% else %>
-            <% if permalink %>
-              <%= link_to(polymorphic_path((discussion||post.exchange),
-                                           page: post_page(post, @posts),
-                                           anchor: "post-#{post.id}"),
-                          title: "Permalink to this post",
-                          class: "permalink") do %>
-                <%= time_tag post.created_at, class: "relative date" %>
-              <% end %>
-            <% else %>
-              <%= time_tag post.created_at, class: "relative date" %>
-            <% end %>
-          <% end %>
-        </div>
         <div class="body" id="postBody-<%= post.id %>">
-          <div class="content">
-            <% if post.exchange.nsfw && hide_nsfw %>
-              <div class="spoiler nsfw"><%= format_post(post.body_html, post.user) %></div>
-            <% else %>
+          <span class="content">
+            <%= format_post post.body_html, post.user %>
+          </span>
+
+          <%= post_timestamp_link(post) %>
+        </div>
+      </div>
+    <% else %>
+      <div class="post_info">
+        <span class="avatar"><%= avatar_image_tag(post.user) %></span>
+        <span class="username"><%= profile_link(post.user) %></span>
+
+        <%= post_timestamp_link(post) %>
+      </div>
+      <div class="body" id="postBody-<%= post.id %>">
+        <div class="content">
+          <% if post.exchange.nsfw && hide_nsfw %>
+            <div class="spoiler nsfw">
               <%= format_post(post.body_html, post.user) %>
-            <% end %>
-          </div>
-          <% if post.edited? %>
-            <div class="edited">
-              Edited <%= time_tag post.edited_at, class: "relative" %>
             </div>
+          <% else %>
+            <%= format_post(post.body_html, post.user) %>
           <% end %>
         </div>
-      <% end %>
-    </div>
-  <% end %>
+
+        <% if post.edited? %>
+          <div class="edited">
+            Edited <%= time_tag post.edited_at, class: "relative" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

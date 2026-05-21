@@ -18,18 +18,6 @@ function permalink(post: HTMLDivElement) {
   }
 }
 
-function hide(elem: HTMLElement) {
-  if (elem && "style" in elem) {
-    elem.style.display = "none";
-  }
-}
-
-function show(elem: HTMLElement) {
-  if (elem && "style" in elem) {
-    elem.style.display = "block";
-  }
-}
-
 function wrapEmbeds() {
   const selectors: string[] = [
     'iframe[src*="bandcamp.com"]',
@@ -87,8 +75,8 @@ readyHandler.start(function () {
   window.addEventListener("resize", updateLayout);
   updateLayout();
 
-  document.querySelectorAll(".toggle-navigation").forEach((a) => {
-    a.addEventListener("click", toggleNavigation);
+  document.querySelectorAll(".toggle-navigation").forEach((el) => {
+    el.addEventListener("click", toggleNavigation);
   });
 
   // Open images when clicked
@@ -152,7 +140,7 @@ readyHandler.start(function () {
 
   // Muted posts
   document.querySelectorAll(".post").forEach((post: HTMLDivElement) => {
-    const userId = parseInt(post.dataset.user_id);
+    const userId = parseInt(post.dataset.userId);
     const mutedUsers = window.mutedUsers as number[] | null;
 
     if (mutedUsers && mutedUsers.indexOf(userId) !== -1) {
@@ -181,20 +169,6 @@ readyHandler.start(function () {
       spoiler.classList.toggle("revealed");
     });
   });
-
-  // Login
-  document
-    .querySelectorAll("section.login")
-    .forEach((section: HTMLDivElement) => {
-      hide(section.querySelector("#password-reminder"));
-      document
-        .querySelector("a.forgot-password")
-        .addEventListener("click", (evt) => {
-          evt.preventDefault();
-          hide(section.querySelector("#login"));
-          show(section.querySelector("#password-reminder"));
-        });
-    });
 
   // Confirm regular site
   document.querySelector("a.regular_site").addEventListener("click", (evt) => {

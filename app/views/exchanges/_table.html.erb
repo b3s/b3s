@@ -1,80 +1,69 @@
-<%
-  no_exchanges ||= "No discussions here yet. " +
-                   (current_user? ?
-                    link_to("Create the first!", new_discussion_path) :
-                    '')
-
-  pagination_params ||= {}
-%>
-
+<%# locals: (exchanges:, no_exchanges: nil, pagination_params: {}) %>
 <% if exchanges.any? %>
   <%= pagination ||= render(partial: "components/pagination",
                             locals: {
-                              p: exchanges,
+                              paginated: exchanges,
                               pagination_params: pagination_params }) %>
   <table class="discussions">
     <% exchanges.each do |d| %>
-      <tr class="<%= exchange_classes(exchanges, d).flatten.compact.join(' ') %>"
-          data-exchange-id="<%= d.id %>">
+      <tr
+        class="<%= exchange_classes(exchanges, d).flatten.compact.join(' ') %>"
+        data-exchange-id="<%= d.id %>"
+      >
         <td class="name" colspan="5">
           <span class="title">
             <% if d.labels? %>
-              <span class="labels">
-                [<%= d.labels.join(',') %>]
-              </span>
+              <span class="labels">[<%= d.labels.join(',') %>]</span>
             <% end %>
+
             <%= link_to h(d.title), last_viewed_page_path(d) %>
           </span>
         </td>
       </tr>
 
-      <tr class="<%= exchange_classes(exchanges, d).flatten.compact.join(' ') %>"
-          data-exchange-id="<%= d.id %>">
+      <tr
+        class="<%= exchange_classes(exchanges, d).flatten.compact.join(' ') %>"
+        data-exchange-id="<%= d.id %>"
+      >
         <% if d.kind_of?(Conversation) %>
-          <%
-            other_participants = d.participants.reject { |p| p == current_user }
-          %>
-          <% if other_participants.length == 0 %>
-            <td class="participants">
+          <% other_participants = d.participants.reject { |p| p == current_user } %>
+          <td class="participants">
+            <% if other_participants.length == 0 %>
               Conversation with nobody
-            </td>
-          <% elsif other_participants.length > 3 %>
-            <td class="participants">
-              Conversation with <%= other_participants.length %> participants
-            </td>
-          <% else %>
-            <td class="participants">
+            <% elsif other_participants.length > 3 %>
+              Conversation with
+              <%= other_participants.length %>
+              participants
+            <% else %>
               Conversation with
               <%= safe_join(other_participants.map {|p| profile_link(p) },
                             ", ") %>
-            </td>
-          <% end %>
+            <% end %>
+          </td>
         <% else %>
           <td class="started_by">
             Started by <%= profile_link(d.poster) %>
           </td>
         <% end %>
+
         <td class="last_post">
           Last post by <%= profile_link(d.last_poster) %>
         </td>
+
         <td class="last_active">
           Last active
-          <strong>
-            <%= time_tag d.last_post_at, class: "relative" %>
-          </strong>
+          <strong><%= time_tag d.last_post_at, class: "relative" %></strong>
         </td>
+
         <td class="post_count">
-          <strong>
-            <%= d.posts_count %>
-          </strong>
+          <strong><%= d.posts_count %></strong>
           <%= d.posts_count > 1 ? 'posts' : 'post' %>
         </td>
+
         <td class="new_posts last">
           <% if new_posts?(d) %>
             New:
-            <strong>
-              <%= new_posts_count(d) %>
-            </strong>
+            <strong><%= new_posts_count(d) %></strong>
           <% end %>
         </td>
       </tr>
@@ -82,12 +71,19 @@
   </table>
   <%= pagination ||= render(partial: "components/pagination",
                             locals: {
-                              p: exchanges,
+                              paginated: exchanges,
                               pagination_params: pagination_params }) %>
 <% else %>
   <div class="content">
     <p>
-      <%= no_exchanges.html_safe %>
+      <% if no_exchanges %>
+        <%= no_exchanges %>
+      <% else %>
+        No discussions here yet.
+        <% if current_user? %>
+          <%= link_to "Create the first!", new_discussion_path %>
+        <% end %>
+      <% end %>
     </p>
   </div>
 <% end %>

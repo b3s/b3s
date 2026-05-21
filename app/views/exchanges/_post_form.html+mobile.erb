@@ -1,5 +1,6 @@
 <%= form_for([exchange, exchange.posts.new]) do |f| %>
   <%= f.hidden_field(:format, class: "format") %>
+
   <div class="reply">
     <p>
       <%= f.text_area(:body,
@@ -11,6 +12,7 @@
                         remember_format: true
                       }) %>
     </p>
+
     <p>
       <%= submit_tag "Post" %>
     </p>

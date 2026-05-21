@@ -1,14 +1,10 @@
 <% content_for(:body_class) do %>
-  discussion
-  conversation
-  <%= "discussion_by_user#{@exchange.poster_id}" %>
+  discussion conversation discussion_by_user<%= @exchange.poster_id %>
   <%= @exchange.labels.map(&:downcase).join(" ") %>
   <%= "last_page" if @posts.last_page? %>
 <% end %>
 
 <% content_for(:page_title, @exchange.title) %>
-
-<% previous_post = nil %>
 
 <%= content_for :sidebar do %>
   <div class="participants">
@@ -18,13 +14,12 @@
                  participants: @exchange.participants
                }) %>
   </div>
+
   <%= react_component(
     "InviteParticipant",
     props: { url: conversation_participants_path(@exchange) }
   ) %>
 <% end %>
-
-<a name="top" class="anchor"></a>
 
 <div class="functions">
   <% if current_user? %>
@@ -59,32 +54,24 @@
 
 <h2 class="section">
   <% if @exchange.labels? %>
-    [<%= @exchange.labels.join(",") %>]
+    [
+    <%= @exchange.labels.join(",") %>
+    ]
   <% end %>
-  <%= link_to @exchange.title, @exchange, id: "discussionLink"  %>
+
+  <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
 </h2>
 
 <% cache [@exchange, @page] do %>
-  <div id="discussion"
-       data-id="<%= @exchange.id %>"
-       data-posts-count="<%= @exchange.posts_count %>"
-       data-type="<%= @exchange.class %>">
-    <%= render(partial: "posts/posts",
-               locals: {
-                 posts: @posts,
-                 discussion: @exchange,
-                 functions: true,
-                 permalink: true,
-                 post_distance: true,
-                 new_posts_notifier: true }) %>
-  </div>
+  <%= render(partial: "exchanges/posts",
+             locals: { exchange: @exchange, posts: @posts }) %>
 <% end %>
 
-<a name="bottom"></a>
 <div class="bottomlinks">
   <%= link_to "Back to discussions", discussions_path, id: "back_link" %>,
   <% if current_user? && current_user.following?(@exchange) %>
-    <%= link_to "Back to followed", following_discussions_path %>,
+    <%= link_to "Back to followed", following_discussions_path %>
+    ,
   <% end %>
   <%= link_to "Top of page", "#top" %>
 </div>
