@@ -46,5 +46,22 @@ module B3s
     config.active_record.schema_format = :sql
 
     config.solid_queue.connects_to = { database: { writing: :queue } }
+
+    config.semantic_logger.application = "b3s"
+    config.rails_semantic_logger.format = :color
+
+    unless Rails.env.local?
+      config.rails_semantic_logger.add_file_appender = false
+      config.rails_semantic_logger.format = :json
+    end
+
+    unless Rails.env.test?
+      $stdout.sync = true
+      config.semantic_logger.add_appender(
+        io: $stdout,
+        formatter: config.rails_semantic_logger.format,
+        filter: ->(log) { log.name != "Rails::HealthController" }
+      )
+    end
   end
 end
