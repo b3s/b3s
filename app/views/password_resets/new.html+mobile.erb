@@ -1,0 +1,25 @@
+<% content_for(:page_title, "Password Reset") %>
+
+<section class="login">
+  <div class="login_box">
+    <%= form_tag(password_reset_path, class: "form") do %>
+      <p>
+        Enter your email address, and we'll send you a link where you
+        can reset your password.
+      </p>
+      <p>
+        <label>Email</label>
+        <%= text_field_tag "email", "", class: :text %>
+      </p>
+      <p>
+        <%= submit_tag "Send" %>
+      </p>
+    <% end %>
+  </div>
+
+  <div id="login-functions">
+    <p>
+      <%= link_to "Return to login", new_session_path %>
+    </p>
+  </div>
+</section>

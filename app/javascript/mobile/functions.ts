@@ -18,18 +18,6 @@ function permalink(post: HTMLDivElement) {
   }
 }
 
-function hide(elem: HTMLElement) {
-  if (elem && "style" in elem) {
-    elem.style.display = "none";
-  }
-}
-
-function show(elem: HTMLElement) {
-  if (elem && "style" in elem) {
-    elem.style.display = "block";
-  }
-}
-
 function wrapEmbeds() {
   const selectors: string[] = [
     'iframe[src*="bandcamp.com"]',
@@ -181,20 +169,6 @@ readyHandler.start(function () {
       spoiler.classList.toggle("revealed");
     });
   });
-
-  // Login
-  document
-    .querySelectorAll("section.login")
-    .forEach((section: HTMLDivElement) => {
-      hide(section.querySelector("#password-reminder"));
-      document
-        .querySelector("a.forgot-password")
-        .addEventListener("click", (evt) => {
-          evt.preventDefault();
-          hide(section.querySelector("#login"));
-          show(section.querySelector("#password-reminder"));
-        });
-    });
 
   // Confirm regular site
   document.querySelector("a.regular_site").addEventListener("click", (evt) => {
