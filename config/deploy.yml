@@ -86,3 +86,22 @@ accessories:
         - POSTGRES_PASSWORD
         - S3_ACCESS_KEY_ID
         - S3_SECRET_ACCESS_KEY
+  victorialogs:
+    image: victoriametrics/victoria-logs:v1.50.0
+    roles:
+      - web
+    port: "127.0.0.1:9428:9428"
+    cmd: "-storageDataPath=/victoria-logs-data -retentionPeriod=90d -retention.maxDiskSpaceUsageBytes=10GB"
+    volumes:
+      - victorialogs-data:/victoria-logs-data
+  fluentbit:
+    image: fluent/fluent-bit:5.0.5
+    roles:
+      - web
+    cmd: "-c /fluent-bit/etc/fluent-bit.conf"
+    files:
+      - config/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - config/fluent-bit-parsers.conf:/fluent-bit/etc/fluent-bit-parsers.conf
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - fluentbit-state:/fluent-bit/state
