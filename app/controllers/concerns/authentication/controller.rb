@@ -19,13 +19,8 @@ module Authentication
       t("authentication.notice.#{current_user.status}", duration: ban_duration)
     end
 
-    def authentication_log_line(user)
-      if user.active?
-        "Authenticated as user:#{user.id} (#{user.username})"
-      else
-        "Authentication failed for user:#{user.id} " \
-          "(#{user.username}) - #{user.status}"
-      end
+    def log_authentication_failure(user)
+      logger.info "Authentication failed for user:#{user.id} - #{user.status}"
     end
 
     def load_session_user
@@ -49,7 +44,7 @@ module Authentication
       return unless current_user?
 
       current_user.reactivate_if_eligible!
-      logger.info(authentication_log_line(current_user))
+      log_authentication_failure(current_user) unless current_user.active?
       return if current_user.active?
 
       flash[:notice] = authentication_failure_notice
