@@ -20,15 +20,10 @@ class UploadsController < ApplicationController
 
   def find_or_create_post_image(file)
     post_image = PostImage.new(file:)
-    if post_image.valid?
-      hash = Dis::Storage.file_digest(file)
-      if PostImage.where(content_hash: hash).any?
-        post_image = PostImage.where(content_hash: hash).first
-      else
-        post_image.save
-      end
-    end
-    post_image
+    return post_image unless post_image.valid?
+
+    PostImage.find_by(content_hash: post_image.content_hash) ||
+      post_image.tap(&:save)
   end
 
   def post_image_response(post_image)
