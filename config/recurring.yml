@@ -6,6 +6,9 @@ production:
   cleanup_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(finished_before: 30.days.ago)"
     schedule: every day at 2am
+  evict_dis_cache:
+    class: Dis::Jobs::Evict
+    schedule: every day at 3am
 # production:
 #   periodic_cleanup:
 #     class: CleanSoftDeletedRecordsJob

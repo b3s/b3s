@@ -11,6 +11,14 @@ if Rails.env.local?
   )
 end
 
+if Rails.env.production?
+  Dis::Storage.layers << Dis::Layer.new(
+    Fog::Storage.new(provider: "Local",
+                     local_root: Rails.root.join("storage/dis-cache")),
+    cache: 2.gigabytes
+  )
+end
+
 if Rails.application.credentials.aws
   Rails.application.credentials.tap do |credentials|
     Dis::Storage.layers << Dis::Layer.new(
