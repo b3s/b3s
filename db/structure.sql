@@ -1197,6 +1197,13 @@ CREATE INDEX index_posts_on_tsv ON public.posts USING gin (tsv);
 
 
 --
+-- Name: index_posts_on_tsv_searchable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_posts_on_tsv_searchable ON public.posts USING gin (tsv) WHERE ((conversation = false) AND (deleted = false));
+
+
+--
 -- Name: index_posts_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1308,9 +1315,10 @@ CREATE TRIGGER tsvectorupdate_posts BEFORE INSERT OR UPDATE ON public.posts FOR 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260523170000'),
+('20260514120000'),
 ('20260513213433'),
 ('20241117214337'),
-('20260514120000'),
 ('20241016075108'),
 ('20241016075107'),
 ('20241016075106'),
