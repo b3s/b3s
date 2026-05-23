@@ -4,7 +4,6 @@ en:
     attributes:
       configuration:
         code_of_conduct: Code of Conduct
-        google_analytics: Tracking code
         amazon_associates_id: Tracking ID
   activerecord:
     attributes:
@@ -76,8 +75,6 @@ en:
     browsing_requires_login: Browsing requires login
     users_can_sign_up: Users can sign up
     users_must_be_invited: Users must be invited
-    google_analytics: Google Analytics
-    google_analytics_description: Enter to enable tracking
     amazon_aws: Amazon AWS
     amazon_aws_description: >-
       To enable image uploads, %{link} and enter your access key and

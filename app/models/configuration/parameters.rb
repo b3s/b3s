@@ -17,7 +17,6 @@ class Configuration
       parameter :code_of_conduct, :string
 
       # Integration
-      parameter :google_analytics, :string
       parameter :amazon_associates_id, :string
 
       # Theme

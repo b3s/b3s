@@ -6,7 +6,6 @@ zh-CN:
     attributes:
       configuration:
         code_of_conduct: 行为规则
-        google_analytics: 追踪代码
         amazon_associates_id: Tracking ID
   activerecord:
     attributes:
@@ -48,8 +47,6 @@ zh-CN:
     browsing_requires_login: 需要登录后才能浏览
     users_can_sign_up: 用户可以注册
     users_must_be_invited: 用户需要邀请
-    google_analytics: Google Analytics
-    google_analytics_description: 输入来激活追踪
     amazon_aws: Amazon AWS
     amazon_aws_description: "想要激活图片上传功能，访问 %{link} 并输入你的 access key 和密码。"
     amazon_signup_link: 注册 Amazon S3 帐户

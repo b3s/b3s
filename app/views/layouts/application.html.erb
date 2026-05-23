@@ -133,22 +133,5 @@
     <script nonce="<%= request.content_security_policy_nonce %>">
     window.mutedUsers = <%= muted_user_ids(@exchange).to_json %>;
   </script>
-
-    <%# Google Analytics %>
-    <% if B3S.config.google_analytics.present? %>
-      <!-- Global site tag (gtag.js) - Google Analytics -->
-      <script
-        async
-        nonce="<%= request.content_security_policy_nonce %>"
-        src="https://www.googletagmanager.com/gtag/js?id=<%= B3S.config.google_analytics %>"
-      ></script>
-      <script nonce="<%= request.content_security_policy_nonce %>">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', <%= B3S.config.google_analytics.to_json %>, { 'anonymize_ip': true });
-    </script>
-    <% end %>
   </body>
 </html>

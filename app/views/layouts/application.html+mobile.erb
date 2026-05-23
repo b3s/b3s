@@ -139,18 +139,5 @@
     <script nonce="<%= request.content_security_policy_nonce %>">
       window.mutedUsers = <%= muted_user_ids(@exchange).to_json %>;
     </script>
-
-    <% if B3S.config.google_analytics %>
-      <script nonce="<%= request.content_security_policy_nonce %>">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', <%= B3S.config.google_analytics.to_json %>]);
-        _gaq.push(['_trackPageview']);
-        (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-      </script>
-    <% end %>
   </body>
 </html>
