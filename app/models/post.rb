@@ -8,8 +8,8 @@ class Post < ApplicationRecord
 
   self.per_page = 50
 
-  belongs_to :user, counter_cache: true
-  belongs_to :exchange, counter_cache: true
+  belongs_to :user, counter_cache: true, touch: true
+  belongs_to :exchange, counter_cache: true, touch: true
   has_many :exchange_views, dependent: :restrict_with_exception
 
   validates :body, presence: true
