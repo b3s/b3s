@@ -1,0 +1,17 @@
+#!/bin/sh
+# Ensure the b3s-dis-cache docker volume exists and is owned by the
+# rails user (uid 1000). Docker named volumes mount as root:root by
+# default, but the app container runs as uid 1000, so without this
+# the Dis local cache layer fails with EACCES on its first write.
+
+set -e
+
+echo "$KAMAL_HOSTS" | tr ',' '\n' | while read -r host; do
+  [ -z "$host" ] && continue
+  ssh -o BatchMode=yes "app@$host" '
+    docker volume inspect b3s-dis-cache >/dev/null 2>&1 \
+      || docker volume create b3s-dis-cache >/dev/null
+    docker run --rm -v b3s-dis-cache:/data alpine:3 \
+      chown -R 1000:1000 /data
+  '
+done
