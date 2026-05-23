@@ -95,6 +95,17 @@ describe Paginatable do
       queries = count_queries(matching: "COUNT") { 3.times { scope.total_pages } }
       expect(queries).to eq(1)
     end
+
+    it "returns the seeded total_count from page options" do
+      scope = Exchange.page(1, total_count: 42)
+      expect(scope.total_count).to eq(42)
+    end
+
+    it "does not query when total_count is seeded via page options" do
+      scope = Exchange.page(1, total_count: 42)
+      queries = count_queries(matching: "COUNT") { scope.total_pages }
+      expect(queries).to eq(0)
+    end
   end
 
   describe ".per_page" do

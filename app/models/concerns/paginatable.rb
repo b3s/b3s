@@ -30,7 +30,8 @@ module Paginatable
     end
 
     def page(page = nil, options = {})
-      scope = scope_with_context(page.to_i > 1 ? options[:context].to_i : 0)
+      context = page.to_i > 1 ? options[:context].to_i : 0
+      scope = scope_with_context(context, total_count: options[:total_count])
       scope
         .limit(pagination_limit + scope.context)
         .offset(pagination_offset(page.to_i) - scope.context)
@@ -107,9 +108,10 @@ module Paginatable
       [(pagination_limit * (page - 1)), 0].max
     end
 
-    def scope_with_context(context)
+    def scope_with_context(context, total_count: nil)
       all.extend(WithContext).tap do |s|
         s.context = context
+        s.pagination_memo[:total_count] = total_count unless total_count.nil?
         s.pagination_memo
       end
     end
