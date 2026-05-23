@@ -29,7 +29,7 @@ class Post < ApplicationRecord
 
   scope :sorted,                 -> { order(:created_at) }
   scope :for_view,               -> { sorted.includes(user: [:avatar]) }
-  scope :for_view_with_exchange, -> { for_view.includes(:exchange) }
+  scope :for_view_with_exchange, -> { for_view.includes(exchange: :poster) }
 
   def me_post?
     body.strip =~ %r{^/me} && body.exclude?("\n")
