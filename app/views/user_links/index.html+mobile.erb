@@ -15,7 +15,7 @@
 
       <td class="user-links">
         <ul>
-          <% user.user_links.sorted.with_label(@label).each do |ul| %>
+          <% user.user_links.select { |ul| ul.label.casecmp?(@label) }.sort_by(&:position).each do |ul| %>
             <li>
               <%= user_link(ul) %>
             </li>

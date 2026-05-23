@@ -6,6 +6,7 @@ class UserLinksController < ApplicationController
 
   def all
     @labels = UserLink.labels
+    @counts = UserLink.active.group("lower(user_links.label)").count
   end
 
   def index
@@ -14,6 +15,7 @@ class UserLinksController < ApplicationController
                  .joins(:user_links)
                  .where("lower(user_links.label) LIKE lower(?)", @label)
                  .group("users.id")
+                 .preload(:user_links)
   end
 
   private
