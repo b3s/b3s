@@ -44,9 +44,10 @@ env:
     - QUEUE_DATABASE_URL
     - OEMBED_FACEBOOK_TOKEN
 
-# Persistent nginx image cache across deploys
+# Persistent caches across deploys
 volumes:
   - "b3s-nginx-cache:/var/cache/nginx"
+  - "b3s-dis-cache:/rails/storage/dis-cache"
 
 asset_path: /rails/public/assets
 
