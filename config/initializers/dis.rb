@@ -28,7 +28,7 @@ if Rails.application.credentials.aws
         aws_secret_access_key: credentials.dig(:aws, :secret_access_key)
       ),
       path: "b3s",
-      delayed: false,
+      delayed: Rails.env.production?,
       readonly: !Rails.env.production?
     )
   end
