@@ -9,7 +9,7 @@ module Users
       respond_to do |format|
         format.html
         format.html.mobile { @online_users = @users.select(&:online?) }
-        format.json { render json: UserResource.new(@users) }
+        format.json { render json: UserResource.new(@users.includes(:user_links)) }
       end
     end
 
@@ -43,7 +43,7 @@ module Users
     def respond_with_users(users)
       respond_to do |format|
         format.html
-        format.json { render json: UserResource.new(users) }
+        format.json { render json: UserResource.new(users.includes(:user_links)) }
       end
     end
   end
