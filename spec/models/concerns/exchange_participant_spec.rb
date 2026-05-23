@@ -191,6 +191,18 @@ describe ExchangeParticipant do
     end
   end
 
+  describe "#discussion_relationship_with" do
+    before { DiscussionRelationship.define(user, discussion, following: true) }
+
+    it "memoizes the lookup per discussion" do
+      user.discussion_relationship_with(discussion)
+      queries = count_queries(matching: "discussion_relationships") do
+        3.times { user.discussion_relationship_with(discussion) }
+      end
+      expect(queries).to eq(0)
+    end
+  end
+
   describe "#following?" do
     subject { user.following?(discussion) }
 

@@ -81,7 +81,11 @@ module ExchangeParticipant
   end
 
   def discussion_relationship_with(discussion)
-    discussion_relationships.find_by(discussion_id: discussion.id)
+    @discussion_relationship_cache ||= {}
+    return @discussion_relationship_cache[discussion.id] if @discussion_relationship_cache.key?(discussion.id)
+
+    @discussion_relationship_cache[discussion.id] =
+      discussion_relationships.find_by(discussion_id: discussion.id)
   end
 
   def following?(discussion)

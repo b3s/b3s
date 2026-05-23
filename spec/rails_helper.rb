@@ -92,6 +92,7 @@ RSpec.configure do |config|
   config.include LoginMacros, type: :request
   config.include MailerMacros
   config.include ConfigurationMacros
+  config.include QueryCounter
   config.include SystemHelpers, type: :system
 
   config.before { reset_email }

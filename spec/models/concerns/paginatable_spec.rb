@@ -89,6 +89,12 @@ describe Paginatable do
     it "ignores offset" do
       expect(Exchange.offset(1).total_count).to eq(3)
     end
+
+    it "memoizes the count on a paginated scope across calls" do
+      scope = Exchange.page(1)
+      queries = count_queries(matching: "COUNT") { 3.times { scope.total_pages } }
+      expect(queries).to eq(1)
+    end
   end
 
   describe ".per_page" do

@@ -17,6 +17,12 @@ module Paginatable
       def context
         @context || 0
       end
+
+      # Shared by all relations spawned from a `.page` call (clone copies the
+      # reference, not the Hash), so memoized values survive `all.clone`.
+      def pagination_memo
+        @pagination_memo ||= {}
+      end
     end
 
     def self.extended(base)
@@ -73,8 +79,14 @@ module Paginatable
     end
 
     def total_count
-      count = except(:limit, :offset, :order, :includes).count
-      count.is_a?(Hash) ? count.length : count
+      scope = all
+      memo = scope.pagination_memo if scope.respond_to?(:pagination_memo)
+      return memo[:total_count] if memo&.key?(:total_count)
+
+      count = scope.except(:limit, :offset, :order, :includes).count
+      value = count.is_a?(Hash) ? count.length : count
+      memo[:total_count] = value if memo
+      value
     end
 
     def per_page
@@ -96,7 +108,10 @@ module Paginatable
     end
 
     def scope_with_context(context)
-      all.extend(WithContext).tap { |s| s.context = context }
+      all.extend(WithContext).tap do |s|
+        s.context = context
+        s.pagination_memo
+      end
     end
   end
 end
