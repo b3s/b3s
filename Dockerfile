@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-      curl libjemalloc2 libpq5 libvips42 nginx postgresql-client && \
+      curl gosu libjemalloc2 libpq5 libvips42 nginx postgresql-client && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so
 
 ENV RAILS_ENV="production" \
@@ -86,10 +86,11 @@ FROM base
 RUN mkdir -p /var/cache/nginx/images /var/lib/nginx /var/log/nginx && \
     chown -R 1000:1000 /var/cache/nginx /var/lib/nginx /var/log/nginx /run
 
-# Run and own only the runtime files as a non-root user for security
+# Create the rails user. The entrypoint runs as root so it can fix
+# ownership on mounted volumes (e.g. the dis cache), then drops to
+# this user via gosu before exec-ing the app.
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash
-USER 1000:1000
 
 # Copy built artifacts: gems, application
 COPY --chown=rails:rails --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
