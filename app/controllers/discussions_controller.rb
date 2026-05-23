@@ -43,9 +43,9 @@ class DiscussionsController < ApplicationController
 
   def show
     @page = params[:page] || 1
-    @posts = @exchange.posts.page(@page, context:, total_count: @exchange.posts_count).for_view
+    @posts = @exchange.posts.page(@page, context:, total_count: @exchange.posts_count).for_view.load
 
-    mark_as_viewed!(@exchange, @posts.last, @posts.offset_value + @posts.count)
+    mark_as_viewed!(@exchange, @posts.last, @posts.offset_value + @posts.size)
 
     respond_with_exchange(@exchange, @page)
   end
