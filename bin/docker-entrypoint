@@ -1,5 +1,15 @@
 #!/bin/bash -e
 
+# Kamal named volumes mount as root:root by default. Fix ownership on
+# the writable paths the app expects before dropping to the rails user.
+if [ "$(id -u)" = "0" ]; then
+  for dir in /rails/storage/dis-cache; do
+    mkdir -p "$dir"
+    chown rails:rails "$dir"
+  done
+  exec gosu rails:rails "$0" "$@"
+fi
+
 # If running the web server then create or migrate existing database
 if [ "${1}" == "./bin/docker-start" ]; then
   ./bin/rails db:prepare
