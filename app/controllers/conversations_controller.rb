@@ -10,15 +10,18 @@ class ConversationsController < ApplicationController
   before_action :find_recipient, only: [:create]
 
   def index
-    @exchanges = current_user.conversations.page(params[:page]).for_view
+    @exchanges = current_user.conversations
+                             .page(params[:page])
+                             .for_view
+                             .includes(:participants)
     respond_with_exchanges(@exchanges)
   end
 
   def show
     @page = params[:page] || 1
-    @posts = @exchange.posts.page(@page, context:).for_view
+    @posts = @exchange.posts.page(@page, context:).for_view.load
 
-    mark_as_viewed!(@exchange, @posts.last, @posts.offset_value + @posts.count)
+    mark_as_viewed!(@exchange, @posts.last, @posts.offset_value + @posts.size)
 
     respond_with_exchange(@exchange, @page)
 
