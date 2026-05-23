@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 module LayoutHelper
+  EMOTICONS = %w[
+    ziggy warm-smile toothy-smile big-smile sad crying nerd mad tongue-out
+    blank-stare blushing fml butthurt kisses good evil upso doh eye-roll
+    licking-lips deal-with-it
+  ].freeze
+
   def body_class
     classes = (content_for(:body_class) || "").split(/\s+/)
     classes << "with_sidebar" if content_for?(:sidebar)
@@ -43,7 +49,7 @@ module LayoutHelper
   private
 
   def enabled_emoticons
-    B3S.config.emoticons.split(/\s+/).filter_map do |name|
+    EMOTICONS.filter_map do |name|
       emoji = Emoji.find_by_alias(name)
       { name:, image: emoji_path(emoji) } if emoji
     end

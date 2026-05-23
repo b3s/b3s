@@ -27,12 +27,10 @@ describe LayoutHelper do
     let(:user) { nil }
     let(:config) { helper.frontend_configuration }
     let(:default_emoticons) do
-      %w[smiley laughing blush heart_eyes kissing_heart flushed worried
-         grimacing cry angry heart star +1 -1].map do |name|
+      LayoutHelper::EMOTICONS.map do |name|
         { name:,
           image: helper.image_path(
-            "emoji/#{Emoji.find_by_alias(name).image_filename}",
-            skip_pipeline: true
+            "emoji/#{Emoji.find_by_alias(name).image_filename}"
           ) }
       end
     end

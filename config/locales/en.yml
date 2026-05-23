@@ -78,7 +78,6 @@ en:
     users_must_be_invited: Users must be invited
     google_analytics: Google Analytics
     google_analytics_description: Enter to enable tracking
-    emoticons: Emoticons
     amazon_aws: Amazon AWS
     amazon_aws_description: >-
       To enable image uploads, %{link} and enter your access key and

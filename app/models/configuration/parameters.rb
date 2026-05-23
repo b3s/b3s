@@ -15,12 +15,6 @@ class Configuration
 
       # Customization
       parameter :code_of_conduct, :string
-      parameter(
-        :emoticons,
-        :string,
-        "smiley laughing blush heart_eyes kissing_heart flushed worried " \
-        "grimacing cry angry heart star +1 -1"
-      )
 
       # Integration
       parameter :google_analytics, :string

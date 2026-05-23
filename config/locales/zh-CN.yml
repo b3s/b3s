@@ -50,7 +50,6 @@ zh-CN:
     users_must_be_invited: 用户需要邀请
     google_analytics: Google Analytics
     google_analytics_description: 输入来激活追踪
-    emoticons: 表情
     amazon_aws: Amazon AWS
     amazon_aws_description: "想要激活图片上传功能，访问 %{link} 并输入你的 access key 和密码。"
     amazon_signup_link: 注册 Amazon S3 帐户
