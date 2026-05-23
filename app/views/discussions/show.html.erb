@@ -54,7 +54,7 @@
   <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
 </h2>
 
-<% cache(@posts.last_page? ? [@exchange, @page] : ["discussion-page", @exchange.id, @page]) do %>
+<% cache @posts do %>
   <%= render(partial: "exchanges/posts",
              locals: { exchange: @exchange, posts: @posts }) %>
 <% end %>
