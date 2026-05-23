@@ -103,7 +103,7 @@
       <th>Discussions</th>
 
       <td>
-        <%= link_to(@user.discussions.viewable_by(current_user).count,
+        <%= link_to(@discussions_count,
                     user_profile_discussions_path(@user.username)) %>
       </td>
     </tr>
@@ -112,7 +112,7 @@
       <th>Participated</th>
 
       <td>
-        <%= link_to(@user.participated_discussions.viewable_by(current_user).count,
+        <%= link_to(@participated_discussions_count,
                     participated_user_profile_discussions_path(@user.username)) %>
       </td>
     </tr>
@@ -121,13 +121,13 @@
       <th>Posts</th>
 
       <td>
-        <%= @user.discussion_posts.viewable_by(current_user).count %>
+        <%= @discussion_posts_count %>
       </td>
     </tr>
 
     <tr>
       <th>Users invited</th>
-      <td><%= @user.invitees.count %></td>
+      <td><%= @invitees.size %></td>
     </tr>
 
     <% if @user.previous_usernames.any? %>

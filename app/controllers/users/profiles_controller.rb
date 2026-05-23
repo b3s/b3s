@@ -11,13 +11,7 @@ module Users
 
     def show
       respond_to do |format|
-        format.html do
-          @posts = @user.discussion_posts
-                        .viewable_by(current_user)
-                        .for_view_with_exchange
-                        .reverse_order
-                        .limit(15)
-        end
+        format.html { load_profile }
         format.json { render json: UserResource.new(@user) }
       end
     end
@@ -50,6 +44,25 @@ module Users
     end
 
     private
+
+    def load_profile
+      @posts = @user.discussion_posts
+                    .viewable_by(current_user)
+                    .for_view_with_exchange
+                    .reverse_order
+                    .limit(15)
+      @invitees = @user.invitees.to_a
+      load_profile_counts
+    end
+
+    def load_profile_counts
+      @discussions_count =
+        @user.discussions.viewable_by(current_user).count
+      @participated_discussions_count =
+        @user.participated_discussions.viewable_by(current_user).count
+      @discussion_posts_count =
+        @user.discussion_posts.viewable_by(current_user).count
+    end
 
     def load_user
       @user = User.find_by(username: params[:id]) ||
