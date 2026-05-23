@@ -18,4 +18,5 @@ Rails/OutputSafety:
 Rails/SkipsModelValidations:
   Exclude:
     - "app/models/discussion.rb"
+    - "app/models/discussion_relationship.rb"
     - "app/models/post.rb"
