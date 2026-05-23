@@ -8,8 +8,8 @@ class Post < ApplicationRecord
 
   self.per_page = 50
 
-  belongs_to :user, touch: true
-  belongs_to :exchange, touch: true
+  belongs_to :user, counter_cache: true
+  belongs_to :exchange, counter_cache: true
   has_many :exchange_views, dependent: :restrict_with_exception
 
   validates :body, presence: true
@@ -23,9 +23,9 @@ class Post < ApplicationRecord
 
   after_create :update_exchange,
                :define_relationship,
-               :update_post_counts
+               :increment_public_posts_count
 
-  after_destroy :update_post_counts
+  after_destroy :decrement_public_posts_count
 
   scope :sorted,                 -> { order(:created_at) }
   scope :for_view,               -> { sorted.includes(user: [:avatar]) }
@@ -80,12 +80,18 @@ class Post < ApplicationRecord
 
   private
 
-  def update_post_counts
-    exchange.update(posts_count: exchange.posts.count)
-    user.update(
-      posts_count: user.posts.count,
-      public_posts_count: user.discussion_posts.count
-    )
+  def increment_public_posts_count
+    return if conversation?
+
+    User.update_counters(user_id, public_posts_count: 1)
+    user.increment(:public_posts_count)
+  end
+
+  def decrement_public_posts_count
+    return if conversation?
+
+    User.update_counters(user_id, public_posts_count: -1)
+    user.decrement(:public_posts_count)
   end
 
   def render_html

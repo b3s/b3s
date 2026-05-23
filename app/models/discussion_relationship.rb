@@ -4,31 +4,28 @@ class DiscussionRelationship < ApplicationRecord
   belongs_to :user
   belongs_to :discussion
 
+  FLAG_COUNTERS = {
+    participated: :participated_count,
+    following: :following_count,
+    favorite: :favorites_count,
+    hidden: :hidden_count
+  }.freeze
+
   before_validation :ensure_flags_are_mutually_exclusive
 
-  after_destroy :update_user_caches!
-  after_save :update_user_caches!
+  after_create  :increment_user_caches
+  after_update  :sync_user_caches_on_change
+  after_destroy :decrement_user_caches
 
   class << self
     def define(user, discussion, options = {})
-      relationship = find_by(user_id: user.id, discussion_id: discussion.id)
-      relationship ||= DiscussionRelationship.create(
-        user_id: user.id,
-        discussion_id: discussion.id
+      relationship = find_or_initialize_by(
+        user_id: user.id, discussion_id: discussion.id
       )
-      relationship.update(options)
+      relationship.assign_attributes(options)
       relationship.save
       relationship
     end
-  end
-
-  def update_user_caches!
-    user.update(
-      participated_count: relationship_count(:participated),
-      following_count: relationship_count(:following),
-      favorites_count: relationship_count(:favorite),
-      hidden_count: relationship_count(:hidden)
-    )
   end
 
   protected
@@ -51,10 +48,33 @@ class DiscussionRelationship < ApplicationRecord
     end
   end
 
-  def relationship_count(flag)
-    DiscussionRelationship.where(
-      :user_id => user_id,
-      flag => true
-    ).count
+  def increment_user_caches
+    deltas = FLAG_COUNTERS.each_with_object({}) do |(flag, counter), memo|
+      memo[counter] = 1 if self[flag]
+    end
+    apply_user_deltas(deltas)
+  end
+
+  def decrement_user_caches
+    deltas = FLAG_COUNTERS.each_with_object({}) do |(flag, counter), memo|
+      memo[counter] = -1 if self[flag]
+    end
+    apply_user_deltas(deltas)
+  end
+
+  def sync_user_caches_on_change
+    deltas = FLAG_COUNTERS.each_with_object({}) do |(flag, counter), memo|
+      next unless saved_change_to_attribute?(flag)
+
+      memo[counter] = self[flag] ? 1 : -1
+    end
+    apply_user_deltas(deltas)
+  end
+
+  def apply_user_deltas(deltas)
+    return if deltas.empty?
+
+    User.update_counters(user_id, deltas)
+    deltas.each { |counter, delta| user.increment(counter, delta) } if user
   end
 end
