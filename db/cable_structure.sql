@@ -43,24 +43,23 @@ CREATE TABLE public.schema_migrations (
 
 
 --
--- Name: solid_cache_entries; Type: TABLE; Schema: public; Owner: -
+-- Name: solid_cable_messages; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.solid_cache_entries (
+CREATE TABLE public.solid_cable_messages (
     id bigint NOT NULL,
-    key bytea NOT NULL,
-    value bytea NOT NULL,
+    channel bytea NOT NULL,
+    payload bytea NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    key_hash bigint NOT NULL,
-    byte_size integer NOT NULL
+    channel_hash bigint NOT NULL
 );
 
 
 --
--- Name: solid_cache_entries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: solid_cable_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.solid_cache_entries_id_seq
+CREATE SEQUENCE public.solid_cable_messages_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -69,17 +68,17 @@ CREATE SEQUENCE public.solid_cache_entries_id_seq
 
 
 --
--- Name: solid_cache_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: solid_cable_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.solid_cache_entries_id_seq OWNED BY public.solid_cache_entries.id;
+ALTER SEQUENCE public.solid_cable_messages_id_seq OWNED BY public.solid_cable_messages.id;
 
 
 --
--- Name: solid_cache_entries id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: solid_cable_messages id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.solid_cache_entries ALTER COLUMN id SET DEFAULT nextval('public.solid_cache_entries_id_seq'::regclass);
+ALTER TABLE ONLY public.solid_cable_messages ALTER COLUMN id SET DEFAULT nextval('public.solid_cable_messages_id_seq'::regclass);
 
 
 --
@@ -99,32 +98,32 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
--- Name: solid_cache_entries solid_cache_entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: solid_cable_messages solid_cable_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.solid_cache_entries
-    ADD CONSTRAINT solid_cache_entries_pkey PRIMARY KEY (id);
-
-
---
--- Name: index_solid_cache_entries_on_byte_size; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_solid_cache_entries_on_byte_size ON public.solid_cache_entries USING btree (byte_size);
+ALTER TABLE ONLY public.solid_cable_messages
+    ADD CONSTRAINT solid_cable_messages_pkey PRIMARY KEY (id);
 
 
 --
--- Name: index_solid_cache_entries_on_key_hash; Type: INDEX; Schema: public; Owner: -
+-- Name: index_solid_cable_messages_on_channel; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_solid_cache_entries_on_key_hash ON public.solid_cache_entries USING btree (key_hash);
+CREATE INDEX index_solid_cable_messages_on_channel ON public.solid_cable_messages USING btree (channel);
 
 
 --
--- Name: index_solid_cache_entries_on_key_hash_and_byte_size; Type: INDEX; Schema: public; Owner: -
+-- Name: index_solid_cable_messages_on_channel_hash; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_solid_cache_entries_on_key_hash_and_byte_size ON public.solid_cache_entries USING btree (key_hash, byte_size);
+CREATE INDEX index_solid_cable_messages_on_channel_hash ON public.solid_cable_messages USING btree (channel_hash);
+
+
+--
+-- Name: index_solid_cable_messages_on_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_solid_cable_messages_on_created_at ON public.solid_cable_messages USING btree (created_at);
 
 
 --
@@ -133,5 +132,6 @@ CREATE INDEX index_solid_cache_entries_on_key_hash_and_byte_size ON public.solid
 
 SET search_path TO "$user", public;
 
-
+INSERT INTO "schema_migrations" (version) VALUES
+('20260523120000');
 
