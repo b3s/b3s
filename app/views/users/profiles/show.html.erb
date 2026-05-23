@@ -81,28 +81,28 @@
   <% end %>
 
   <p class="posts_and_discussions">
-    <% if @user.discussions.viewable_by(current_user).any? %>
+    <% if @discussions_count.positive? %>
       <%= link_to("View discussions",
                   user_profile_discussions_path( @user.username)) %>
       (
-      <%= @user.discussions.viewable_by(current_user).count %>
+      <%= @discussions_count %>
       )
       <br>
     <% end %>
 
-    <% if @user.participated_discussions.viewable_by(current_user).any? %>
+    <% if @participated_discussions_count.positive? %>
       <%= link_to("View participated discussions",
                   participated_user_profile_discussions_path( @user.username)) %>
       (
-      <%= @user.participated_discussions.viewable_by(current_user).count %>
+      <%= @participated_discussions_count %>
       )
       <br>
     <% end %>
 
-    <% if @user.discussion_posts.viewable_by(current_user).any? %>
+    <% if @discussion_posts_count.positive? %>
       <%= link_to "View posts", user_profile_posts_path( @user.username) %>
       (
-      <%= @user.discussion_posts.viewable_by(current_user).count %>
+      <%= @discussion_posts_count %>
       )
       <br>
     <% end %>
@@ -180,14 +180,14 @@
     <% end %>
   </div>
 
-  <% if @user.invitees.count > 0 %>
+  <% if @invitees.any? %>
     <div class="invitees">
       <h3>
-        <%= @user.username %> has invited <%= @user.invitees.count %> users:
+        <%= @user.username %> has invited <%= @invitees.size %> users:
       </h3>
 
       <ul>
-        <% @user.invitees.each do |invitee| %>
+        <% @invitees.each do |invitee| %>
           <li>
             <%= profile_link(invitee) %> (joined
             <%= time_tag invitee.created_at, class: "relative" %>)
