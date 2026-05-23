@@ -3,8 +3,8 @@
 require "digest/sha1"
 
 class ExchangePostsController < ApplicationController
-  requires_authentication except: %i[count]
-  requires_user except: %i[count since search]
+  requires_authentication
+  requires_user except: %i[since search]
 
   before_action :find_exchange
   before_action :find_post, only: %i[edit update]
@@ -16,13 +16,6 @@ class ExchangePostsController < ApplicationController
   after_action :mark_exchange_viewed, only: %i[since]
 
   rescue_from URI::InvalidURIError, with: :handle_invalid_uri
-
-  def count
-    @count = @exchange.posts_count
-    respond_to do |format|
-      format.json { render json: { posts_count: @count }.to_json }
-    end
-  end
 
   def since
     @posts = @exchange.posts.limit(200).offset(params[:index]).for_view

@@ -11,14 +11,14 @@ module ApplicationCable
     private
 
     def find_verified_user
-      session = cookies.encrypted[Rails.application.config.session_options[:key]]
-      reject_unauthorized_connection unless session.is_a?(Hash)
-
+      session = cookies.encrypted[Rails.application.config.session_options[:key]] || {}
       user = User.find_by(id: session["user_id"])
-      reject_unauthorized_connection unless
-        user&.persistence_token == session["persistence_token"] && user.active?
 
-      user
+      if user&.active? && user.persistence_token == session["persistence_token"]
+        user
+      else
+        reject_unauthorized_connection
+      end
     end
   end
 end

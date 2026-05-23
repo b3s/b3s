@@ -45,6 +45,18 @@ describe Post do
         expect { post }.to change(exchange, :posts_count).by(1)
       end
     end
+
+    describe "broadcasting the post count" do
+      let!(:exchange) { create(:discussion) }
+
+      it "broadcasts the new posts_count to the exchange channel" do
+        expect { create(:post, exchange:) }.to(
+          have_broadcasted_to(exchange)
+            .from_channel(ExchangeChannel)
+            .with(posts_count: 2)
+        )
+      end
+    end
   end
 
   describe "after_destroy" do
