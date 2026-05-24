@@ -12,7 +12,7 @@ module Paginatable
       end
     end
 
-    class_methods do
+    module ClassMethods
       def page(page = nil, options = {})
         page_num = [page.to_i, 1].max
         context = page_num > 1 ? options[:context].to_i : 0
@@ -28,7 +28,21 @@ module Paginatable
         scope.pagination_memo[:current_page] || 1
       end
 
+      def total_pages
+        (max_position.to_f / pagination_limit).ceil
+      end
+
       private
+
+      def max_position
+        scope = all
+        memo = scope.respond_to?(:pagination_memo) ? scope.pagination_memo : nil
+        return memo[:max_position] if memo&.key?(:max_position)
+
+        value = scope.unscope(where: :position).maximum(:position) || 0
+        memo[:max_position] = value if memo
+        value
+      end
 
       def page_position_range(page_num, context)
         first = ((page_num - 1) * pagination_limit) + 1 - context

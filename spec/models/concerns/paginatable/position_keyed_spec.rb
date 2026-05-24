@@ -53,9 +53,9 @@ describe Paginatable::PositionKeyed do
   end
 
   describe ".total_pages" do
-    it "uses the seeded total_count" do
+    it "derives from MAX(position), ignoring any seeded total_count" do
       scope = exchange.posts.page(1, total_count: 100)
-      expect(scope.total_pages).to eq(20)
+      expect(scope.total_pages).to eq(2)
     end
   end
 
