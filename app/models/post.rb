@@ -40,10 +40,6 @@ class Post < ApplicationRecord
     body.strip =~ %r{^/me} && body.exclude?("\n")
   end
 
-  def post_number
-    position
-  end
-
   def page(options = {})
     (position.to_f / (options[:limit] || Post.per_page)).ceil
   end

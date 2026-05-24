@@ -99,11 +99,6 @@ describe Post do
     end
   end
 
-  describe "#post_number" do
-    specify { expect(exchange.posts.first.post_number).to eq(1) }
-    specify { expect(create(:post, exchange:).post_number).to eq(2) }
-  end
-
   describe "acts_as_list position" do
     it "assigns sequential positions on create" do
       exchange.posts.first
