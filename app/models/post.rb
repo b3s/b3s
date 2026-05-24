@@ -12,6 +12,8 @@ class Post < ApplicationRecord
   belongs_to :exchange, counter_cache: true
   has_many :exchange_views, dependent: :restrict_with_exception
 
+  acts_as_list scope: :exchange, add_new_at: :bottom
+
   validates :body, presence: true
   validates :format, inclusion: %w[markdown html]
 
@@ -79,6 +81,13 @@ class Post < ApplicationRecord
   end
 
   private
+
+  # Falls back to posts_count so new posts don't collide with the
+  # in-progress ROW_NUMBER backfill of NULL positions.
+  def bottom_position_in_list(except = nil)
+    item = bottom_item(except)
+    item ? item.current_position : (exchange&.posts_count || 0)
+  end
 
   def increment_public_posts_count
     return if conversation?

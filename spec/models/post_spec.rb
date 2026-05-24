@@ -52,15 +52,15 @@ describe Post do
       let!(:post) { create(:post, user:, exchange:) }
 
       it "decrements public_posts_count on user" do
-        expect { post.destroy }.to change(user, :public_posts_count).by(-1)
+        expect { post.destroy }.to change { user.reload.public_posts_count }.by(-1)
       end
 
       it "decrements posts_count on user" do
-        expect { post.destroy }.to change(user, :posts_count).by(-1)
+        expect { post.destroy }.to change { user.reload.posts_count }.by(-1)
       end
 
       it "decrements posts_count on exchange" do
-        expect { post.destroy }.to change(exchange, :posts_count).by(-1)
+        expect { post.destroy }.to change { exchange.reload.posts_count }.by(-1)
       end
     end
   end
@@ -90,6 +90,40 @@ describe Post do
   describe "#post_number" do
     specify { expect(exchange.posts.first.post_number).to eq(1) }
     specify { expect(create(:post, exchange:).post_number).to eq(2) }
+  end
+
+  describe "acts_as_list position" do
+    it "assigns sequential positions on create" do
+      exchange.posts.first
+      create(:post, exchange:)
+      create(:post, exchange:)
+      expect(exchange.posts.order(:id).pluck(:position)).to eq([1, 2, 3])
+    end
+
+    context "when existing posts have NULL positions (mid-backfill)" do
+      before do
+        described_class.connection.exec_update(
+          "UPDATE posts SET position = NULL WHERE exchange_id = $1",
+          "test-setup", [exchange.id]
+        )
+        described_class.connection.exec_update(
+          "UPDATE exchanges SET posts_count = 42 WHERE id = $1",
+          "test-setup", [exchange.id]
+        )
+        exchange.reload
+      end
+
+      it "assigns posts_count + 1 so new positions don't collide with the backfill" do
+        new_post = create(:post, exchange:)
+        expect(new_post.position).to eq(43)
+      end
+
+      it "increments from there on subsequent inserts" do
+        create(:post, exchange:)
+        second = create(:post, exchange:)
+        expect(second.position).to eq(44)
+      end
+    end
   end
 
   describe "#page" do
