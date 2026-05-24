@@ -54,10 +54,8 @@
   <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
 </h2>
 
-<% cache @posts do %>
-  <%= render(partial: "exchanges/posts",
-             locals: { exchange: @exchange, posts: @posts }) %>
-<% end %>
+<%= render(partial: "exchanges/posts",
+           locals: { exchange: @exchange, posts: @posts }) %>
 
 <div class="bottomlinks">
   <%= link_to "Back to discussions", discussions_path, id: "back_link" %>,
