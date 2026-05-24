@@ -2,6 +2,33 @@ import readyHandler from "../../lib/readyHandler";
 import { slideDown } from "../../lib/animation";
 import PostDetector from "./newPosts/PostDetector";
 
+function injectPosts(html: string) {
+  let ajaxPosts = document.querySelector(".posts #ajaxPosts");
+  if (!ajaxPosts) {
+    ajaxPosts = document.createElement("div");
+    ajaxPosts.id = "ajaxPosts";
+    document.querySelector(".posts").appendChild(ajaxPosts);
+  }
+
+  ajaxPosts.insertAdjacentHTML("beforeend", html);
+  const newPosts = ajaxPosts.querySelectorAll(
+    ".post:not(.shown)"
+  ) as NodeListOf<HTMLElement>;
+
+  newPosts.forEach((post) => {
+    slideDown(post);
+    post.classList.add("shown");
+  });
+
+  PostDetector.mark_posts_read(newPosts.length);
+  PostDetector.resume();
+  document.dispatchEvent(
+    new CustomEvent("postsloaded", {
+      detail: Array.from(newPosts)
+    })
+  );
+}
+
 export async function loadNewPosts() {
   const discussionLink = document.querySelector(
     "#discussionLink"
@@ -10,6 +37,12 @@ export async function loadNewPosts() {
 
   PostDetector.pause();
   document.dispatchEvent(new Event("postsloading"));
+
+  const buffered = PostDetector.consume_buffer();
+  if (buffered) {
+    injectPosts(buffered);
+    return;
+  }
 
   const exchangeUrl = discussionLink.href;
   const [, exchangeType, exchangeId] = exchangeUrl.match(
@@ -27,36 +60,7 @@ export async function loadNewPosts() {
       }
     });
     const data = await response.text();
-
-    // Create container if needed
-    let ajaxPosts = document.querySelector(".posts #ajaxPosts");
-    if (!ajaxPosts) {
-      ajaxPosts = document.createElement("div");
-      ajaxPosts.id = "ajaxPosts";
-      document.querySelector(".posts").appendChild(ajaxPosts);
-    }
-
-    // Insert content
-    ajaxPosts.insertAdjacentHTML("beforeend", data);
-    const newPosts = ajaxPosts.querySelectorAll(
-      ".post:not(.shown)"
-    ) as NodeListOf<HTMLElement>;
-
-    // Animate new posts
-    newPosts.forEach((post) => {
-      slideDown(post);
-      post.classList.add("shown");
-    });
-
-    // Update read posts count
-    PostDetector.mark_posts_read(newPosts.length);
-
-    PostDetector.resume();
-    document.dispatchEvent(
-      new CustomEvent("postsloaded", {
-        detail: Array.from(newPosts)
-      })
-    );
+    injectPosts(data);
   } catch (error) {
     console.error("Failed to load new posts:", error);
   }

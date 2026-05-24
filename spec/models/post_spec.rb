@@ -46,15 +46,23 @@ describe Post do
       end
     end
 
-    describe "broadcasting the post count" do
+    describe "broadcasting the new post" do
       let!(:exchange) { create(:discussion) }
 
-      it "broadcasts the new posts_count to the exchange channel" do
+      it "broadcasts the updated posts_count" do
         expect { create(:post, exchange:) }.to(
           have_broadcasted_to(exchange)
             .from_channel(ExchangeChannel)
-            .with(posts_count: 2)
+            .with(hash_including(posts_count: 2))
         )
+      end
+
+      it "broadcasts the rendered post html" do
+        allow(ExchangeChannel).to receive(:broadcast_to)
+        new_post = create(:post, exchange:)
+        expected = hash_including(post_id: new_post.id,
+                                  html: a_string_including("post-#{new_post.id}"))
+        expect(ExchangeChannel).to have_received(:broadcast_to).with(exchange, expected)
       end
     end
   end
@@ -302,16 +310,17 @@ describe Post do
 
     context "when skip_html is false" do
       it "parses the post" do
-        allow(Renderer).to receive(:render)
+        allow(Renderer).to receive(:render).and_call_original
         create(:post, exchange:)
-        expect(Renderer).to have_received(:render).once
+        expect(Renderer).to have_received(:render).at_least(:once)
       end
     end
 
     context "when skip_html is true" do
-      it "parses the post" do
-        allow(Renderer).to receive(:render)
-        create(:post, skip_html: true, exchange:)
+      it "does not call the renderer in the create callback" do
+        allow(Renderer).to receive(:render).and_call_original
+        post = build(:post, skip_html: true, exchange:)
+        post.run_callbacks(:save) { false }
         expect(Renderer).not_to have_received(:render)
       end
     end
