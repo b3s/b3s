@@ -1,8 +1,4 @@
 <%# locals: (exchange:, posts:) %>
-<% all_posts     = posts.to_a
-  context_posts = all_posts.first(posts.context)
-  page_posts    = all_posts.drop(posts.context) %>
-
 <div
   id="discussion"
   data-id="<%= exchange.id %>"
@@ -12,18 +8,24 @@
   <%= render(partial: "components/pagination",
              locals: { paginated: posts, anchor: :start }) %>
 
-  <div class="posts">
-    <% if context_posts.any? %>
-      <div class="context">
-        <%= render(partial: "exchanges/post_list",
-                   locals: { posts: context_posts }) %>
-      </div>
-      <span id="start"></span>
-    <% end %>
+  <% cache posts do %>
+    <% all_posts     = posts.to_a
+       context_posts = all_posts.first(posts.context)
+       page_posts    = all_posts.drop(posts.context) %>
 
-    <%= render(partial: "exchanges/post_list",
-               locals: { posts: page_posts, previous_post: context_posts.last }) %>
-  </div>
+    <div class="posts">
+      <% if context_posts.any? %>
+        <div class="context">
+          <%= render(partial: "exchanges/post_list",
+                     locals: { posts: context_posts }) %>
+        </div>
+        <span id="start"></span>
+      <% end %>
+
+      <%= render(partial: "exchanges/post_list",
+                 locals: { posts: page_posts, previous_post: context_posts.last }) %>
+    </div>
+  <% end %>
 
   <div id="newPosts"></div>
 
