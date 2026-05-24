@@ -13,6 +13,13 @@ namespace :b3s do
     puts "Queued deletion job for #{user.username} (#{user.posts.count} posts)"
   end
 
+  desc "Enqueue BackfillPostPositionsJob for every exchange with NULL-position posts"
+  task backfill_post_positions: :environment do
+    exchange_ids = Post.where(position: nil).distinct.pluck(:exchange_id)
+    exchange_ids.each { |id| BackfillPostPositionsJob.perform_later(id) }
+    puts "Enqueued #{exchange_ids.size} BackfillPostPositionsJob(s)"
+  end
+
   desc "Update syntax highlighting theme"
   task update_rouge_theme: :environment do
     Rails.root.join("app/assets/stylesheets/vendor/rouge.css").open("w") do |fh|

@@ -505,7 +505,8 @@ CREATE TABLE public.posts (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted boolean DEFAULT false NOT NULL,
-    tsv tsvector
+    tsv tsvector,
+    "position" integer
 );
 
 
@@ -1315,6 +1316,7 @@ CREATE TRIGGER tsvectorupdate_posts BEFORE INSERT OR UPDATE ON public.posts FOR 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260523200000'),
 ('20260523170000'),
 ('20260514120000'),
 ('20260513213433'),
