@@ -4,6 +4,7 @@ class Post < ApplicationRecord
   include ConversationPost
   include SearchablePost
   include Paginatable
+  include Paginatable::PositionKeyed
   include Viewable
 
   self.per_page = 50
@@ -39,12 +40,8 @@ class Post < ApplicationRecord
     body.strip =~ %r{^/me} && body.exclude?("\n")
   end
 
-  def post_number
-    @post_number ||= exchange.posts.where(id: ...id).count + 1
-  end
-
   def page(options = {})
-    (post_number.to_f / (options[:limit] || Post.per_page)).ceil
+    (position.to_f / (options[:limit] || Post.per_page)).ceil
   end
 
   def body_html
@@ -83,13 +80,6 @@ class Post < ApplicationRecord
   end
 
   private
-
-  # Falls back to posts_count so new posts don't collide with the
-  # in-progress ROW_NUMBER backfill of NULL positions.
-  def bottom_position_in_list(except = nil)
-    item = bottom_item(except)
-    item ? item.current_position : (exchange&.posts_count || 0)
-  end
 
   def increment_public_posts_count
     return if conversation?

@@ -21,7 +21,7 @@ class ConversationsController < ApplicationController
     @page = params[:page] || 1
     @posts = @exchange.posts.page(@page, context:, total_count: @exchange.posts_count).for_view.load
 
-    mark_as_viewed!(@exchange, @posts.last, @posts.offset_value + @posts.size)
+    mark_as_viewed!(@exchange, @posts.last, @posts.last&.position || 0)
 
     respond_with_exchange(@exchange, @page)
 

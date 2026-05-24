@@ -99,11 +99,6 @@ describe Post do
     end
   end
 
-  describe "#post_number" do
-    specify { expect(exchange.posts.first.post_number).to eq(1) }
-    specify { expect(create(:post, exchange:).post_number).to eq(2) }
-  end
-
   describe "acts_as_list position" do
     it "assigns sequential positions on create" do
       exchange.posts.first
@@ -111,50 +106,25 @@ describe Post do
       create(:post, exchange:)
       expect(exchange.posts.order(:id).pluck(:position)).to eq([1, 2, 3])
     end
-
-    context "when existing posts have NULL positions (mid-backfill)" do
-      before do
-        described_class.connection.exec_update(
-          "UPDATE posts SET position = NULL WHERE exchange_id = $1",
-          "test-setup", [exchange.id]
-        )
-        described_class.connection.exec_update(
-          "UPDATE exchanges SET posts_count = 42 WHERE id = $1",
-          "test-setup", [exchange.id]
-        )
-        exchange.reload
-      end
-
-      it "assigns posts_count + 1 so new positions don't collide with the backfill" do
-        new_post = create(:post, exchange:)
-        expect(new_post.position).to eq(43)
-      end
-
-      it "increments from there on subsequent inserts" do
-        create(:post, exchange:)
-        second = create(:post, exchange:)
-        expect(second.position).to eq(44)
-      end
-    end
   end
 
   describe "#page" do
     subject { post.page }
 
     context "when it's the first post" do
-      before { allow(post).to receive(:post_number).and_return(1) }
+      before { allow(post).to receive(:position).and_return(1) }
 
       it { is_expected.to eq(1) }
     end
 
     context "when it's the last post on a page" do
-      before { allow(post).to receive(:post_number).and_return(50) }
+      before { allow(post).to receive(:position).and_return(50) }
 
       it { is_expected.to eq(1) }
     end
 
     context "when it's the first post on the second page" do
-      before { allow(post).to receive(:post_number).and_return(51) }
+      before { allow(post).to receive(:position).and_return(51) }
 
       it { is_expected.to eq(2) }
     end
@@ -162,7 +132,7 @@ describe Post do
     context "with :limit set" do
       subject { post.page(limit: 10) }
 
-      before { allow(post).to receive(:post_number).and_return(70) }
+      before { allow(post).to receive(:position).and_return(70) }
 
       it { is_expected.to eq(7) }
     end

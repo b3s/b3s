@@ -1,6 +1,12 @@
 <%# locals: (paginated:, anchor: nil, pagination_params: {}) %>
-<%# Solr results have offset, while ARel results need offset_value %>
-<% offset = paginated.respond_to?(:offset_value) ? paginated.offset_value : paginated.offset %>
+<% offset =
+     if paginated.respond_to?(:pagination_offset)
+       paginated.pagination_offset
+     elsif paginated.respond_to?(:offset_value)
+       paginated.offset_value
+     else
+       paginated.offset
+     end %>
 
 <div class="pagination">
   <% if paginated.total_pages > 1 %>

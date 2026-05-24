@@ -506,7 +506,7 @@ CREATE TABLE public.posts (
     updated_at timestamp without time zone NOT NULL,
     deleted boolean DEFAULT false NOT NULL,
     tsv tsvector,
-    "position" integer
+    "position" integer NOT NULL
 );
 
 
@@ -1184,6 +1184,13 @@ CREATE INDEX index_posts_on_exchange_id_and_created_at ON public.posts USING btr
 
 
 --
+-- Name: index_posts_on_exchange_id_and_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_posts_on_exchange_id_and_position ON public.posts USING btree (exchange_id, "position");
+
+
+--
 -- Name: index_posts_on_trusted; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1316,6 +1323,8 @@ CREATE TRIGGER tsvectorupdate_posts BEFORE INSERT OR UPDATE ON public.posts FOR 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260524080100'),
+('20260524080000'),
 ('20260523200000'),
 ('20260523170000'),
 ('20260514120000'),

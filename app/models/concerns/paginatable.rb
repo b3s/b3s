@@ -18,6 +18,10 @@ module Paginatable
         @context || 0
       end
 
+      def pagination_offset
+        offset_value || 0
+      end
+
       # Shared by all relations spawned from a `.page` call (clone copies the
       # reference, not the Hash), so memoized values survive `all.clone`.
       def pagination_memo
