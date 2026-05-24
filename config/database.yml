@@ -24,6 +24,11 @@ development:
   primary:
     <<: *default
     database: b3s_development
+  cable:
+    <<: *default
+    database: b3s_development_cable
+    migrations_paths: db/cable_migrate
+    schema_dump: cable_structure.sql
   cache:
     <<: *default
     database: b3s_development_cache
@@ -42,6 +47,11 @@ test:
   primary:
     <<: *default
     database: b3s_test
+  cable:
+    <<: *default
+    database: b3s_test_cable
+    migrations_paths: db/cable_migrate
+    schema_dump: cable_structure.sql
   cache:
     <<: *default
     database: b3s_test_cache
@@ -79,6 +89,11 @@ production:
     database: b3s_production
     username: b3s
     password: <%= ENV["B3S_DATABASE_PASSWORD"] %>
+  cable:
+    <<: *default
+    url: <%= ENV["CABLE_DATABASE_URL"] %>
+    migrations_paths: db/cable_migrate
+    schema_dump: cable_structure.sql
   cache:
     <<: *default
     url: <%= ENV["CACHE_DATABASE_URL"] %>

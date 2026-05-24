@@ -20,6 +20,9 @@ importers:
       '@fortawesome/fontawesome-free':
         specifier: ^6.7.2
         version: 6.7.2
+      '@rails/actioncable':
+        specifier: ^8.1.300
+        version: 8.1.300
       '@rails/ujs':
         specifier: ^7.1.600
         version: 7.1.600
@@ -438,6 +441,9 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@rails/actioncable@8.1.300':
+    resolution: {integrity: sha512-zOENQsq3NM2jyBY6Z2qtZa3V/R/6OEqA+LGKixQbBMl7kk/J3FXDRcszPe74LsHNgB01jCl/DXu/xA8sHt4I/g==}
 
   '@rails/ujs@7.1.600':
     resolution: {integrity: sha512-ntMYJ8++n1zcIJ1g75or7Va9IU3ueCHgp9IJk7Ny7eFEbu0Kx40EHZ2FNhoxoUEjlF5NifCFCbvoK5rDK5HpIQ==}
@@ -2390,6 +2396,8 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@rails/actioncable@8.1.300': {}
 
   '@rails/ujs@7.1.600': {}
 

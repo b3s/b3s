@@ -48,6 +48,12 @@ Rails.application.configure do
   # Replace the default in-process memory cache store with a durable alternative.
   config.cache_store = :solid_cache_store
 
+  config.action_cable.allowed_request_origins = [
+    %r{\Ahttps://(www\.)?b3s\.me\z},
+    %r{\Ahttps://(www\.)?butt3rscotch\.org\z},
+    %r{\Ahttps://b3s\.vimes\.elektronaut\.no\z}
+  ]
+
   # Replace the default in-process and non-durable queuing backend for Active Job.
   # config.active_job.queue_adapter = :resque
   config.active_job.queue_adapter = :solid_queue

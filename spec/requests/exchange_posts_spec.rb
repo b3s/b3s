@@ -239,27 +239,6 @@ RSpec.describe "ExchangePosts" do
     end
   end
 
-  describe "GET /discussions/:discussion_id/posts/count" do
-    context "with posts" do
-      before do
-        create_list(:post, 2, exchange:)
-        get count_discussion_posts_path(exchange, format: :json)
-      end
-
-      it { is_expected.to have_http_status(:success) }
-
-      it "returns the post count as JSON" do
-        expect(response.parsed_body).to eq("posts_count" => 3)
-      end
-    end
-
-    context "when discussion does not exist" do
-      before { get count_discussion_posts_path(999_999, format: :json) }
-
-      it { is_expected.to have_http_status(:not_found) }
-    end
-  end
-
   describe "GET /discussions/:discussion_id/posts/since" do
     context "with posts" do
       let!(:posts) { create_list(:post, 5, exchange:) }

@@ -114,7 +114,6 @@ Rails.application.routes.draw do
     # Posts
     resources :posts, only: %i[edit create update], controller: "exchange_posts" do
       collection do
-        get "count"
         get "since/:index", action: :since, as: :since
         post "preview"
         get "search"
@@ -144,7 +143,6 @@ Rails.application.routes.draw do
 
     resources :posts, only: %i[edit create update], controller: "exchange_posts" do
       collection do
-        get "count"
         get "since/:index", action: :since, as: :since
         post "preview"
         get "search"

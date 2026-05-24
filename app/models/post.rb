@@ -27,6 +27,8 @@ class Post < ApplicationRecord
 
   after_destroy :decrement_public_posts_count
 
+  after_commit :broadcast_count, on: :create
+
   scope :sorted,                 -> { order(:created_at) }
   scope :for_view,               -> { sorted.includes(user: [:avatar]) }
   scope :for_view_with_exchange, -> { for_view.includes(exchange: :poster) }
@@ -113,5 +115,9 @@ class Post < ApplicationRecord
       last_poster_id: user.id,
       last_post_at: created_at
     )
+  end
+
+  def broadcast_count
+    ExchangeChannel.broadcast_to(exchange, posts_count: exchange.posts_count)
   end
 end
