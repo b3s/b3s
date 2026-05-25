@@ -508,6 +508,7 @@ CREATE TABLE public.posts (
     tsv tsvector,
     "position" integer NOT NULL
 );
+ALTER TABLE ONLY public.posts ALTER COLUMN tsv SET STATISTICS 5000;
 
 
 --
@@ -1323,6 +1324,7 @@ CREATE TRIGGER tsvectorupdate_posts BEFORE INSERT OR UPDATE ON public.posts FOR 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260525200000'),
 ('20260524080100'),
 ('20260524080000'),
 ('20260523200000'),
