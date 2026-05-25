@@ -40,7 +40,11 @@ export async function loadNewPosts() {
 
   const buffered = PostDetector.consume_buffer();
   if (buffered) {
-    injectPosts(buffered);
+    injectPosts(buffered.html);
+    PostDetector.subscription?.perform("viewed", {
+      post_id: buffered.lastPostId,
+      index: PostDetector.read_posts
+    });
     return;
   }
 
