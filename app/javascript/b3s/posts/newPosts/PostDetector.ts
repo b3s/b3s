@@ -49,11 +49,12 @@ const PostDetector = {
     );
   },
 
-  consume_buffer(): string | null {
+  consume_buffer(): { html: string; lastPostId: number } | null {
     if (this.has_gap || this.buffer.length === 0) return null;
     const html = this.buffer.map((p) => p.html).join("");
+    const lastPostId = this.buffer[this.buffer.length - 1].id;
     this.buffer = [];
-    return html;
+    return { html, lastPostId };
   },
 
   start(container: HTMLDivElement) {
