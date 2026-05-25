@@ -19,7 +19,7 @@ class ConversationsController < ApplicationController
 
   def show
     @page = params[:page] || 1
-    @posts = @exchange.posts.page(@page, context:, total_count: @exchange.posts_count).for_view.load
+    @posts = @exchange.posts.paginate_by_position(@page, context:, total_count: @exchange.posts_count).for_view.load
 
     mark_as_viewed!(@exchange, @posts.last, @posts.last&.position || 0)
 
