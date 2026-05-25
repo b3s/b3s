@@ -170,6 +170,19 @@ readyHandler.start(function () {
     });
   });
 
+  // Prevent submitting blank posts
+  document.querySelectorAll(".reply").forEach((reply: HTMLElement) => {
+    const form = reply.closest("form");
+    const textarea: HTMLTextAreaElement = reply.querySelector("#compose-body");
+    if (form && textarea) {
+      form.addEventListener("submit", (evt) => {
+        if (textarea.value.trim() === "") {
+          evt.preventDefault();
+        }
+      });
+    }
+  });
+
   // Confirm regular site
   document.querySelector("a.regular_site").addEventListener("click", (evt) => {
     if (
