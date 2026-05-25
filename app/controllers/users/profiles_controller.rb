@@ -52,16 +52,7 @@ module Users
                     .reverse_order
                     .limit(15)
       @invitees = @user.invitees.to_a
-      load_profile_counts
-    end
-
-    def load_profile_counts
-      @discussions_count =
-        @user.discussions.viewable_by(current_user).count
-      @participated_discussions_count =
-        @user.participated_discussions.viewable_by(current_user).count
-      @discussion_posts_count =
-        @user.discussion_posts.viewable_by(current_user).count
+      @discussions_count = @user.discussions.viewable_by(current_user).count
     end
 
     def load_user
