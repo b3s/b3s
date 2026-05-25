@@ -112,7 +112,7 @@
       <th>Participated</th>
 
       <td>
-        <%= link_to(@participated_discussions_count,
+        <%= link_to(@user.participated_count,
                     participated_user_profile_discussions_path(@user.username)) %>
       </td>
     </tr>
@@ -121,7 +121,7 @@
       <th>Posts</th>
 
       <td>
-        <%= @discussion_posts_count %>
+        <%= @user.public_posts_count %>
       </td>
     </tr>
 

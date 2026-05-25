@@ -90,19 +90,19 @@
       <br>
     <% end %>
 
-    <% if @participated_discussions_count.positive? %>
+    <% if @user.participated_count.positive? %>
       <%= link_to("View participated discussions",
                   participated_user_profile_discussions_path( @user.username)) %>
       (
-      <%= @participated_discussions_count %>
+      <%= @user.participated_count %>
       )
       <br>
     <% end %>
 
-    <% if @discussion_posts_count.positive? %>
+    <% if @user.public_posts_count.positive? %>
       <%= link_to "View posts", user_profile_posts_path( @user.username) %>
       (
-      <%= @discussion_posts_count %>
+      <%= @user.public_posts_count %>
       )
       <br>
     <% end %>
