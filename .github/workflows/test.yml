@@ -94,7 +94,7 @@ jobs:
       - uses: pnpm/action-setup@v6.0.8
         with:
           run_install: true
-      - uses: ruby/setup-ruby@v1.308.0
+      - uses: ruby/setup-ruby@v1.310.0
         with:
           bundler-cache: true
       - name: Prepare test environment
@@ -120,7 +120,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y exiftool libvips42 libcurl4-openssl-dev $(cat Aptfile | xargs)
-      - uses: ruby/setup-ruby@v1.308.0
+      - uses: ruby/setup-ruby@v1.310.0
         with:
           bundler-cache: true
       - name: Check code
@@ -134,7 +134,7 @@ jobs:
       BUNDLE_WITHOUT: development
     steps:
       - uses: actions/checkout@v6
-      - uses: ruby/setup-ruby@v1.308.0
+      - uses: ruby/setup-ruby@v1.310.0
         with:
           bundler-cache: true
       - name: Run bundler-audit
