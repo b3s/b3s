@@ -16,6 +16,26 @@ describe LinkFilter do
     end
   end
 
+  context "when input contains a malformed link" do
+    before { B3S.config.domain_names = "b3s.me" }
+
+    let(:input) { %(<a href="http://www.example.com/>foo&amp;bar">x</a>) }
+    let(:output) { %(<a href="http://www.example.com/&gt;foo&amp;bar">x</a>) }
+
+    it "leaves the link untouched" do
+      expect(filter.to_html).to eq(output)
+    end
+  end
+
+  context "when input contains a malformed image src" do
+    let(:input) { %(<img src="http://www.example.com/>foo&amp;bar">) }
+    let(:output) { %(<img src="http://www.example.com/&gt;foo&amp;bar">) }
+
+    it "leaves the image untouched" do
+      expect(filter.to_html).to eq(output)
+    end
+  end
+
   context "when input contains an image on the HTTPS whitelist" do
     let(:input) { '<img src="http://i.imgur.com/test.gif">' }
     let(:output) { '<img src="//i.imgur.com/test.gif">' }

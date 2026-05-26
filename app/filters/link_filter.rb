@@ -47,24 +47,30 @@ class LinkFilter < Filter
     @parser ||= Nokogiri::HTML::DocumentFragment.parse(@post)
   end
 
+  def safe_uri_parse(url)
+    URI.parse(url)
+  rescue URI::InvalidURIError
+    nil
+  end
+
   def matches_https_whitelist?(url)
-    host = URI.parse(url).host
+    host = safe_uri_parse(url)&.host
     return false unless host
 
     HTTPS_WHITELIST.detect { |domain| File.fnmatch(domain, host) }
   end
 
   def https_url_exists?(url)
-    uri = URI.parse(url.gsub(%r{^(https?:)//}, "https://"))
-    begin
-      head_request(uri) =~ /^(2|3)\d\d$/
-    rescue SocketError, Net::OpenTimeout,
-           OpenSSL::SSL::SSLError, Errno::ECONNREFUSED
-      false
-    rescue StandardError => e
-      logger.error "Unexpected connection error #{e.inspect}"
-      false
-    end
+    uri = safe_uri_parse(url.gsub(%r{^(https?:)//}, "https://"))
+    return false unless uri
+
+    head_request(uri) =~ /^(2|3)\d\d$/
+  rescue SocketError, Net::OpenTimeout,
+         OpenSSL::SSL::SSLError, Errno::ECONNREFUSED
+    false
+  rescue StandardError => e
+    logger.error "Unexpected connection error #{e.inspect}"
+    false
   end
 
   def relativize_local_links!
@@ -72,7 +78,7 @@ class LinkFilter < Filter
       href = extract_href(link)
       next unless href&.match?(%r{^https?://})
 
-      host = URI.parse(href).host
+      host = safe_uri_parse(href)&.host
       next unless local_domain?(host)
 
       link.set_attribute(
