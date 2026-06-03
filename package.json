@@ -9,7 +9,7 @@
     "@rails/actioncable": "^8.1.300",
     "@rails/ujs": "^7.1.600",
     "autoprefixer": "^10.5.0",
-    "downshift": "^9.3.3",
+    "downshift": "^9.3.4",
     "dropzone": "6.0.0-beta.2",
     "esbuild": "^0.28.0",
     "match-sorter": "^8.3.0",
@@ -44,7 +44,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.8.3",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.59.4"
+    "typescript-eslint": "^8.60.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
