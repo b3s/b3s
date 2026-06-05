@@ -24,6 +24,11 @@ function editPost(post: Post, elem: HTMLDivElement) {
   editor.innerHTML = '<span class="ticker">Loading...</span>';
   elem.append(editor);
 
+  const cancelEdit = () => {
+    editor.remove();
+    body.style.display = "";
+  };
+
   void fetch(post.editUrl(), {
     headers: {
       "X-Requested-With": "XMLHttpRequest"
@@ -31,7 +36,33 @@ function editPost(post: Post, elem: HTMLDivElement) {
   })
     .then((response) => response.text())
     .then((body) => (editor.innerHTML = body))
-    .then(() => applyRichTextArea());
+    .then(() => {
+      applyRichTextArea();
+
+      const cancelButton: HTMLButtonElement =
+        editor.querySelector("button.cancel");
+      if (cancelButton) {
+        cancelButton.addEventListener("click", (evt) => {
+          evt.preventDefault();
+          cancelEdit();
+        });
+      }
+
+      const textarea: HTMLTextAreaElement = editor.querySelector("textarea");
+      if (textarea) {
+        textarea.addEventListener("keydown", (evt) => {
+          if (evt.key === "Escape") {
+            evt.preventDefault();
+            cancelEdit();
+          }
+        });
+        textarea.focus();
+        textarea.setSelectionRange(
+          textarea.value.length,
+          textarea.value.length
+        );
+      }
+    });
 }
 
 function postAttributes(elem: HTMLDivElement): Partial<PostAttributes> {

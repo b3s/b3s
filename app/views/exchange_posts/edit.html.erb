@@ -30,5 +30,11 @@
     <button type="submit">
       Save
     </button>
+
+    <% if request.xhr? %>
+      <button type="button" class="cancel">
+        Cancel
+      </button>
+    <% end %>
   </p>
 <% end %>
