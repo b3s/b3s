@@ -4,7 +4,7 @@ RSpec.shared_examples "an image response" do
   it { is_expected.to have_http_status(:success) }
 
   it "returns image content type" do
-    expect(response.content_type).to match(/image/)
+    expect(response.content_type).to include("image")
   end
 end
 

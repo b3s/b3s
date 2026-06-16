@@ -58,7 +58,7 @@ RSpec.describe "Invites" do
       before { get accept_invite_path(expired_invite.token) }
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/Your invite has expired!/)
+        expect(flash[:notice]).to include("Your invite has expired!")
       end
 
       it "does not store the invite token" do
@@ -72,7 +72,7 @@ RSpec.describe "Invites" do
       before { get accept_invite_path("invalid token") }
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/That's not a valid invite!/)
+        expect(flash[:notice]).to include("That's not a valid invite!")
       end
 
       it "does not store the invite token" do
@@ -95,7 +95,7 @@ RSpec.describe "Invites" do
       let(:user) { create(:user, available_invites: 0) }
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/You don't have any invites!/)
+        expect(flash[:notice]).to include("You don't have any invites!")
       end
 
       it { is_expected.to redirect_to(online_users_url) }
@@ -127,9 +127,7 @@ RSpec.describe "Invites" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(
-          /Your invite has been sent to no-reply@example\.com/
-        )
+        expect(flash[:notice]).to include("Your invite has been sent to no-reply@example.com")
       end
 
       it "sends an email" do

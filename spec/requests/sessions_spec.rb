@@ -75,7 +75,7 @@ RSpec.describe "Sessions" do
     end
 
     it "sets the flash" do
-      expect(flash[:notice]).to match(/logged out/)
+      expect(flash[:notice]).to include("logged out")
     end
 
     it "redirects to login" do

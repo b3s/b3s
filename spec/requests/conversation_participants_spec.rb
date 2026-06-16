@@ -32,9 +32,7 @@ RSpec.describe "ConversationParticipants" do
 
     context "when removing self" do
       it "sets the flash" do
-        expect(flash[:notice]).to match(
-          /You have been removed from the conversation/
-        )
+        expect(flash[:notice]).to include("You have been removed from the conversation")
       end
 
       it { is_expected.to redirect_to(conversations_url) }

@@ -35,7 +35,7 @@ RSpec.describe "Registrations" do
       let(:invite) { create(:invite, :expired) }
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/expired/)
+        expect(flash[:notice]).to include("expired")
       end
 
       it "redirects to login" do
@@ -72,7 +72,7 @@ RSpec.describe "Registrations" do
       let(:invite) { create(:invite, :expired) }
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/expired/)
+        expect(flash[:notice]).to include("expired")
       end
 
       it "redirects to login" do
@@ -84,7 +84,7 @@ RSpec.describe "Registrations" do
       let(:params) { { user: user_params } }
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/not allowed/)
+        expect(flash[:notice]).to include("not allowed")
       end
 
       it "redirects to login" do
@@ -98,7 +98,7 @@ RSpec.describe "Registrations" do
       it { is_expected.to have_http_status(:success) }
 
       it "sets the flash" do
-        expect(flash.now[:notice]).to match(/Could not create your account/)
+        expect(flash.now[:notice]).to include("Could not create your account")
       end
 
       it "re-renders the new form" do

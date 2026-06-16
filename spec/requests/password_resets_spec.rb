@@ -32,9 +32,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(
-          /An email with further instructions has been sent/
-        )
+        expect(flash[:notice]).to include("An email with further instructions has been sent")
       end
 
       it "sends an email to the user" do
@@ -52,9 +50,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(
-          /An email with further instructions has been sent/
-        )
+        expect(flash[:notice]).to include("An email with further instructions has been sent")
       end
     end
   end
@@ -78,7 +74,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/Not a valid URL/)
+        expect(flash[:notice]).to include("Not a valid URL")
       end
     end
 
@@ -92,7 +88,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/Not a valid URL/)
+        expect(flash[:notice]).to include("Not a valid URL")
       end
     end
 
@@ -104,7 +100,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/Not a valid URL/)
+        expect(flash[:notice]).to include("Not a valid URL")
       end
     end
   end
@@ -121,7 +117,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/Your password has been changed/)
+        expect(flash[:notice]).to include("Your password has been changed")
       end
 
       it "redirects to root" do
@@ -164,7 +160,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/Not a valid URL/)
+        expect(flash[:notice]).to include("Not a valid URL")
       end
     end
 
@@ -185,7 +181,7 @@ RSpec.describe "PasswordResets" do
       end
 
       it "sets the flash" do
-        expect(flash[:notice]).to match(/Not a valid URL/)
+        expect(flash[:notice]).to include("Not a valid URL")
       end
     end
   end
