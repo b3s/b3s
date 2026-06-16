@@ -22,13 +22,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6.0.3
       - name: Install 1Password CLI
-        uses: 1password/install-cli-action@v3
+        uses: 1password/install-cli-action@v4
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      - uses: ruby/setup-ruby@v1.310.0
+      - uses: ruby/setup-ruby@v1.313.0
         with:
           bundler-cache: true
       - name: Deploy with kamal
