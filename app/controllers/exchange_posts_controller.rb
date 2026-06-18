@@ -45,8 +45,7 @@ class ExchangePostsController < ApplicationController
   end
 
   def preview
-    @post = @exchange.posts.new(post_params.merge(user: current_user))
-                     .tap(&:fetch_images).tap(&:body_html)
+    @post = @exchange.posts.new(post_params.merge(user: current_user)).preprocess!
 
     render layout: false if request.xhr?
   end
@@ -77,7 +76,8 @@ class ExchangePostsController < ApplicationController
   end
 
   def create_post(create_params)
-    @post = @exchange.posts.create(create_params)
+    @post = @exchange.posts.new(create_params).preprocess!
+    @exchange.with_lock { @post.save }
 
     exchange_url = polymorphic_url(@exchange, page: @exchange.last_page, anchor: "post-#{@post.id}")
 

@@ -97,6 +97,23 @@ RSpec.describe "ExchangePosts" do
     end
   end
 
+  describe "POST /discussions/:discussion_id/posts assigning a position" do
+    before do
+      post discussion_posts_path(exchange, format: :json),
+           params: { post: { body: "foo", format: "html" } }
+    end
+
+    it { is_expected.to have_http_status(:created) }
+
+    it "renders the body html before saving" do
+      expect(Post.last.read_attribute(:body_html)).to be_present
+    end
+
+    it "assigns the next position in the exchange" do
+      expect(Post.last.position).to eq(exchange.posts.maximum(:position))
+    end
+  end
+
   describe "POST /conversations/:conversation_id/posts" do
     let(:exchange) { create(:conversation) }
     let(:participant) { exchange.poster }

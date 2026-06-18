@@ -5,7 +5,7 @@ class DeletePostsJob < ApplicationJob
     user = User.find_by(id: user_id)
 
     user.posts.in_batches do |posts|
-      posts.update(deleted: true, skip_html: true)
+      posts.update(deleted: true, skip_preprocess: true)
     end
 
     user.update(public_posts_count: user.discussion_posts.count)
