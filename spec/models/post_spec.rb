@@ -309,10 +309,10 @@ describe Post do
     end
   end
 
-  describe "#render_html" do
+  describe "preprocessing on save" do
     let!(:exchange) { create(:discussion) }
 
-    context "when skip_html is false" do
+    context "when skip_preprocess is false" do
       it "parses the post" do
         allow(Renderer).to receive(:render).and_call_original
         create(:post, exchange:)
@@ -320,13 +320,43 @@ describe Post do
       end
     end
 
-    context "when skip_html is true" do
+    context "when skip_preprocess is true" do
       it "does not call the renderer in the create callback" do
         allow(Renderer).to receive(:render).and_call_original
-        post = build(:post, skip_html: true, exchange:)
+        post = build(:post, skip_preprocess: true, exchange:)
         post.run_callbacks(:save) { false }
         expect(Renderer).not_to have_received(:render)
       end
+    end
+  end
+
+  describe "#preprocess!" do
+    let!(:exchange) { create(:discussion) }
+    let(:post) { build(:post, exchange:, body: "[img]http://example.com/a.png[/img]") }
+
+    before do
+      allow(ImageFetcher).to receive(:fetch).and_return("fetched body")
+      allow(Renderer).to receive(:render).and_return("<p>rendered</p>")
+    end
+
+    it "fetches images into the body" do
+      post.preprocess!
+      expect(post.body).to eq("fetched body")
+    end
+
+    it "renders the body html" do
+      post.preprocess!
+      expect(post[:body_html]).to eq("<p>rendered</p>")
+    end
+
+    it "sets skip_preprocess" do
+      expect { post.preprocess! }.to change(post, :skip_preprocess).to(true)
+    end
+
+    it "does not fetch images again on save" do
+      post.preprocess!
+      post.save
+      expect(ImageFetcher).to have_received(:fetch).once
     end
   end
 

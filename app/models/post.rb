@@ -18,11 +18,9 @@ class Post < ApplicationRecord
   validates :body, presence: true
   validates :format, inclusion: %w[markdown html]
 
-  attr_accessor :skip_html
+  attr_accessor :skip_preprocess
 
-  before_save :fetch_images,
-              :set_edit_timestamp,
-              :render_html
+  before_save :preprocess!, :set_edit_timestamp
 
   after_create :update_exchange,
                :define_relationship,
@@ -63,8 +61,13 @@ class Post < ApplicationRecord
     user.present? && (user.moderator? || user == self.user)
   end
 
-  def fetch_images
-    self.body = ImageFetcher.fetch(body) unless skip_html
+  def preprocess!
+    return self if skip_preprocess
+
+    fetch_images
+    self.body_html = Renderer.render(body, format:)
+    self.skip_preprocess = true
+    self
   end
 
   def mentions_users?
@@ -81,6 +84,10 @@ class Post < ApplicationRecord
 
   private
 
+  def fetch_images
+    self.body = ImageFetcher.fetch(body)
+  end
+
   def increment_public_posts_count
     return if conversation?
 
@@ -93,10 +100,6 @@ class Post < ApplicationRecord
 
     User.update_counters(user_id, public_posts_count: -1)
     user.decrement(:public_posts_count)
-  end
-
-  def render_html
-    self.body_html = Renderer.render(body, format:) unless skip_html
   end
 
   def set_edit_timestamp
