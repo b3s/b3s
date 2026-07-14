@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^9.39.5",
     "@herb-tools/formatter": "^0.10.1",
     "@herb-tools/linter": "^0.10.1",
     "@types/dropzone": "^5.7.9",
@@ -37,14 +37,14 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^10.0.0",
-    "eslint": "^9.39.4",
+    "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.5.0",
-    "prettier": "^3.9.4",
+    "prettier": "^3.9.5",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.62.1"
+    "typescript-eslint": "^8.63.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
