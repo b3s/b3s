@@ -8,12 +8,12 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@rails/actioncable": "^8.1.300",
     "@rails/ujs": "^7.1.600",
-    "autoprefixer": "^10.5.2",
+    "autoprefixer": "^10.5.4",
     "downshift": "^9.4.0",
     "dropzone": "6.0.0-beta.2",
     "esbuild": "^0.28.1",
     "match-sorter": "^8.3.0",
-    "postcss": "^8.5.16",
+    "postcss": "^8.5.19",
     "postcss-cli": "^11.0.1",
     "postcss-image-inliner": "^7.0.1",
     "postcss-import": "^16.1.1",
@@ -30,8 +30,8 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.5",
-    "@herb-tools/formatter": "^0.10.1",
-    "@herb-tools/linter": "^0.10.1",
+    "@herb-tools/formatter": "^0.10.2",
+    "@herb-tools/linter": "^0.10.2",
     "@types/dropzone": "^5.7.9",
     "@types/rails__ujs": "^6.0.4",
     "@types/react": "^19.2.17",
@@ -44,7 +44,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.9.5",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.63.0"
+    "typescript-eslint": "^8.64.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
