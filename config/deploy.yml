@@ -36,7 +36,7 @@ env:
   clear:
     RAILS_ENV: "production"
     WEB_CONCURRENCY: 2
-    NGINX_CACHE_MAX_SIZE: "20g"
+    NGINX_CACHE_MAX_SIZE: "10g"
   secret:
     - RAILS_MASTER_KEY
     - DATABASE_URL
