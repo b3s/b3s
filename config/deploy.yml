@@ -1,6 +1,6 @@
 ---
 service: b3s
-image: ghcr.io/b3s/b3s
+image: b3s/b3s
 
 ssh:
   user: app
