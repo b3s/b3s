@@ -107,3 +107,45 @@ accessories:
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - fluentbit-state:/fluent-bit/state
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    roles:
+      - web
+    cmd: "--path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/host/root '--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+)($|/)'"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.148.0
+    roles:
+      - web
+    port: "127.0.0.1:8428:8428"
+    cmd: "-storageDataPath=/victoria-metrics-data -retentionPeriod=90d -memory.allowedBytes=512MB -promscrape.config=/etc/victoriametrics/scrape.yml"
+    files:
+      - config/victoriametrics-scrape.yml:/etc/victoriametrics/scrape.yml
+    volumes:
+      - victoriametrics-data:/victoria-metrics-data
+  vmalert:
+    image: victoriametrics/vmalert:v1.148.0
+    roles:
+      - web
+    port: "127.0.0.1:8880:8880"
+    cmd: "-datasource.url=http://b3s-victoriametrics:8428 -remoteWrite.url=http://b3s-victoriametrics:8428 -remoteRead.url=http://b3s-victoriametrics:8428 -notifier.url=http://b3s-alertmanager:9093 -rule=/etc/vmalert/alerts.yml -evaluationInterval=1m"
+    files:
+      - config/alerts.yml:/etc/vmalert/alerts.yml
+  alertmanager:
+    image: prom/alertmanager:v0.33.1
+    roles:
+      - web
+    port: "127.0.0.1:9093:9093"
+    options:
+      entrypoint: /bin/sh
+    env:
+      secret:
+        - POSTMARK_API_TOKEN
+    cmd: "-c 'sed \"s|\\${POSTMARK_API_TOKEN}|$POSTMARK_API_TOKEN|g\" /etc/alertmanager/alertmanager.yml.template > /tmp/alertmanager.yml && exec /bin/alertmanager --config.file=/tmp/alertmanager.yml --storage.path=/alertmanager --cluster.listen-address='"
+    files:
+      - config/alertmanager.yml.template:/etc/alertmanager/alertmanager.yml.template
+    volumes:
+      - alertmanager-data:/alertmanager

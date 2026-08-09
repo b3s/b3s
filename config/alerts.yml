@@ -1,0 +1,103 @@
+---
+groups:
+  - name: disk
+    interval: 1m
+    rules:
+      - alert: DiskSpaceLow
+        expr: >-
+          100 * (1 - node_filesystem_avail_bytes{mountpoint="/"}
+          / node_filesystem_size_bytes{mountpoint="/"}) > 80
+        for: 15m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: 'Root disk is {{ $value | printf "%.1f" }}% full'
+          description: >-
+            Less than 20% of the root filesystem remains.
+            Check the nginx cache, Postgres data and container images.
+
+      - alert: DiskSpaceCritical
+        expr: >-
+          100 * (1 - node_filesystem_avail_bytes{mountpoint="/"}
+          / node_filesystem_size_bytes{mountpoint="/"}) > 90
+        for: 5m
+        labels:
+          severity: critical
+          component: disk
+        annotations:
+          summary: 'Root disk is {{ $value | printf "%.1f" }}% full'
+          description: >-
+            Less than 10% of the root filesystem remains.
+            Services will start failing writes once it reaches 100%.
+
+      - alert: DiskFillingUp
+        expr: >-
+          predict_linear(node_filesystem_avail_bytes{mountpoint="/"}[6h], 4 * 24 * 3600) < 0
+          and
+          node_filesystem_avail_bytes{mountpoint="/"}
+          / node_filesystem_size_bytes{mountpoint="/"} < 0.4
+        for: 1h
+        labels:
+          severity: warning
+          component: disk-trend
+        annotations:
+          summary: 'Root disk is on track to fill within 4 days'
+          description: >-
+            Extrapolating the last 6 hours of growth, free space reaches zero
+            within 4 days.
+
+  - name: memory
+    interval: 1m
+    rules:
+      - alert: MemoryAvailableLow
+        expr: node_memory_MemAvailable_bytes < 800 * 1024 * 1024
+        for: 10m
+        labels:
+          severity: warning
+          component: memory
+        annotations:
+          summary: 'Only {{ $value | humanize1024 }}B of memory available'
+          description: >-
+            The host has no swap, so exhausting available memory triggers the
+            OOM killer rather than degrading gradually.
+
+      - alert: MemoryAvailableCritical
+        expr: node_memory_MemAvailable_bytes < 400 * 1024 * 1024
+        for: 5m
+        labels:
+          severity: critical
+          component: memory
+        annotations:
+          summary: 'Only {{ $value | humanize1024 }}B of memory available'
+          description: >-
+            The host has no swap. An OOM kill is imminent.
+
+  - name: cpu
+    interval: 1m
+    rules:
+      - alert: CPUUtilizationHigh
+        expr: >-
+          100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 85
+        for: 30m
+        labels:
+          severity: warning
+          component: cpu
+        annotations:
+          summary: 'CPU utilisation has been {{ $value | printf "%.0f" }}% for 30 minutes'
+          description: Sustained saturation across both cores.
+
+  - name: monitoring
+    interval: 1m
+    rules:
+      - alert: NodeExporterDown
+        expr: up{job="node"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: monitoring
+        annotations:
+          summary: 'node-exporter is not responding'
+          description: >-
+            Host metrics have stopped arriving, so the disk, memory and CPU
+            alerts above are no longer being evaluated.
