@@ -24,8 +24,7 @@
 <div class="functions">
   <% if current_user? %>
     <% if @exchange.editable_by?(current_user) %>
-      <%= link_to "Edit", [:edit, @exchange], class: :edit %>
-      /
+      <%= link_to "Edit", [:edit, @exchange], class: :edit %> /
     <% end %>
     <% if @exchange.removeable?(current_user) %>
       <%= link_to("Remove conversation",
@@ -54,9 +53,7 @@
 
 <h2 class="section">
   <% if @exchange.labels? %>
-    [
-    <%= @exchange.labels.join(",") %>
-    ]
+    [ <%= @exchange.labels.join(",") %> ]
   <% end %>
 
   <%= link_to @exchange.title, @exchange, id: "discussionLink" %>
@@ -68,8 +65,7 @@
 <div class="bottomlinks">
   <%= link_to "Back to discussions", discussions_path, id: "back_link" %>,
   <% if current_user? && current_user.following?(@exchange) %>
-    <%= link_to "Back to followed", following_discussions_path %>
-    ,
+    <%= link_to "Back to followed", following_discussions_path %> ,
   <% end %>
   <%= link_to "Top of page", "#top" %>
 </div>

@@ -6,8 +6,7 @@
     <% if @user == current_user %>
       <%= link_to "Edit your profile", edit_user_profile_path( @user.username) %>
     <% elsif current_user.user_admin? %>
-      <%= link_to "Edit", edit_user_profile_path( @user.username) %>
-      /
+      <%= link_to "Edit", edit_user_profile_path( @user.username) %> /
     <% end %>
 
     <% unless @user == current_user %>
@@ -84,26 +83,20 @@
     <% if @discussions_count.positive? %>
       <%= link_to("View discussions",
                   user_profile_discussions_path( @user.username)) %>
-      (
-      <%= @discussions_count %>
-      )
+      ( <%= @discussions_count %> )
       <br>
     <% end %>
 
     <% if @user.participated_count.positive? %>
       <%= link_to("View participated discussions",
                   participated_user_profile_discussions_path( @user.username)) %>
-      (
-      <%= @user.participated_count %>
-      )
+      ( <%= @user.participated_count %> )
       <br>
     <% end %>
 
     <% if @user.public_posts_count.positive? %>
-      <%= link_to "View posts", user_profile_posts_path( @user.username) %>
-      (
-      <%= @user.public_posts_count %>
-      )
+      <%= link_to "View posts", user_profile_posts_path( @user.username) %> (
+      <%= @user.public_posts_count %> )
       <br>
     <% end %>
 
@@ -125,9 +118,7 @@
 
   <p>
     <% if @user.birthday? %>
-      <strong> Birthday </strong>
-      :
-      <%= @user.birthday.strftime("%b %d") %>
+      <strong> Birthday </strong> : <%= @user.birthday.strftime("%b %d") %>
       <br>
     <% end %>
 
@@ -137,9 +128,7 @@
 
 
     <% if @user.inviter %>
-      <strong> Invited by </strong>
-      :
-      <%= profile_link(@user.inviter) %>
+      <strong> Invited by </strong> : <%= profile_link(@user.inviter) %>
       <br>
     <% end %>
 
@@ -158,10 +147,8 @@
       This account has been deactivated.
       <br>
     <% elsif @user.admin? %>
-      <%= @user.username %>
-      is an
-      <span class="admin"><strong>admin</strong></span>
-      .
+      <%= @user.username %> is an
+      <span class="admin"><strong>admin</strong></span> .
       <br>
     <% end %>
   </p>

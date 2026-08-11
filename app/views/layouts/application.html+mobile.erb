@@ -120,10 +120,8 @@
     <div id="footer">
       <%= link_to "Discussions", discussions_path %> |
       <% if current_user? %>
-        <%= link_to "Following", following_discussions_path %>
-        |
-        <%= link_to "Favorites", favorites_discussions_path %>
-        |
+        <%= link_to "Following", following_discussions_path %> |
+        <%= link_to "Favorites", favorites_discussions_path %> |
       <% end %>
       <%= link_to "Regular site", {mobile_format: 'html'}, class: 'regular_site' %>
     </div>

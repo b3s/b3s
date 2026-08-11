@@ -31,9 +31,7 @@
             <% if other_participants.length == 0 %>
               Conversation with nobody
             <% elsif other_participants.length > 3 %>
-              Conversation with
-              <%= other_participants.length %>
-              participants
+              Conversation with <%= other_participants.length %> participants
             <% else %>
               Conversation with
               <%= safe_join(other_participants.map {|p| profile_link(p) },
@@ -62,8 +60,7 @@
 
         <td class="new_posts last">
           <% if new_posts?(d) %>
-            New:
-            <strong><%= new_posts_count(d) %></strong>
+            New: <strong><%= new_posts_count(d) %></strong>
           <% end %>
         </td>
       </tr>
