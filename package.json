@@ -13,7 +13,7 @@
     "dropzone": "6.0.0-beta.2",
     "esbuild": "^0.28.1",
     "match-sorter": "^8.3.0",
-    "postcss": "^8.5.25",
+    "postcss": "^8.5.26",
     "postcss-cli": "^11.0.1",
     "postcss-image-inliner": "^7.0.1",
     "postcss-import": "^16.1.1",
@@ -30,8 +30,8 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.5",
-    "@herb-tools/formatter": "^0.10.2",
-    "@herb-tools/linter": "^0.10.2",
+    "@herb-tools/formatter": "^0.10.3",
+    "@herb-tools/linter": "^0.10.3",
     "@types/dropzone": "^5.7.9",
     "@types/rails__ujs": "^6.0.4",
     "@types/react": "^19.2.18",
@@ -44,7 +44,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.9.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.65.0"
+    "typescript-eslint": "^8.66.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
