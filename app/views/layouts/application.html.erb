@@ -41,18 +41,14 @@
       <%# Account info %>
       <div id="account">
         <% if current_user? %>
-          Hello,
-          <%= profile_link(current_user) %>
-          ! (
+          Hello, <%= profile_link(current_user) %> ! (
           <%= link_to("Sign out",
                      session_path,
                      method: :delete,
-                     data: { confirm: "Do you really want to sign out?" }) %>
-          )
+                     data: { confirm: "Do you really want to sign out?" }) %> )
         <% else %>
           <% if B3S.config.signups_allowed %>
-            <%= link_to("Sign up", new_registration_path) %>
-            or
+            <%= link_to("Sign up", new_registration_path) %> or
           <% end %>
           <%= link_to "Log in", new_session_path %>
         <% end %>
