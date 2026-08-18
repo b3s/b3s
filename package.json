@@ -11,12 +11,12 @@
     "autoprefixer": "^10.5.4",
     "downshift": "^9.4.0",
     "dropzone": "6.0.0-beta.2",
-    "esbuild": "^0.28.1",
+    "esbuild": "^0.28.2",
     "match-sorter": "^8.3.0",
     "postcss": "^8.5.26",
     "postcss-cli": "^11.0.1",
     "postcss-image-inliner": "^7.0.1",
-    "postcss-import": "^16.1.1",
+    "postcss-import": "^16.2.0",
     "postcss-import-ext-glob": "^2.1.1",
     "postcss-mixins": "^11.0.3",
     "postcss-nested": "^7.0.2",
@@ -44,7 +44,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.9.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.66.0"
+    "typescript-eslint": "^8.67.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
