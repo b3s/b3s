@@ -48,20 +48,19 @@ module B3s
     config.solid_queue.connects_to = { database: { writing: :queue } }
 
     config.semantic_logger.application = "b3s"
-    config.rails_semantic_logger.format = :color
 
-    unless Rails.env.local?
-      config.rails_semantic_logger.add_file_appender = false
-      config.rails_semantic_logger.format = :json
-    end
+    $stdout.sync = true unless Rails.env.test?
 
-    unless Rails.env.test?
-      $stdout.sync = true
-      config.semantic_logger.add_appender(
-        io: $stdout,
-        formatter: config.rails_semantic_logger.format,
-        filter: ->(log) { log.name != "Rails::HealthController" }
-      )
+    config.rails_semantic_logger.appenders do |appenders|
+      appenders.add(file_name: config.paths["log"].first, formatter: :color) if Rails.env.local?
+
+      unless Rails.env.test?
+        appenders.add(
+          io: $stdout,
+          formatter: Rails.env.local? ? :color : :json,
+          filter: ->(log) { log.name != "Rails::HealthController" }
+        )
+      end
     end
   end
 end
