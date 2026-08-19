@@ -2,15 +2,15 @@
 
 require "simplecov"
 SimpleCov.start do
-  add_filter %w[spec]
+  skip %w[spec]
 
-  add_group "Controllers", "app/controllers"
-  add_group "Models", %w[app/models app/validators]
-  add_group "Helpers", %w[app/helpers app/form_builders]
-  add_group "Mailers", "app/mailers"
-  add_group "Filters", "app/filters"
-  add_group "Resources", "app/resources"
-  add_group "Jobs", "app/jobs"
+  group "Controllers", "app/controllers"
+  group "Models", %w[app/models app/validators]
+  group "Helpers", %w[app/helpers app/form_builders]
+  group "Mailers", "app/mailers"
+  group "Filters", "app/filters"
+  group "Resources", "app/resources"
+  group "Jobs", "app/jobs"
 end
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
