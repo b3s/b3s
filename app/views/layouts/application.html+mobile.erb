@@ -93,11 +93,16 @@
 
           <li class="search">
             <%= form_tag((@search_path || search_path), method: "get") do %>
-              Search for <%= text_field_tag "q", search_query, class: :query %>
+              <%= text_field_tag "q",
+                             search_query,
+                             class: :query,
+                             type: :search,
+                             placeholder: "Search",
+                             "aria-label": "Search for" %>
               <%= select_tag "search_mode", options_for_select(
             search_mode_options(@exchange),
             @search_path || search_path
-          ) %>
+          ), "aria-label": "Search in" %>
               <%= submit_tag "Go", name: nil %>
             <% end %>
           </li>

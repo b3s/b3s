@@ -52,6 +52,7 @@ body[orient="landscape"] {
 }
 
 #header {
+  position: relative;
   background: #111 url("mobile/header.jpg");
   background-size: 480px 45px;
   height: 45px;
@@ -86,16 +87,13 @@ body[orient="landscape"] {
 #header h1.page_title {
   overflow: hidden;
   padding-top: 11px;
-  padding-left: 55px;
-  width: 260px;
+  padding-inline: 55px 72px;
   font-size: 17px;
   font-weight: normal;
   text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
   white-space: nowrap;
+  text-overflow: ellipsis;
   color: #ffffff;
-}
-body[orient="landscape"] #header h1.page_title {
-  width: 420px;
 }
 #header h1.page_title .site_name,
 #header h1.page_title .site_name a,
@@ -112,61 +110,59 @@ body[orient="landscape"] #header h1.page_title {
 }
 
 #navigation {
-  /*
-  position: absolute;
-  top: 45px;
-  */
   overflow: auto;
-  /*border-top: 1px solid #aaa;*/
   background: #f2f2f2 linear-gradient(to bottom, #ececec, #f2f2f2 50%) no-repeat;
   background-size: 100% 142px;
-  padding-top: 2px;
   border-bottom: 1px solid #ddd;
-  /*-webkit-box-shadow: #888 0px 4px 4px;*/
-
   padding: 5px;
   display: none;
 }
 #navigation.active {
   display: block;
 }
-#navigation .search {
-  border-top: 1px solid #d0bbbb;
-  margin-top: 10px;
-  padding-top: 10px;
-  padding-left: 6px;
-}
-#navigation .search select {
-  font-size: 0.9em;
-  margin-left: 82px;
-}
-#navigation .search .query {
-  width: 195px;
-  margin-left: 5px;
-}
-body[orient="landscape"] #navigation .search .query {
-  width: 300px;
+
+#navigation ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 8px;
 }
 
 #navigation li {
-  /*padding: 4px 10px;*/
-  /*
-  border-bottom: 1px solid #ccc;
-  border-bottom: 1px solid #d9b6d7;
-  */
   font-size: 16px;
-  float: left;
-  padding: 4px 4px;
 }
 #navigation li a {
-  width: 125px;
   color: #6c1619;
   border: 1px solid #d0bbbb;
   background: #fff;
   display: block;
-
   padding: 5px 8px;
-  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#navigation .search {
+  grid-column: 1 / -1;
+  border-top: 1px solid #d0bbbb;
+  margin-top: 2px;
+  padding-top: 10px;
+  padding-left: 6px;
+}
+#navigation .search form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+#navigation .search .query {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+#navigation .search select {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 0.9em;
 }
 
 #notice {
