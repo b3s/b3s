@@ -43,12 +43,8 @@ body {
   -webkit-user-select: none;
   -webkit-text-size-adjust: none;
   font-size: 15px;
-  min-height: 415px;
+  min-height: 100svh;
   line-height: 1.4;
-}
-
-body[orient="landscape"] {
-  min-height: 268px;
 }
 
 #header {
@@ -187,11 +183,9 @@ body[orient="landscape"] {
 .login_box {
   margin: 0 20px 20px 20px;
 }
-.login_box p {
-  margin-right: 15px;
-}
 .login_box input.text {
-  width: 265px;
+  box-sizing: border-box;
+  width: 100%;
   margin-bottom: 5px;
 }
 
@@ -206,12 +200,6 @@ body[orient="landscape"] {
   font-size: 15px;
   color: #aaa;
   text-align: center;
-}
-body[orient="landscape"] #login-functions {
-  text-align: left;
-}
-body[orient="landscape"] #login-functions .separator {
-  display: none;
 }
 
 input,
@@ -242,11 +230,9 @@ label {
   padding: 25px 15px 0px 15px;
 }
 .page_content textarea {
-  width: 275px;
+  box-sizing: border-box;
+  width: 100%;
   height: 80px;
-}
-body[orient="landscape"] .page_content textarea {
-  width: 435px;
 }
 
 .pagination {
@@ -265,6 +251,8 @@ body[orient="landscape"] .page_content textarea {
 
 .discussion,
 .conversation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   padding: 8px 10px 5px 10px;
   border-bottom: 1px solid #ddd;
   color: #555;
@@ -275,7 +263,8 @@ body[orient="landscape"] .page_content textarea {
 }
 
 .discussion .new_posts_count {
-  float: right;
+  grid-area: 1 / 2;
+  padding-left: 10px;
   color: #c76700;
   font-size: 11px;
   letter-spacing: -0.05em;
@@ -283,25 +272,15 @@ body[orient="landscape"] .page_content textarea {
 }
 .discussion h2,
 .conversation h2 {
+  grid-area: 1 / 1;
   font-weight: normal;
   font-size: 16px;
-  width: 255px;
   line-height: 1.2;
   margin-bottom: 1px;
 }
 .discussion h2 a,
 .conversation h2 a {
   color: #000;
-}
-
-.conversation h2 {
-  width: 200px;
-}
-body[orient="landscape"] .discussion h2 {
-  width: 415px;
-}
-body[orient="landscape"] .conversation h2 {
-  width: 360px;
 }
 .discussion h2 .labels {
   color: #888;
@@ -310,19 +289,15 @@ body[orient="landscape"] .conversation h2 {
 }
 .discussion p,
 .conversation p {
+  grid-area: 2 / 1 / auto / -1;
   font-size: 10px;
   overflow: hidden;
-  width: 290px;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
 }
 .conversation p {
   font-size: 12px;
-}
-body[orient="landscape"] .discussion p,
-body[orient="landscape"] .conversation p {
-  width: 450px;
 }
 
 .discussions .new_posts,

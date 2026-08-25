@@ -61,20 +61,6 @@ function wrapEmbeds() {
 }
 
 readyHandler.start(function () {
-  const updateLayout = function () {
-    if (window.orientation != null) {
-      if (window.orientation === 90 || window.orientation === -90) {
-        document.body.setAttribute("orient", "landscape");
-      } else {
-        document.body.setAttribute("orient", "portrait");
-      }
-    }
-  };
-
-  window.addEventListener("orientationchange", updateLayout);
-  window.addEventListener("resize", updateLayout);
-  updateLayout();
-
   document.querySelectorAll(".toggle-navigation").forEach((el) => {
     el.addEventListener("click", toggleNavigation);
   });
