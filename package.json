@@ -35,7 +35,7 @@
     "@types/dropzone": "^5.7.9",
     "@types/rails__ujs": "^6.0.4",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
+    "@types/react-dom": "^19.2.5",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
@@ -44,7 +44,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.9.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.67.0"
+    "typescript-eslint": "^8.68.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
