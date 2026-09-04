@@ -118,7 +118,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
-    dis (2.2.1)
+    dis (2.3.0)
       benchmark
       concurrent-ruby (>= 1.1)
       fog-core (>= 2.1.2, < 2.7.0)
@@ -128,11 +128,11 @@ GEM
       ruby-progressbar (~> 1.11)
     dotenv (3.2.0)
     drb (2.2.3)
-    dynamic_image (3.0.9)
+    dynamic_image (3.1.2)
       dis (~> 2.1)
       rails (> 7.0)
       ruby-vips (>= 2.1, < 2.4)
-      vector2d (~> 2.2, >= 2.2.1)
+      vector2d (~> 2.3)
     ed25519 (1.4.0)
     erb (6.0.7)
     erubi (1.13.1)
@@ -515,7 +515,7 @@ GEM
     validate_url (1.0.15)
       activemodel (>= 3.0.0)
       public_suffix
-    vector2d (2.2.4)
+    vector2d (2.3.0)
     web-console (4.3.0)
       actionview (>= 8.0.0)
       bindex (>= 0.4.0)
@@ -637,10 +637,10 @@ CHECKSUMS
   date (3.5.1) sha256=750d06384d7b9c15d562c76291407d89e368dda4d4fff957eb94962d325a0dc0
   debug (1.11.1) sha256=2e0b0ac6119f2207a6f8ac7d4a73ca8eb4e440f64da0a3136c30343146e952b6
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
-  dis (2.2.1) sha256=671bf1c2ba5add48895247192a91105a7cd17bc53edab0a315de1351d01f2661
+  dis (2.3.0) sha256=71cdf88298648141b0aeeb15b0f086f75b0ca21e013020ba2c2bc51dd5f077a8
   dotenv (3.2.0) sha256=e375b83121ea7ca4ce20f214740076129ab8514cd81378161f11c03853fe619d
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
-  dynamic_image (3.0.9) sha256=78f05d69a7d32dfb1e87d9b18f820a7d38ac97c9a7d5d06cf8c095c727c42024
+  dynamic_image (3.1.2) sha256=71fc378158f04169a4badc98584a7ae5baa0a1f457a8ed8d7145cb4d02567bd8
   ed25519 (1.4.0) sha256=16e97f5198689a154247169f3453ef4cfd3f7a47481fde0ae33206cdfdcac506
   erb (6.0.7) sha256=c5ca6dc25b0ef974a44dc8f59fe847577122483b1968a38dec305c60bf91ee92
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
@@ -803,7 +803,7 @@ CHECKSUMS
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
   validate_url (1.0.15) sha256=72fe164c0713d63a9970bd6700bea948babbfbdcec392f2342b6704042f57451
-  vector2d (2.2.4) sha256=46870c14a5f4d0f1a7b1d75e90db9318b648044aac7cd395ae1c96f452c87fe9
+  vector2d (2.3.0) sha256=a5c46c353d94397243554849e34c80102c99c36cca9fb027d53c845537a22864
   web-console (4.3.0) sha256=e13b71301cdfc2093f155b5aa3a622db80b4672d1f2f713119cc7ec7ac6a6da4
   webmock (3.26.3) sha256=77c612816bdcb2fc43db0e42fd98b19be7d4770fd708816fdde65a006664ddec
   websocket (1.2.11) sha256=b7e7a74e2410b5e85c25858b26b3322f29161e300935f70a0e0d3c35e0462737

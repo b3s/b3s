@@ -160,7 +160,9 @@ CREATE TABLE public.avatars (
     crop_gravity_x integer,
     crop_gravity_y integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    frame_count integer,
+    alpha boolean
 );
 
 
@@ -464,7 +466,9 @@ CREATE TABLE public.post_images (
     crop_gravity_y integer,
     original_url character varying(4096),
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    frame_count integer,
+    alpha boolean
 );
 
 
@@ -947,6 +951,13 @@ CREATE INDEX dynamic_image_variants_by_image ON public.dynamic_image_variants US
 
 
 --
+-- Name: index_avatars_on_content_hash; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_avatars_on_content_hash ON public.avatars USING btree (content_hash);
+
+
+--
 -- Name: index_conversation_relationships_on_conversation_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1133,6 +1144,13 @@ CREATE INDEX index_exchanges_on_type ON public.exchanges USING btree (type);
 --
 
 CREATE UNIQUE INDEX index_invites_on_email ON public.invites USING btree (email);
+
+
+--
+-- Name: index_post_images_on_content_hash; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_post_images_on_content_hash ON public.post_images USING btree (content_hash);
 
 
 --
@@ -1324,6 +1342,7 @@ CREATE TRIGGER tsvectorupdate_posts BEFORE INSERT OR UPDATE ON public.posts FOR 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260904042049'),
 ('20260525200000'),
 ('20260524080100'),
 ('20260524080000'),

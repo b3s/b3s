@@ -87,6 +87,10 @@ Rails/DynamicFindBy:
   AllowedReceivers:
     - Emoji
 
+Rails/ThreeStateBooleanColumn:
+  Exclude:
+    - "db/migrate/20260904042049_add_frame_count_and_alpha_to_image_tables.rb"
+
 RSpec:
   Language:
     Expectations:
