@@ -65,15 +65,6 @@ readyHandler.start(function () {
     el.addEventListener("click", toggleNavigation);
   });
 
-  // Open images when clicked
-  document
-    .querySelectorAll(".post .body img")
-    .forEach((img: HTMLImageElement) => {
-      img.addEventListener("click", () => {
-        document.location = img.dataset.fullSrc ?? img.src;
-      });
-    });
-
   // Larger click targets on discussion overview
   document
     .querySelectorAll(".discussions .discussion h2 a")

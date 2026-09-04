@@ -16,6 +16,7 @@ import { applyRichTextArea } from "./b3s/richTextArea";
 import "./b3s/exchanges/newDiscussion";
 import "./b3s/hotkeys";
 import "./b3s/embeds";
+import "./b3s/postImages";
 import "./b3s/posts/buttons";
 import "./b3s/posts/newPosts";
 import "./b3s/posts/preview";

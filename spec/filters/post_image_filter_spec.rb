@@ -36,7 +36,7 @@ describe PostImageFilter do
       )
     end
 
-    it "links the full size image for the mobile viewer" do
+    it "points the full size attribute at the whole image" do
       expect(filter.to_html).to match(
         %r{data-full-src="/post_images/([\w\d]+)/1600x1200/#{image.id}-([\w\d]+)\.png"}x
       )
