@@ -27,9 +27,9 @@ class SanitizeFilter < Filter
 
   def remove_unsafe_tags(parser)
     %w[applet base meta link form].each do |tag_name|
-      parser.search(tag_name).remove
+      parser.xpath(".//#{tag_name}").remove
     end
-    parser.search("script").each do |elem|
+    parser.xpath(".//script").each do |elem|
       src = elem.attributes["src"]&.value&.gsub(%r{\A(https?:)?//}, "")
       elem.remove unless script_whitelist.include?(src)
     end
@@ -46,7 +46,7 @@ class SanitizeFilter < Filter
   end
 
   def strip_event_handlers(parser)
-    parser.search("*").each do |elem|
+    parser.xpath(".//*").each do |elem|
       elem.attributes.each do |name, a|
         # XSS fix
         elem.remove_attribute(name) if a.value && a.value.downcase.gsub(/\\*/, "") =~ /^\s*javascript:/
@@ -57,7 +57,7 @@ class SanitizeFilter < Filter
   end
 
   def strip_ujs_attributes(parser)
-    parser.search("*").each do |elem|
+    parser.xpath(".//*").each do |elem|
       elem.attributes.each_key do |name|
         elem.remove_attribute(name) if ujs_attributes.include?(name.downcase)
       end
@@ -66,17 +66,17 @@ class SanitizeFilter < Filter
 
   # Enforces allowScriptAccess = sameDomain on iframes and other embeds.
   def enforce_allowscriptaccess(parser)
-    parser.search("*").each { |e| change_allowscriptaccess_attribute_on(e) }
+    parser.xpath(".//*").each { |e| change_allowscriptaccess_attribute_on(e) }
 
-    parser.search("embed")
+    parser.xpath(".//embed")
           .each { |e| enforce_allowscriptaccess_attribute_on(e) }
 
     # Change allowScriptAccess in param tags
-    parser.search("param").each { |e| change_allowscriptaccess_for_param(e) }
+    parser.xpath(".//param").each { |e| change_allowscriptaccess_for_param(e) }
 
     # Make sure there's a <param name="allowScriptAccess" value="sameDomain">
     # in object tags
-    parser.search("object").each { |e| enforce_allowscriptaccess_param_in(e) }
+    parser.xpath(".//object").each { |e| enforce_allowscriptaccess_param_in(e) }
   end
 
   # Changes allowScriptAccess to sameDomain on element if the attribute
@@ -106,7 +106,7 @@ class SanitizeFilter < Filter
 
   # Makes sure the element contains an allowScriptAccess param.
   def enforce_allowscriptaccess_param_in(element)
-    return unless element.search(">param[name=allowScriptAccess]").empty?
+    return unless element.xpath("./param[@name='allowScriptAccess']").empty?
 
     element.inner_html +=
       '<param name="allowScriptAccess" value="sameDomain" />'
