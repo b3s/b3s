@@ -23,6 +23,18 @@ class PostImageFilter < Filter
     ).first
     return nil unless image
 
-    dynamic_image_tag(image)
+    render_image(image)
+  end
+
+  def render_image(image)
+    return dynamic_image_tag(image) unless responsive?(image)
+
+    dynamic_picture_tag(image, data: { full_src: dynamic_image_path(image) })
+  end
+
+  def responsive?(image)
+    return false if image.animated?
+
+    dynamic_picture(image).widths.many?
   end
 end

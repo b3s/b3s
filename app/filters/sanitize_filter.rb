@@ -5,7 +5,7 @@ class SanitizeFilter < Filter
     # Normalize <script> tags so the parser will find them
     post = post.gsub(%r{<script[\s/]*}i, "<script ")
 
-    parser = Nokogiri::HTML::DocumentFragment.parse(post)
+    parser = Nokogiri::HTML5::DocumentFragment.parse(post)
 
     remove_unsafe_tags(parser)
     strip_event_handlers(parser)

@@ -70,7 +70,7 @@ readyHandler.start(function () {
     .querySelectorAll(".post .body img")
     .forEach((img: HTMLImageElement) => {
       img.addEventListener("click", () => {
-        document.location = img.src;
+        document.location = img.dataset.fullSrc ?? img.src;
       });
     });
 
