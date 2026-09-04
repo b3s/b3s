@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe Renderer do
   describe ".filters" do
-    subject { described_class.filters(format) }
+    subject(:filters) { described_class.filters(format) }
 
     let(:format) { "markdown" }
 
@@ -47,6 +47,24 @@ describe Renderer do
 
       it "renders through SimpleFilter" do
         expect(rendered).to eq(output)
+      end
+    end
+
+    context "when the post embeds an image" do
+      let(:format) { "markdown" }
+      let(:image) { create(:post_image, :wide) }
+      let(:input) { "look: [image:#{image.id}:#{image.content_hash}]" }
+
+      it "leaves the picture element intact" do
+        expect(rendered).to include("<picture>").and(include("</picture>"))
+      end
+
+      it "does not nest the fallback inside the source" do
+        expect(rendered).not_to include("</source>")
+      end
+
+      it "returns markup that is safe to render" do
+        expect(rendered).to be_html_safe
       end
     end
   end

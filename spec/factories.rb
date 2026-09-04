@@ -70,6 +70,24 @@ FactoryBot.define do
         "image/png"
       )
     end
+
+    trait :wide do
+      file do
+        Rack::Test::UploadedFile.new(
+          Rails.root.join("spec/support/wide.png"),
+          "image/png"
+        )
+      end
+    end
+
+    trait :animated do
+      file do
+        Rack::Test::UploadedFile.new(
+          Rails.root.join("spec/support/animated.gif"),
+          "image/gif"
+        )
+      end
+    end
   end
 
   factory :post do

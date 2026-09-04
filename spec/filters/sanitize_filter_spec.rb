@@ -97,7 +97,7 @@ describe SanitizeFilter do
       '<embed src="/foo"></embed>'
     end
     let(:output) do
-      '<embed src="/foo" allowScriptAccess="sameDomain"></embed>'
+      '<embed src="/foo" allowScriptAccess="sameDomain">'
     end
 
     it "enforces the attribute" do
@@ -115,6 +115,17 @@ describe SanitizeFilter do
 
     it "sets the value to sameDomain" do
       expect(filter.to_html).to eq(output)
+    end
+  end
+
+  context "when input contains a picture element" do
+    let(:input) do
+      '<picture><source type="image/webp" srcset="/a.webp 400w">' \
+        '<img src="/a.png" width="400" height="300"></picture>'
+    end
+
+    it "keeps the source and the fallback as siblings" do
+      expect(filter.to_html).to eq(input)
     end
   end
 

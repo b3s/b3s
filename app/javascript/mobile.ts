@@ -14,6 +14,7 @@ import readyHandler from "./lib/readyHandler";
 import { applyRichTextArea } from "./b3s/richTextArea";
 
 import "./b3s/embeds";
+import "./b3s/postImages";
 import "./b3s/referrals";
 import "./b3s/timestamps";
 
