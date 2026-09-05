@@ -32,9 +32,17 @@ describe PostsHelper do
   describe "#format_post" do
     subject { helper.format_post(input, user) }
 
-    let(:input) { "/me :smile:" }
+    context "with a plain string" do
+      let(:input) { "/me :smile:" }
 
-    it { is_expected.to eq("#{profile_link} #{smile_image}") }
+      it { is_expected.to eq("#{profile_link} #{smile_image}") }
+    end
+
+    context "with rendered post HTML" do
+      let(:input) { "<p>/me :smile:</p>\n".html_safe }
+
+      it { is_expected.to eq("<p>#{profile_link} #{smile_image}</p>\n") }
+    end
   end
 
   describe "#meify" do
@@ -56,6 +64,18 @@ describe PostsHelper do
       let(:input) { "b3s.me/me" }
 
       it { is_expected.to eq(input) }
+    end
+
+    context "when /me follows an HTML tag in safe content" do
+      let(:input) { "<p>/me blushes</p>\n".html_safe }
+
+      it { is_expected.to eq("<p>#{profile_link} blushes</p>\n") }
+    end
+
+    context "when /me follows an HTML tag in unsafe content" do
+      let(:input) { "<p>/me blushes</p>" }
+
+      it { is_expected.to eq("&lt;p&gt;/me blushes&lt;/p&gt;") }
     end
   end
 

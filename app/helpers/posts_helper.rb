@@ -30,8 +30,13 @@ module PostsHelper
   end
 
   def meify(string, user)
-    safe_scan_and_replace(string, %r{(^|<\w+\s?/?>|\s)/me}) do |match|
-      safe_join([match[1], profile_link(user, nil, class: :poster)])
+    return if string.blank?
+
+    content = string.html_safe? ? string : h(string)
+
+    safe_scan_and_replace(content, %r{(^|<\w+\s?/?>|\s)/me}) do |match|
+      safe_join([content[match.begin(1)...match.end(1)],
+                 profile_link(user, nil, class: :poster)])
     end
   end
 

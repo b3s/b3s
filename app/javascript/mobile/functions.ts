@@ -123,7 +123,12 @@ readyHandler.start(function () {
     if (mutedUsers && mutedUsers.indexOf(userId) !== -1) {
       const notice = document.createElement("div");
       const showLink = document.createElement("a");
-      const username = post.querySelector(".username a").textContent;
+      let username = "";
+      if (post.classList.contains("me_post")) {
+        username = post.querySelector(".body a.poster").textContent;
+      } else {
+        username = post.querySelector(".username a").textContent;
+      }
 
       showLink.innerHTML = "Show";
       showLink.addEventListener("click", (evt) => {

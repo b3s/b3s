@@ -105,6 +105,7 @@
   &.muted {
     .post_functions,
     .post_info,
+    .me_post_content,
     .body {
       display: none;
     }
