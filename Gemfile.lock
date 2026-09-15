@@ -453,10 +453,10 @@ GEM
       websocket (~> 1.0)
     semantic_logger (5.1.0)
       concurrent-ruby (~> 1.0)
-    sentry-rails (6.7.0)
+    sentry-rails (7.0.0)
       railties (>= 5.2.0)
-      sentry-ruby (~> 6.7.0)
-    sentry-ruby (6.7.0)
+      sentry-ruby (~> 7.0.0)
+    sentry-ruby (7.0.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
@@ -775,8 +775,8 @@ CHECKSUMS
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   selenium-webdriver (4.49.0) sha256=b430f091a3cababb356b6f6132e0e4f385b017819355f563557e1537819edc89
   semantic_logger (5.1.0) sha256=9a8170fc0212ad47ef29e0760219cf416cb5b9973061981733234f7148b6d6ea
-  sentry-rails (6.7.0) sha256=d295dc5aa239eb91d4fb123c55d9ff2d3c40e7c29921539c5b4ae684b1490293
-  sentry-ruby (6.7.0) sha256=b4b915d79a0395ad02106d4012aa1914641456e042ce36393f15bd1630d8db42
+  sentry-rails (7.0.0) sha256=6ac6a010e088632e46710ce42db75aa5281a6b52a547efee10568cc2ed80605a
+  sentry-ruby (7.0.0) sha256=e9616ff521355a983fad404ca575d8bb1f1949a8cac42a7a893dd02156bcdb1a
   shoulda-matchers (8.0.1) sha256=5dbb46e5765b9da225111b085e0819e8c8a121ff94bba430a153eb1ea2c60288
   simplecov (1.2.0) sha256=ea6acd05eece5a41990e2a5171c57d15700d329326c7666c85ee8c6a0dd0977e
   solid_cable (4.0.2) sha256=084636a67679ad00d23088b33c84047e614bcf41ee559db24b414d83cdc42d03
