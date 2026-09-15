@@ -8,9 +8,9 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@rails/actioncable": "^8.1.301",
     "@rails/ujs": "^7.1.600",
-    "autoprefixer": "^10.5.5",
+    "autoprefixer": "^10.5.6",
     "downshift": "^9.4.0",
-    "dropzone": "6.0.0-beta.2",
+    "dropzone": "6.2.0",
     "esbuild": "^0.28.2",
     "match-sorter": "^8.3.0",
     "postcss": "^8.5.28",
@@ -21,8 +21,8 @@
     "postcss-mixins": "^11.0.3",
     "postcss-nested": "^7.0.2",
     "postcss-url": "^10.1.4",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "tombolo": "^0.10.0",
     "underscore": "^1.13.8",
     "uuid": "^14.0.2"
@@ -30,12 +30,12 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.5",
-    "@herb-tools/formatter": "^0.10.3",
-    "@herb-tools/linter": "^0.10.3",
+    "@herb-tools/formatter": "^0.10.4",
+    "@herb-tools/linter": "^0.10.4",
     "@types/dropzone": "^5.7.9",
     "@types/rails__ujs": "^6.0.4",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@types/uuid": "^10.0.0",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
@@ -44,7 +44,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.9.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.69.0"
+    "typescript-eslint": "^8.70.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
