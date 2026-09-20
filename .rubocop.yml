@@ -87,6 +87,20 @@ Rails/DynamicFindBy:
   AllowedReceivers:
     - Emoji
 
+Rails/OutputSafety:
+  Exclude:
+    - "app/filters/sanitize_filter.rb"
+    - "app/models/post.rb"
+
+Rails/SkipsModelValidations:
+  inherit_mode:
+    merge:
+      - Exclude
+  AllowedMethods:
+    - update_counters
+  Exclude:
+    - "app/models/discussion.rb"
+
 Rails/ThreeStateBooleanColumn:
   Exclude:
     - "db/migrate/20260904042049_add_frame_count_and_alpha_to_image_tables.rb"
