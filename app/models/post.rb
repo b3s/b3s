@@ -43,12 +43,9 @@ class Post < ApplicationRecord
   end
 
   def body_html
-    if new_record? || Rails.env.development?
-      Renderer.render(body, format:)
-    else
-      update_column(:body_html, Renderer.render(body, format:)) if super.blank?
-      self[:body_html].html_safe
-    end
+    return Renderer.render(body, format:) if new_record? || Rails.env.development?
+
+    super.presence&.html_safe || Renderer.render(body, format:)
   end
 
   def edited?

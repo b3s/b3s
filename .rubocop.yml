@@ -7,9 +7,6 @@ plugins:
   - rubocop-rspec
   - rubocop-rspec_rails
 
-inherit_from:
-  - .rubocop_todo.yml
-
 AllCops:
   NewCops: enable
   TargetRubyVersion: 4.0
@@ -93,9 +90,6 @@ Rails/OutputSafety:
     - "app/models/post.rb"
 
 Rails/SkipsModelValidations:
-  inherit_mode:
-    merge:
-      - Exclude
   AllowedMethods:
     - update_counters
   Exclude:

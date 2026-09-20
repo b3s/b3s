@@ -47,6 +47,27 @@ namespace :b3s do
     puts "#{dry_run ? 'Would rewrite' : 'Rewrote'} #{rewritten} posts"
   end
 
+  desc "Backfill missing rendered HTML for posts"
+  task backfill_post_html: :environment do
+    dry_run = ENV["DRY_RUN"].present?
+    backfilled = 0
+    failed = 0
+
+    Post.where(body_html: [nil, ""]).find_each do |post|
+      html = Renderer.render(post.body, format: post.format)
+
+      # rubocop:disable-next Rails/SkipsModelValidations
+      post.update_column(:body_html, html) unless dry_run
+      backfilled += 1
+      puts "#{backfilled} posts (id #{post.id})" if (backfilled % 500).zero?
+    rescue StandardError => e
+      failed += 1
+      puts "Post #{post.id} failed to render: #{e.class}: #{e.message}"
+    end
+
+    puts "#{dry_run ? 'Would backfill' : 'Backfilled'} #{backfilled} posts, #{failed} failed"
+  end
+
   desc "Scrub private data from the database"
   task scrub_private_data: :environment do
     keep_users = ENV["KEEP_USERS"].split(",").map(&:to_i)
