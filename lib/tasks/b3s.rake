@@ -47,22 +47,33 @@ namespace :b3s do
     puts "#{dry_run ? 'Would rewrite' : 'Rewrote'} #{rewritten} posts"
   end
 
-  desc "Backfill missing rendered HTML for posts"
+  desc "Backfill missing rendered HTML for posts (THREADS=n, DRY_RUN=1)"
   task backfill_post_html: :environment do
     dry_run = ENV["DRY_RUN"].present?
+    threads = ENV.fetch("THREADS", "4").to_i.clamp(1, ActiveRecord::Base.connection_pool.size)
     backfilled = 0
     failed = 0
 
-    Post.where(body_html: [nil, ""]).find_each do |post|
-      html = Renderer.render(post.body, format: post.format)
-
-      # rubocop:disable-next Rails/SkipsModelValidations
-      post.update_column(:body_html, html) unless dry_run
-      backfilled += 1
-      puts "#{backfilled} posts (id #{post.id})" if (backfilled % 500).zero?
+    render = lambda do |post|
+      [post, Renderer.render(post.body, format: post.format)]
     rescue StandardError => e
-      failed += 1
       puts "Post #{post.id} failed to render: #{e.class}: #{e.message}"
+      nil
+    end
+
+    Post.where(body_html: [nil, ""]).find_in_batches do |posts|
+      rendered = posts.each_slice((posts.size.to_f / threads).ceil).map do |slice|
+        Thread.new { Rails.application.executor.wrap { slice.filter_map(&render) } }
+      end.flat_map(&:value)
+
+      unless dry_run
+        # rubocop:disable-next Rails/SkipsModelValidations
+        Post.transaction { rendered.each { |post, html| post.update_column(:body_html, html) } }
+      end
+
+      backfilled += rendered.size
+      failed += posts.size - rendered.size
+      puts "#{backfilled} posts (id #{posts.last.id})"
     end
 
     puts "#{dry_run ? 'Would backfill' : 'Backfilled'} #{backfilled} posts, #{failed} failed"
