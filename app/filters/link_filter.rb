@@ -64,7 +64,11 @@ class LinkFilter < Filter
     uri = safe_uri_parse(url.gsub(%r{^(https?:)//}, "https://"))
     return false unless uri
 
-    head_request(uri) =~ /^(2|3)\d\d$/
+    cached_probe("https-url-exists", uri.to_s) { https_head_ok?(uri) }
+  end
+
+  def https_head_ok?(uri)
+    head_request(uri).match?(/^(2|3)\d\d$/)
   rescue SocketError, Net::OpenTimeout,
          OpenSSL::SSL::SSLError, Errno::ECONNREFUSED
     false

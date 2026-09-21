@@ -84,6 +84,50 @@ describe LinkFilter do
       end
     end
 
+    context "when the URL has already been probed", :cache do
+      before do
+        stub_request(:head, "https://example.com/image.jpg")
+          .to_return(status: 200)
+        described_class.new(input).to_html
+      end
+
+      it "does not request the URL again" do
+        filter.to_html
+        expect(a_request(:head, "https://example.com/image.jpg"))
+          .to have_been_made.once
+      end
+
+      it "rewrites the URL to one without protocol" do
+        expect(filter.to_html).to eq('<img src="//example.com/image.jpg">')
+      end
+
+      it "does not request the URL again an hour later" do
+        travel(2.hours) { filter.to_html }
+        expect(a_request(:head, "https://example.com/image.jpg"))
+          .to have_been_made.once
+      end
+    end
+
+    context "when a failed probe has already been cached", :cache do
+      before do
+        stub_request(:head, "https://example.com/image.jpg")
+          .to_return(status: 404)
+        described_class.new(input).to_html
+      end
+
+      it "does not request the URL again" do
+        filter.to_html
+        expect(a_request(:head, "https://example.com/image.jpg"))
+          .to have_been_made.once
+      end
+
+      it "requests the URL again an hour later" do
+        travel(2.hours) { filter.to_html }
+        expect(a_request(:head, "https://example.com/image.jpg"))
+          .to have_been_made.twice
+      end
+    end
+
     context "when an unexpected error occurs" do
       before do
         stub_request(:head, "https://example.com/image.jpg").to_raise("foo")

@@ -89,6 +89,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
 
   config.include ActiveJob::TestHelper
+  config.include ActiveSupport::Testing::TimeHelpers
   config.include LoginMacros, type: :request
   config.include MailerMacros
   config.include ConfigurationMacros
@@ -96,6 +97,13 @@ RSpec.configure do |config|
   config.include SystemHelpers, type: :system
 
   config.before { reset_email }
+
+  config.around(:each, :cache) do |example|
+    default_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    example.run
+    Rails.cache = default_cache
+  end
 
   config.before(:each, type: :system) do
     driven_by :rack_test
