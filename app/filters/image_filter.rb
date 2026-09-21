@@ -28,11 +28,20 @@ class ImageFilter < Filter
     url = image_src(elem)
     return unless url && needs_dimensions?(elem)
 
-    dimensions = FastImage.size(url, timeout: 2.0)
+    dimensions = image_size(url)
     return unless dimensions
 
     width, height = dimensions
     elem.set_attribute "width", width.to_s
     elem.set_attribute "height", height.to_s
+  end
+
+  def image_size(url)
+    cached_probe("image-size", url) do
+      FastImage.size(url, timeout: 2.0)
+    rescue StandardError => e
+      logger.error "Unexpected connection error #{e.inspect}"
+      nil
+    end
   end
 end
