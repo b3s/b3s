@@ -6,11 +6,11 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@fortawesome/fontawesome-free": "^6.7.2",
-    "@rails/actioncable": "^8.1.301",
+    "@rails/actioncable": "^8.1.400",
     "@rails/ujs": "^7.1.600",
     "autoprefixer": "^10.6.1",
     "downshift": "^9.4.0",
-    "dropzone": "6.3.4",
+    "dropzone": "6.3.5",
     "esbuild": "^0.28.2",
     "match-sorter": "^8.3.0",
     "postcss": "^8.5.28",
@@ -30,8 +30,8 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.5",
-    "@herb-tools/formatter": "^0.10.4",
-    "@herb-tools/linter": "^0.10.4",
+    "@herb-tools/formatter": "^0.11.0",
+    "@herb-tools/linter": "^0.11.0",
     "@types/dropzone": "^5.7.9",
     "@types/rails__ujs": "^6.0.4",
     "@types/react": "^19.3.0",
@@ -42,9 +42,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.5.0",
-    "prettier": "^3.9.8",
+    "prettier": "^3.9.9",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.70.0"
+    "typescript-eslint": "^8.71.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
