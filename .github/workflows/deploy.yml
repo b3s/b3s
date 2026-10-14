@@ -28,7 +28,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      - uses: ruby/setup-ruby@v1.327.0
+      - uses: ruby/setup-ruby@v1.328.0
         with:
           bundler-cache: true
       - name: Deploy with kamal
@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Sentry Release
-        uses: getsentry/action-release@v3.7.0
+        uses: getsentry/action-release@v3.7.1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: b3s
