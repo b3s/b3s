@@ -31,12 +31,6 @@ Rails.application.routes.draw do
   # Registrations
   resources :registrations, only: %i[new create]
 
-  controller :registrations do
-    constraints(token: %r{[^?/]+}) do
-      get "/registrations/new/:token" => :new, as: :new_registration_by_token
-    end
-  end
-
   # Users
   resources :users, only: [:index], controller: "users/lists" do
     collection do
@@ -156,7 +150,7 @@ Rails.application.routes.draw do
   # Invites
   resources :invites do
     get "all", on: :collection
-    get "accept", on: :member
+    get "accept", on: :collection
   end
 
   namespace :admin do

@@ -14,6 +14,12 @@ module Authentication
       end
     end
 
+    def requires_no_user(*)
+      send(:before_action, *) do |controller|
+        controller.send(:require_no_user_account)
+      end
+    end
+
     def requires_admin(*)
       send(:before_action, *) do |controller|
         controller.send(:verify_user, admin: true)

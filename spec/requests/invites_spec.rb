@@ -39,23 +39,25 @@ RSpec.describe "Invites" do
     it_behaves_like "user admin is required"
   end
 
-  describe "GET /invites/accept/:id" do
+  shared_examples "an invite link" do
     context "when invite is valid" do
-      before { get accept_invite_path(invite.token) }
+      let(:token) { invite.token }
 
       it "stores the invite token in session" do
         expect(session[:invite_token]).to eq(invite.token)
       end
 
-      it "redirects to signup page with token" do
-        expect(response).to redirect_to(
-          new_registration_by_token_url(token: invite.token)
-        )
+      it "redirects to signup page without the token" do
+        expect(response).to redirect_to(new_registration_url)
+      end
+
+      it "sets the referrer policy" do
+        expect(response.headers["Referrer-Policy"]).to eq("no-referrer")
       end
     end
 
     context "when invite is expired" do
-      before { get accept_invite_path(expired_invite.token) }
+      let(:token) { expired_invite.token }
 
       it "sets the flash" do
         expect(flash[:notice]).to include("Your invite has expired!")
@@ -65,11 +67,15 @@ RSpec.describe "Invites" do
         expect(session[:invite_token]).to be_nil
       end
 
+      it "destroys the invite" do
+        expect(Invite.exists?(expired_invite.id)).to be(false)
+      end
+
       it { is_expected.to redirect_to(new_session_url) }
     end
 
     context "when invite doesn't exist" do
-      before { get accept_invite_path("invalid token") }
+      let(:token) { "invalid token" }
 
       it "sets the flash" do
         expect(flash[:notice]).to include("That's not a valid invite!")
@@ -77,6 +83,26 @@ RSpec.describe "Invites" do
 
       it "does not store the invite token" do
         expect(session[:invite_token]).to be_nil
+      end
+
+      it "sets the referrer policy" do
+        expect(response.headers["Referrer-Policy"]).to eq("no-referrer")
+      end
+
+      it { is_expected.to redirect_to(new_session_url) }
+    end
+  end
+
+  describe "GET /invites/accept" do
+    before { get accept_invites_path(token:) }
+
+    it_behaves_like "an invite link"
+
+    context "without a token" do
+      let(:token) { nil }
+
+      it "sets the flash" do
+        expect(flash[:notice]).to include("That's not a valid invite!")
       end
 
       it { is_expected.to redirect_to(new_session_url) }
@@ -148,7 +174,7 @@ RSpec.describe "Invites" do
 
       it "links to the default host in the email" do
         expect(last_email.body.encoded).to include(
-          "http://example.com/invites/#{Invite.last.token}/accept"
+          "http://example.com/invites/accept?token=#{Invite.last.token}"
         )
       end
     end

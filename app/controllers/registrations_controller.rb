@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 class RegistrationsController < ApplicationController
+  requires_no_user only: %i[new create]
   before_action :find_invite, only: %i[new create]
   before_action :check_for_expired_invite, only: %i[new create]
   before_action :check_for_signups_allowed, only: %i[new create]
 
   def new
     if @invite
-      session[:invite_token] = @invite.token
       @user = @invite.user.invitees.new
       @user.email = @invite.email
     else
@@ -30,6 +30,11 @@ class RegistrationsController < ApplicationController
 
   private
 
+  def require_no_user_account
+    flash[:notice] = t("invite.signed_in") if current_user? && session[:invite_token]
+    super
+  end
+
   def user_params
     params.expect(
       user: %i[username email password password_confirmation
@@ -38,15 +43,8 @@ class RegistrationsController < ApplicationController
   end
 
   def find_invite
-    @invite = Invite.find_by(token: invite_token) if invite_token?
-  end
-
-  def invite_token
-    params[:token] || session[:invite_token]
-  end
-
-  def invite_token?
-    invite_token ? true : false
+    token = session[:invite_token]
+    @invite = Invite.find_by(token: token.to_s) if token
   end
 
   def finalize_successful_signup

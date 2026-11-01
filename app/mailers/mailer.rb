@@ -3,7 +3,7 @@
 class Mailer < ApplicationMailer
   def invite(invite)
     @invite = invite
-    @url    = accept_invite_url(id: invite.token)
+    @url    = accept_invites_url(token: invite.token)
     mail(
       to: @invite.email,
       subject: "#{@invite.user.realname_or_username} has invited you to " \

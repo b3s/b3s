@@ -66,6 +66,14 @@ RSpec.describe "Sentry context" do
     end
   end
 
+  describe "GET /invites/accept" do
+    before { get accept_invites_path(token: create(:invite).token) }
+
+    it "filters the invite token" do
+      expect(Sentry).to have_set_params("token" => "[FILTERED]")
+    end
+  end
+
   describe "POST /invites" do
     let(:user) { create(:user, available_invites: 1) }
 
