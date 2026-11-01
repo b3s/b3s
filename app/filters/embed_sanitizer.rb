@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
 class EmbedSanitizer
-  URL_ATTRIBUTES = {
-    "a" => { "href" => %w[http https] },
-    "blockquote" => { "cite" => %w[https],
-                      "data-embed-url" => %w[https],
-                      "data-instgrm-permalink" => %w[https] },
-    "div" => { "data-href" => %w[https] },
-    "iframe" => { "src" => %w[https] },
-    "img" => { "src" => %w[https] }
-  }.freeze
-
   IFRAME_HOSTS = {
     "codepen.io" => %w[codepen.io],
     "giphy.com" => %w[giphy.com],
@@ -40,10 +30,19 @@ class EmbedSanitizer
       "span" => %w[class],
       "time" => %w[datetime]
     },
+    protocols: {
+      "a" => { "href" => %w[http https] },
+      "blockquote" => { "cite" => %w[https],
+                        "data-embed-url" => %w[https],
+                        "data-instgrm-permalink" => %w[https] },
+      "div" => { "data-href" => %w[https] },
+      "iframe" => { "src" => %w[https] },
+      "img" => { "src" => %w[https] }
+    },
     css: Sanitize::Config::RELAXED[:css],
     transformers: [
       SanitizeTransformers.strip_bidi_controls,
-      SanitizeTransformers.url_attributes(URL_ATTRIBUTES),
+      SanitizeTransformers.urls,
       SanitizeTransformers.iframe_permissions,
       SanitizeTransformers.restrict_positioning,
       SanitizeTransformers.external_link_rel,
