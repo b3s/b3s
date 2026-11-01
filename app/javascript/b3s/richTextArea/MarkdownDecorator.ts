@@ -1,4 +1,4 @@
-import { escapeMarkdown, escapeMarkdownUrl } from "../../lib/escape";
+import { escapeMarkdown, escapeMarkdownUrl, squish } from "../../lib/escape";
 
 export default class MarkdownDecorator implements RichText.Decorator {
   blockquote(str: string): RichText.Replacement {
@@ -43,7 +43,7 @@ export default class MarkdownDecorator implements RichText.Decorator {
         .split("\n")
         .map((l) => `> ${l}`)
         .join("\n");
-    const name = escapeMarkdown(username);
+    const name = escapeMarkdown(squish(username));
     let cite = `Posted by ${name}:`;
     if (permalink) {
       cite = `Posted by [${name}](${escapeMarkdownUrl(permalink)}):`;

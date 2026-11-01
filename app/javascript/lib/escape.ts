@@ -6,6 +6,10 @@ const htmlEntities: Record<string, string> = {
   "'": "&#39;"
 };
 
+export function squish(text: string) {
+  return text.replace(/\s+/g, " ").trim();
+}
+
 export function escapeHtml(text: string) {
   return text.replace(/[&<>"']/g, (c) => htmlEntities[c]);
 }

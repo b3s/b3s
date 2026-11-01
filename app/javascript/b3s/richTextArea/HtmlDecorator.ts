@@ -1,4 +1,4 @@
-import { escapeHtml } from "../../lib/escape";
+import { escapeHtml, squish } from "../../lib/escape";
 
 export default class HtmlDecorator implements RichText.Decorator {
   blockquote(str: string): RichText.Replacement {
@@ -31,7 +31,7 @@ export default class HtmlDecorator implements RichText.Decorator {
     permalink: string
   ): RichText.Replacement {
     const content = html.replace(/\n/g, "").replace(/<br[\s/]*>/g, "\n");
-    const name = escapeHtml(username);
+    const name = escapeHtml(squish(username));
     let cite = `Posted by ${name}:`;
     if (permalink) {
       cite = `Posted by <a href="${escapeHtml(permalink)}">${name}</a>:`;
