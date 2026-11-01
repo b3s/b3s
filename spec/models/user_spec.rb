@@ -32,16 +32,24 @@ describe User do
 
   it { is_expected.to allow_value("Gustave Moíre").for(:username) }
   it { is_expected.not_to allow_value("").for(:username) }
-  it { is_expected.not_to allow_value("elektronaut?admin=1").for(:username) }
+  it { is_expected.not_to allow_value("someone?admin=1").for(:username) }
   it { is_expected.not_to allow_value("someone/admin").for(:username) }
   it { is_expected.not_to allow_value("some\none").for(:username) }
   it { is_expected.not_to allow_value("some\u0007one").for(:username) }
+  it { is_expected.not_to allow_value("some\u200Bone").for(:username) }
+  it { is_expected.not_to allow_value("some\u202Eone").for(:username) }
+  it { is_expected.to allow_value("some\u200Done").for(:username) }
   it { is_expected.to allow_value("A.B.").for(:username) }
   it { is_expected.to allow_value("<someone>").for(:username) }
   it { is_expected.to allow_value("Someone & Other").for(:username) }
 
   it "strips surrounding whitespace from the username" do
     expect(build(:user, username: "  someone \n").username)
+      .to eq("someone")
+  end
+
+  it "strips surrounding Unicode whitespace from the username" do
+    expect(build(:user, username: "\u3000someone\u00A0").username)
       .to eq("someone")
   end
 
