@@ -50,7 +50,7 @@ class UserLink < ApplicationRecord
   def name_or_pretty_url
     return name if name?
 
-    url.gsub(%r{^(f|ht)tps?://}, "")
+    url.gsub(%r{^(f|ht)tps?://}i, "")
   end
 
   private

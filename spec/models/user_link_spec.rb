@@ -91,9 +91,19 @@ describe UserLink do
   end
 
   describe "#name_or_pretty_url" do
-    subject { build(:user_link, name: nil, url: "example.com/foo").name_or_pretty_url }
+    subject { build(:user_link, name: nil, url:).name_or_pretty_url }
 
-    it { is_expected.to eq("example.com/foo") }
+    context "without a scheme" do
+      let(:url) { "example.com/foo" }
+
+      it { is_expected.to eq("example.com/foo") }
+    end
+
+    context "with an uppercase scheme" do
+      let(:url) { "HTTP://example.com/foo" }
+
+      it { is_expected.to eq("example.com/foo") }
+    end
   end
 
   describe ".labels" do

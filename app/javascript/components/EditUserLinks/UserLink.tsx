@@ -1,6 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import { normalizeUrl } from "./url";
+
 type Props = {
   dispatch: (action: UserLink.Action) => void;
   position: number;
@@ -8,7 +10,7 @@ type Props = {
 };
 
 function label(userLink: UserLink.Link) {
-  return userLink.name || userLink.url.replace(/^(f|ht)tps?:\/\//, "");
+  return userLink.name || userLink.url.replace(/^(f|ht)tps?:\/\//i, "");
 }
 
 export default function UserLink(props: Props) {
@@ -53,7 +55,9 @@ export default function UserLink(props: Props) {
         <div className="label">{userLink.label}</div>
         <div className="link">
           {!userLink.url && label(userLink)}
-          {userLink.url && <a href={userLink.url}>{label(userLink)}</a>}
+          {userLink.url && (
+            <a href={normalizeUrl(userLink.url)}>{label(userLink)}</a>
+          )}
         </div>
       </div>
       {!isDragging && (
