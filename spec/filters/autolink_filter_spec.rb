@@ -124,11 +124,43 @@ describe AutolinkFilter do
     end
   end
 
-  context "when URL is from a provider that isn't registered" do
-    let(:input) { "https://www.ted.com/talks/some_talk" }
+  context "when URL is a Giphy GIF" do
+    let(:input) { "https://giphy.com/gifs/cat-funny-JIX9t2j0ZTN9S" }
+    let(:html) { '<img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif">' }
 
-    it "links it" do
-      expect(filter.to_html).to eq("<a href=\"#{input}\">#{input}</a>")
+    before do
+      stub_request(:get, "https://giphy.com/services/oembed")
+        .with(query: { format: "json", url: input })
+        .to_return(status: 200, body: { type: "rich", version: "1.0", html: }.to_json)
+    end
+
+    it "converts it to an embed" do
+      expect(filter.to_html).to(
+        eq("<div class=\"embed\" data-oembed-url=\"#{input}\">#{html}</div>")
+      )
+    end
+  end
+
+  %w[
+    https://www.ted.com/talks/some_talk
+    https://vine.co/v/abc123
+    http://www.viddler.com/v/abc123
+  ].each do |url|
+    context "when URL is from an unregistered provider (#{url})" do
+      let(:input) { url }
+
+      it "has no provider" do
+        expect(OEmbed::Providers.find(input)).to be_nil
+      end
+
+      it "links it" do
+        expect(filter.to_html).to eq("<a href=\"#{input}\">#{input}</a>")
+      end
+
+      it "doesn't make a request" do
+        filter.to_html
+        expect(a_request(:any, //)).not_to have_been_made
+      end
     end
   end
 end
