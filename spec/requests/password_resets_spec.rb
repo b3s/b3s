@@ -73,6 +73,83 @@ RSpec.describe "PasswordResets" do
     end
   end
 
+  describe "POST /password_reset throttling" do
+    around do |example|
+      store = Rack::Attack.cache.store
+      Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+      example.run
+    ensure
+      Rack::Attack.cache.store = store
+    end
+
+    def request_reset(email, ip: "10.0.0.1")
+      post password_reset_path, params: { email: },
+                                headers: { "REMOTE_ADDR" => ip }
+    end
+
+    context "when one IP exceeds the limit" do
+      before do
+        5.times { |i| request_reset("none#{i}@example.com") }
+      end
+
+      it "does not send the email" do
+        expect { request_reset(user.email) }
+          .not_to have_enqueued_mail(Mailer, :password_reset)
+      end
+
+      it "redirects to login" do
+        request_reset(user.email)
+        expect(response).to redirect_to(new_session_url)
+      end
+
+      it "sets the flash" do
+        request_reset(user.email)
+        expect(flash[:notice]).to include("An email with further instructions has been sent")
+      end
+
+      it "allows requests from other IPs" do
+        expect { request_reset(user.email, ip: "10.0.0.2") }
+          .to have_enqueued_mail(Mailer, :password_reset)
+      end
+    end
+
+    context "when one email exceeds the limit across IPs" do
+      before do
+        5.times { |i| request_reset(user.email, ip: "10.0.1.#{i}") }
+      end
+
+      it "does not send the email" do
+        expect { request_reset(user.email, ip: "10.0.2.1") }
+          .not_to have_enqueued_mail(Mailer, :password_reset)
+      end
+
+      it "redirects to login" do
+        request_reset(user.email, ip: "10.0.2.1")
+        expect(response).to redirect_to(new_session_url)
+      end
+
+      it "sets the flash" do
+        request_reset(user.email, ip: "10.0.2.1")
+        expect(flash[:notice]).to include("An email with further instructions has been sent")
+      end
+    end
+
+    context "with case and whitespace variants of an email" do
+      before do
+        ["Target@Example.com", " target@example.com", "TARGET@EXAMPLE.COM ",
+         "target @example.com", "tar get@example.com"].each_with_index do |email, i|
+          request_reset(email, ip: "10.0.3.#{i}")
+        end
+      end
+
+      it "counts them as the same email" do
+        create(:user, email: "target@example.com")
+        expect { request_reset("target@example.com", ip: "10.0.4.1") }
+          .not_to have_enqueued_mail(Mailer, :password_reset)
+      end
+    end
+  end
+
   describe "GET /password_reset" do
     it "sets the no-referrer policy" do
       get password_reset_path
