@@ -49,6 +49,22 @@ RSpec.describe "Embeds", :js do
     visit discussion_path(discussion)
   end
 
+  def fixture(name)
+    JSON.parse(Rails.root.join("spec/support/requests/oembed/#{name}.json").read)
+  end
+
+  def vendor_scripts
+    %w[bsky facebook instagram tumblr imgur]
+      .map { |host| "head script[src*=\"#{host}\"]" }.join(", ")
+  end
+
+  def visit_rendered_posts(*bodies)
+    bodies.each do |body, format|
+      create(:post, exchange: discussion, body:, format: format || "markdown")
+    end
+    visit discussion_path(discussion)
+  end
+
   before do
     driven_by :selenium, using: :headless_chrome,
                          options: { name: :headless_chrome_offline } do |options|
@@ -158,6 +174,66 @@ RSpec.describe "Embeds", :js do
     it "replaces only the embed with a safe URL" do
       expect(all("iframe.mastodon-embed", minimum: 1).pluck(:src))
         .to eq(["https://mastodon.social/@user/7/embed"])
+    end
+  end
+
+  context "when a bare Mastodon URL is rendered" do
+    before do
+      OembedResponse.store(fixture("mastodon")["url"], fixture("mastodon")["html"])
+      visit_rendered_posts(fixture("mastodon")["url"])
+    end
+
+    it "replaces the cleaned embed with an iframe" do
+      expect(page).to have_css(
+        "div.embed iframe.mastodon-embed" \
+        "[src=\"https://mastodon.social/@ghorwood/110149321725092169/embed\"]"
+      )
+    end
+  end
+
+  context "when a bare Bluesky URL is rendered" do
+    before do
+      OembedResponse.store(fixture("bluesky")["url"], fixture("bluesky")["html"])
+      visit_rendered_posts(fixture("bluesky")["url"])
+    end
+
+    it "loads the provider script" do
+      expect(page).to have_css("head script[src=\"#{bluesky_script}\"]",
+                               count: 1, visible: :all)
+    end
+  end
+
+  context "when a user writes provider markup by hand" do
+    let(:provider_markup) do
+      '<blockquote class="mastodon-embed" ' \
+        'data-embed-url="https://mastodon.social/@user/1/embed">a</blockquote>' \
+        '<div class="fb-post" data-href="https://www.facebook.com/user/posts/1">b</div>' \
+        '<blockquote class="bluesky-embed" ' \
+        'data-bluesky-uri="at://did:plc:x/app.bsky.feed.post/1">c</blockquote>' \
+        '<blockquote class="instagram-media" ' \
+        'data-instgrm-permalink="https://www.instagram.com/p/1/">d</blockquote>' \
+        '<div class="tumblr-post" data-href="https://embed.tumblr.com/embed/post/x/1">e</div>' \
+        '<blockquote class="imgur-embed-pub" data-id="a/1">f</blockquote>'
+    end
+
+    before do
+      control_url = fixture("mastodon")["url"]
+      OembedResponse.store(control_url, fixture("mastodon")["html"])
+      visit_rendered_posts(
+        [provider_markup, "html"],
+        [embed("https://example.com/", provider_markup), "html"],
+        [embed(control_url, provider_markup), "html"]
+      )
+    end
+
+    it "builds only the server-generated embed" do
+      expect(all("iframe", minimum: 1).pluck(:src))
+        .to eq(["https://mastodon.social/@ghorwood/110149321725092169/embed"])
+    end
+
+    it "injects no provider scripts", :aggregate_failures do
+      expect(page).to have_css("iframe.mastodon-embed", count: 1)
+      expect(page).to have_no_css(vendor_scripts, visible: :all)
     end
   end
 end
