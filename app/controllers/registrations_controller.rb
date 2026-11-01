@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class RegistrationsController < ApplicationController
+  before_action :check_if_already_logged_in, only: %i[new create]
   before_action :find_invite, only: %i[new create]
   before_action :check_for_expired_invite, only: %i[new create]
   before_action :check_for_signups_allowed, only: %i[new create]
@@ -45,6 +46,12 @@ class RegistrationsController < ApplicationController
     Mailer.new_user(@user).deliver_later if @user.email?
     session.delete(:invite_token)
     authenticate!(@user)
+  end
+
+  def check_if_already_logged_in
+    return unless current_user?
+
+    redirect_to discussions_url
   end
 
   def check_for_expired_invite

@@ -186,6 +186,43 @@ RSpec.describe "Registrations" do
     end
   end
 
+  describe "when already logged in" do
+    let(:signed_in_user) { create(:user) }
+
+    before do
+      accept_invite(invite)
+      login_as(signed_in_user)
+    end
+
+    describe "GET /registrations/new" do
+      before { get new_registration_path }
+
+      it { is_expected.to redirect_to(discussions_url) }
+
+      it "keeps the invite token" do
+        expect(session[:invite_token]).to eq(invite.token)
+      end
+    end
+
+    describe "POST /registrations" do
+      before { post registrations_path, params: { user: user_params } }
+
+      it { is_expected.to redirect_to(discussions_url) }
+
+      it "does not create a user" do
+        expect(User.find_by(username: user_params[:username])).to be_nil
+      end
+
+      it "keeps the invite token" do
+        expect(session[:invite_token]).to eq(invite.token)
+      end
+
+      it "keeps the invite" do
+        expect(Invite.exists?(invite.id)).to be(true)
+      end
+    end
+  end
+
   describe "welcome email" do
     let(:params) { { user: user_params } }
 
