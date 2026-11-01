@@ -84,14 +84,13 @@ namespace :b3s do
     url = ENV.fetch("URL", nil).presence
     days = ENV.fetch("OLDER_THAN_DAYS", nil).presence
     unless url || days
-      puts "Usage: #{$PROGRAM_NAME} b3s:purge_oembed_responses " \
-           "URL=<url> | OLDER_THAN_DAYS=<n> [DRY_RUN=1]"
-      exit
+      abort "Usage: #{$PROGRAM_NAME} b3s:purge_oembed_responses " \
+            "URL=<url> | OLDER_THAN_DAYS=<n> [DRY_RUN=1]"
     end
 
     dry_run = ENV["DRY_RUN"].present?
-    older_than = Integer(days).days.ago if days
-    purged = OembedResponse.purge(url:, older_than:, dry_run:)
+    older_than_days = Integer(days, 10) if days
+    purged = OembedResponse.purge(url:, older_than_days:, dry_run:)
     puts "#{dry_run ? 'Would purge' : 'Purged'} #{purged} oEmbed responses"
   end
 

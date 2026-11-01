@@ -59,8 +59,8 @@ describe OembedResponse do
       end
     end
 
-    context "when given a cutoff" do
-      let(:options) { { older_than: 30.days.ago } }
+    context "when given an age in days" do
+      let(:options) { { older_than_days: 30 } }
 
       it { is_expected.to eq(1) }
 
@@ -70,8 +70,24 @@ describe OembedResponse do
       end
     end
 
+    context "when the age is zero" do
+      let(:options) { { older_than_days: 0 } }
+
+      it "raises an error" do
+        expect { purge }.to raise_error(ArgumentError)
+      end
+    end
+
+    context "when the age is negative" do
+      let(:options) { { older_than_days: -1 } }
+
+      it "raises an error" do
+        expect { purge }.to raise_error(ArgumentError)
+      end
+    end
+
     context "when doing a dry run" do
-      let(:options) { { older_than: 30.days.ago, dry_run: true } }
+      let(:options) { { older_than_days: 30, dry_run: true } }
 
       it { is_expected.to eq(1) }
 

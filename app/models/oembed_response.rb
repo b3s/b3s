@@ -18,13 +18,19 @@ class OembedResponse < ApplicationRecord
       end
     end
 
-    def purge(url: nil, older_than: nil, dry_run: false)
-      raise ArgumentError, "url or older_than is required" unless url || older_than
-
-      scope = all
-      scope = scope.where(url:) if url
-      scope = scope.where(fetched_at: ...older_than) if older_than
+    def purge(url: nil, older_than_days: nil, dry_run: false)
+      scope = purge_scope(url, older_than_days)
       dry_run ? scope.count : scope.delete_all
+    end
+
+    private
+
+    def purge_scope(url, days)
+      raise ArgumentError, "url or older_than_days is required" unless url || days
+      raise ArgumentError, "older_than_days must be positive" if days && !days.positive?
+
+      scope = url ? where(url:) : all
+      days ? scope.where(fetched_at: ...days.days.ago) : scope
     end
   end
 end
