@@ -110,6 +110,12 @@ RSpec.describe "PasswordResets" do
       end
     end
 
+    context "when decoding the token payload" do
+      subject(:payload) { Base64.decode64(token.split("--").first) }
+
+      it { is_expected.not_to include(user.email) }
+    end
+
     context "when the email has changed since the token was issued" do
       before do
         token
