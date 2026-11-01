@@ -18,6 +18,22 @@ RSpec.describe "Sessions" do
     it "renders the login form" do
       expect(response.body).to include("Sign in")
     end
+
+    context "when already logged in with an invite token in session" do
+      before do
+        get accept_invites_path(token: create(:invite).token)
+        login_as(create(:user))
+        get new_session_path
+      end
+
+      it "redirects to discussions" do
+        expect(response).to redirect_to(discussions_url)
+      end
+
+      it "does not set the flash" do
+        expect(flash[:notice]).to be_nil
+      end
+    end
   end
 
   describe "POST /session" do

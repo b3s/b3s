@@ -30,6 +30,11 @@ class RegistrationsController < ApplicationController
 
   private
 
+  def require_no_user_account
+    flash[:notice] = t("invite.signed_in") if current_user? && session[:invite_token]
+    super
+  end
+
   def user_params
     params.expect(
       user: %i[username email password password_confirmation

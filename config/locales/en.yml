@@ -175,6 +175,7 @@ en:
     send_invite: Send invite
     new_invite: New Invite
     sent: "Your invite has been sent to %{email}"
+    signed_in: You're already signed in. Log out to use this invite.
   exchange:
     closed: This discussion is closed, you don't have permission to post here.
     invalid: >-

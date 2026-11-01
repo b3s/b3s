@@ -199,6 +199,12 @@ RSpec.describe "Registrations" do
 
       it { is_expected.to redirect_to(discussions_url) }
 
+      it "explains why the invite can't be used" do
+        expect(flash[:notice]).to eq(
+          "You're already signed in. Log out to use this invite."
+        )
+      end
+
       it "keeps the invite token" do
         expect(session[:invite_token]).to eq(invite.token)
       end
@@ -208,6 +214,12 @@ RSpec.describe "Registrations" do
       before { post registrations_path, params: { user: user_params } }
 
       it { is_expected.to redirect_to(discussions_url) }
+
+      it "explains why the invite can't be used" do
+        expect(flash[:notice]).to eq(
+          "You're already signed in. Log out to use this invite."
+        )
+      end
 
       it "does not create a user" do
         expect(User.find_by(username: user_params[:username])).to be_nil
@@ -220,6 +232,19 @@ RSpec.describe "Registrations" do
       it "keeps the invite" do
         expect(Invite.exists?(invite.id)).to be(true)
       end
+    end
+  end
+
+  describe "when already logged in without an invite" do
+    before do
+      login_as(create(:user))
+      get new_registration_path
+    end
+
+    it { is_expected.to redirect_to(discussions_url) }
+
+    it "does not set the flash" do
+      expect(flash[:notice]).to be_nil
     end
   end
 
