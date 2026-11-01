@@ -79,6 +79,21 @@ namespace :b3s do
     puts "#{dry_run ? 'Would backfill' : 'Backfilled'} #{backfilled} posts, #{failed} failed"
   end
 
+  desc "Purge cached oEmbed responses (URL=..., OLDER_THAN_DAYS=n, DRY_RUN=1)"
+  task purge_oembed_responses: :environment do
+    url = ENV.fetch("URL", nil).presence
+    days = ENV.fetch("OLDER_THAN_DAYS", nil).presence
+    unless url || days
+      abort "Usage: #{$PROGRAM_NAME} b3s:purge_oembed_responses " \
+            "URL=<url> | OLDER_THAN_DAYS=<n> [DRY_RUN=1]"
+    end
+
+    dry_run = ENV["DRY_RUN"].present?
+    older_than_days = Integer(days, 10) if days
+    purged = OembedResponse.purge(url:, older_than_days:, dry_run:)
+    puts "#{dry_run ? 'Would purge' : 'Purged'} #{purged} oEmbed responses"
+  end
+
   desc "Scrub private data from the database"
   task scrub_private_data: :environment do
     keep_users = ENV["KEEP_USERS"].split(",").map(&:to_i)

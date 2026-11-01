@@ -43,7 +43,6 @@ env:
     - CABLE_DATABASE_URL
     - CACHE_DATABASE_URL
     - QUEUE_DATABASE_URL
-    - OEMBED_FACEBOOK_TOKEN
 
 # Persistent caches across deploys
 volumes:
