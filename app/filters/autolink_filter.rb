@@ -3,8 +3,14 @@
 class AutolinkFilter < Filter
   include ActionView::Helpers::TagHelper
 
+  URL_PATTERN = %r{(^|\s)((ftp|https?)://[^\s]+/?(\s|$))}
+
+  def self.urls(text)
+    text.scan(URL_PATTERN).filter_map { |_, match| URI.extract(match).first }
+  end
+
   def process(post)
-    post.gsub(%r{(^|\s)((ftp|https?)://[^\s]+/?(\s|$))}) do
+    post.gsub(URL_PATTERN) do
       space = Regexp.last_match(1)
       match = Regexp.last_match(2)
       uri = URI.extract(Regexp.last_match(2)).try(:first)

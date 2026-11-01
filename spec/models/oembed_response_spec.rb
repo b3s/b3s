@@ -47,14 +47,15 @@ describe OembedResponse do
       "<div class=\"embed\" data-oembed-url=\"#{url}\">#{html}</div>"
     end
 
-    def create_post(body_html)
-      create(:post, body_html:, skip_preprocess: true)
+    def create_post(body, body_html)
+      create(:post, body:, body_html:, skip_preprocess: true)
     end
 
     before do
-      create_post("<p>No embeds here</p>")
-      create_post(embed(url, "<iframe>old</iframe>"))
-      create_post("<p>Hi</p>#{embed(url, '<iframe>new</iframe>')}" \
+      create_post("No embeds here", "<p>No embeds here</p>")
+      create_post(url, embed(url, "<iframe>old</iframe>"))
+      create_post("Hi\n\n#{url}\nhttps://vimeo.com/1",
+                  "<p>Hi</p>#{embed(url, '<iframe>new</iframe>')}" \
                   "#{embed('https://vimeo.com/1', '<iframe>vimeo</iframe>')}")
     end
 
@@ -76,6 +77,27 @@ describe OembedResponse do
       it "keeps the existing response" do
         seed
         expect(described_class.find_by(url:).html).to eq("<iframe>existing</iframe>")
+      end
+    end
+
+    context "when an embed was written by hand" do
+      before do
+        html = embed("https://vimeo.com/2", "<p>Hand-written</p>")
+        create_post("https://vimeo.com/2 #{html}", html)
+      end
+
+      it "does not seed it" do
+        seed
+        expect(described_class.exists?(url: "https://vimeo.com/2")).to be(false)
+      end
+    end
+
+    context "when the embed URL is not in the post body" do
+      before { create_post("Nothing to see", embed("https://vimeo.com/2", "<iframe>vimeo</iframe>")) }
+
+      it "does not seed it" do
+        seed
+        expect(described_class.exists?(url: "https://vimeo.com/2")).to be(false)
       end
     end
 

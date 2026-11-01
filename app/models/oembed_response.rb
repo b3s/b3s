@@ -32,7 +32,9 @@ class OembedResponse < ApplicationRecord
 
     def posts_with_embeds
       Post.where("body_html LIKE ?", "%data-oembed-url%")
-          .select(:id, :body_html, :updated_at)
+          .where.not("body ILIKE ?", "%data-oembed-url%")
+          .where.not("body ILIKE ?", "%class=_embed_%")
+          .select(:id, :body, :body_html, :updated_at)
     end
 
     def uncached_embeds(posts, seen)
@@ -44,8 +46,10 @@ class OembedResponse < ApplicationRecord
     end
 
     def embeds_in(post)
+      urls = AutolinkFilter.urls(post.body)
       Nokogiri::HTML5.fragment(post[:body_html])
                      .css("div.embed[data-oembed-url]")
+                     .select { |div| urls.include?(div["data-oembed-url"]) }
                      .map { |div| [div["data-oembed-url"], [div.inner_html, post.updated_at]] }
     end
   end
