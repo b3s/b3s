@@ -6,6 +6,7 @@ if Rails.application.credentials.sentry_dsn.present? && !Rails.env.test?
     config.data_collection.user_info = true
     config.data_collection.http_headers.request.terms =
       Sentry::DataCollection::PII_HEADER_SNIPPETS
+    config.data_collection.http_bodies = []
     config.data_collection.url_query_params = true
     config.data_collection.queues = true
     config.enabled_environments = %w[staging production]
