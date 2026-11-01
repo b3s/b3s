@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 class UserLink < ApplicationRecord
-  URL_PATTERN = %r{\A(https?://)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,4}(/\S*)?\z}
+  URL_PATTERN = %r{
+    \A(?:https?://)?
+    (?<host>(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)
+    (?:/\S*)?\z
+  }ix
 
   belongs_to :user
 
@@ -9,6 +13,7 @@ class UserLink < ApplicationRecord
   validates :url,
             presence: { unless: :name? },
             format: { with: URL_PATTERN, allow_blank: true }
+  validate :validate_url_domain
 
   acts_as_list scope: :user
 
@@ -44,5 +49,19 @@ class UserLink < ApplicationRecord
     return name if name?
 
     url.gsub(%r{^(f|ht)tps?://}, "")
+  end
+
+  private
+
+  def url_host
+    host = URL_PATTERN.match(url.to_s)&.[](:host)
+    host && Addressable::IDNA.to_unicode(host.downcase)
+  end
+
+  def validate_url_domain
+    host = url_host
+    return if host.nil? || PublicSuffix.valid?(host, default_rule: nil)
+
+    errors.add(:url, :invalid_domain)
   end
 end

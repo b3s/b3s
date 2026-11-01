@@ -41,6 +41,10 @@ en:
               confirmation: must be confirmed
             username:
               taken: is already registered
+        user_link:
+          attributes:
+            url:
+              invalid_domain: doesn't have a valid domain
   authentication:
     invalid: That's not a valid email or password.
     logged_out: You have been logged out.
