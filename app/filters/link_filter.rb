@@ -44,7 +44,7 @@ class LinkFilter < Filter
   end
 
   def parser
-    @parser ||= Nokogiri::HTML::DocumentFragment.parse(@post)
+    @parser ||= Nokogiri::HTML5::DocumentFragment.parse(@post)
   end
 
   def safe_uri_parse(url)

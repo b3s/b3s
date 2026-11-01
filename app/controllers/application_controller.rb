@@ -17,6 +17,8 @@ class ApplicationController < ActionController::Base
   before_action :set_sentry_context
   before_action :set_variant
 
+  include ContentSecurityPolicySources
+
   helper_method :current_section, :mobile_user_agent?, :theme, :mobile_theme,
                 :search_query
 

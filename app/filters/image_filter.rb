@@ -2,7 +2,7 @@
 
 class ImageFilter < Filter
   def process(post)
-    parser = Nokogiri::HTML::DocumentFragment.parse(post)
+    parser = Nokogiri::HTML5::DocumentFragment.parse(post)
     parser.css("img").each do |element|
       process_image(element)
     end

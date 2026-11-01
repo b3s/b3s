@@ -33,7 +33,7 @@ describe SimpleFilter do
     input = '<iframe src="//www.youtube.com/embed/Sq7XY_QRtzo" ' \
             "allowfullscreen></iframe>\nfoo"
     output = '<iframe src="//www.youtube.com/embed/Sq7XY_QRtzo" ' \
-             "allowfullscreen></iframe><br>\nfoo"
+             "allowfullscreen=\"\"></iframe><br>\nfoo"
     expect(described_class.new(input).to_html).to eq(output)
   end
 

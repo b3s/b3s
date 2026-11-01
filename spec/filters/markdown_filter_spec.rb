@@ -38,14 +38,14 @@ describe MarkdownFilter do
   context "when input contains a YouTube code" do
     let(:id) { "abcd" }
     let(:output) do
-      "<iframe title=\"title\" src=\"https://www.youtube.com/embed/#{id}\" " \
-        "frameborder=\"0\" allowfullscreen></iframe>\n"
+      "<div class=\"youtube-embed\" data-youtube-id=\"#{id}\" " \
+        "data-youtube-title=\"title\"></div>\n"
     end
 
     context "when URL is a short URL" do
       let(:input) { "!y[title](https://youtu.be/#{id})" }
 
-      it "converts it to an embed" do
+      it "converts it to an embed placeholder" do
         expect(filter.to_html).to eq(output)
       end
     end
@@ -53,8 +53,26 @@ describe MarkdownFilter do
     context "when URL is a long URL" do
       let(:input) { "!y[title](https://www.youtube.com/watch?v=#{id})" }
 
-      it "converts it to an embed" do
+      it "converts it to an embed placeholder" do
         expect(filter.to_html).to eq(output)
+      end
+    end
+
+    context "when the title contains HTML" do
+      let(:input) { "!y[\"><script>alert(1)</script>](https://youtu.be/#{id})" }
+
+      it "escapes the title" do
+        expect(filter.to_html).to include(
+          'data-youtube-title="&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"'
+        )
+      end
+    end
+
+    context "when the URL isn't a YouTube URL" do
+      let(:input) { "!y[title](https://example.com/)" }
+
+      it "leaves the code alone" do
+        expect(filter.to_html).not_to include("youtube-embed")
       end
     end
   end

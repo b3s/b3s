@@ -97,22 +97,32 @@ readyHandler.ready(() => {
             return;
           }
 
-          let output =
-            "<h4>Similar discussions found. Maybe you should check them out before posting?</h4>";
+          const heading = document.createElement("h4");
+          heading.textContent =
+            "Similar discussions found. Maybe you should check them out before posting?";
+          const results: HTMLElement[] = [heading];
 
           discussions.slice(0, 10).forEach((discussion) => {
-            output += `
-              <a href="/discussions/${discussion.id}" class="discussion">
-                ${discussion.title}
-                <span class="posts_count">${discussion.posts_count} posts</span>
-              </a>`;
+            const link = document.createElement("a");
+            link.href = `/discussions/${discussion.id}`;
+            link.className = "discussion";
+
+            const postsCount = document.createElement("span");
+            postsCount.className = "posts_count";
+            postsCount.textContent = `${discussion.posts_count} posts`;
+
+            link.append(` ${discussion.title} `, postsCount);
+            results.push(link);
           });
 
           if (discussions.length > 10) {
-            output += `<a href="/search?q=${encodeURIComponent(query)}">Show all results</a>`;
+            const allResults = document.createElement("a");
+            allResults.href = `/search?q=${encodeURIComponent(query)}`;
+            allResults.textContent = "Show all results";
+            results.push(allResults);
           }
 
-          searchResults.innerHTML = output;
+          searchResults.replaceChildren(...results);
           searchResults.style.display = "none";
           requestAnimationFrame(() => {
             searchResults.style.display = "block";

@@ -4,11 +4,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <%= page_title_tag %>
+    <%= tag.meta name: "mastodon-embed-hosts", content: MASTODON_PROVIDERS.join(" ") %>
 
     <%= stylesheet_link_tag "application" %>
 
-    <% if current_user? && current_user.mobile_stylesheet_url? %>
-      <%= stylesheet_link_tag current_user.mobile_stylesheet_url %>
+    <% if current_user&.custom_stylesheet_url(mobile: true) %>
+      <%= tag.link rel: "stylesheet",
+               href: current_user.custom_stylesheet_url(mobile: true) %>
     <% else %>
       <%= stylesheet_link_tag mobile_theme.mobile_stylesheet_path %>
     <% end %>

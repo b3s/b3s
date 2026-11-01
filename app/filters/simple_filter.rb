@@ -43,7 +43,7 @@ class SimpleFilter < Filter
   end
 
   def decode_markdown_blocks(str)
-    parser = Nokogiri::HTML::DocumentFragment.parse(str)
+    parser = Nokogiri::HTML5::DocumentFragment.parse(str)
     parser.search("base64serialized").each do |element|
       element.swap Base64.strict_decode64(element.content)
     end

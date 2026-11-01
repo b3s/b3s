@@ -1,4 +1,5 @@
 import readyHandler from "../lib/readyHandler";
+import embedScripts from "./embeds/embedScripts";
 import gifvVideos from "./embeds/gifvVideos";
 import mastodonEmbeds from "./embeds/mastodonEmbeds";
 import responsiveEmbeds from "./embeds/responsiveEmbeds";
@@ -16,6 +17,7 @@ interface Cache {
 }
 
 function setupEmbeds() {
+  embedScripts();
   gifvVideos();
   mastodonEmbeds();
   responsiveEmbeds();

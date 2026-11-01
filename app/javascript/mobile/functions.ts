@@ -137,8 +137,9 @@ readyHandler.start(function () {
       });
 
       notice.classList.add("muted-notice");
-      notice.innerHTML = `This post by <strong>${username}</strong> has been muted. `;
-      notice.appendChild(showLink);
+      const name = document.createElement("strong");
+      name.textContent = username;
+      notice.append("This post by ", name, " has been muted. ", showLink);
 
       post.classList.add("muted");
       post.appendChild(notice);

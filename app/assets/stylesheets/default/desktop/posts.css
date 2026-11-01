@@ -133,9 +133,15 @@
   max-width: 800px;
   margin-left: 45px;
 }
+.post .body {
+  contain: paint;
+}
 .post .body img {
   max-width: 100%;
   height: auto;
+}
+.post .body pre {
+  overflow-x: auto;
 }
 .post .body ul,
 .post .body ol {
