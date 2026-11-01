@@ -400,7 +400,7 @@ RSpec.describe "Discussions" do
     context "when user is not a participant" do
       it { is_expected.to have_http_status(:not_found) }
 
-      it "does not reveal the title" do
+      it "does not redirect" do
         expect(response.location.to_s).not_to include(conversation.to_param)
       end
     end
@@ -415,7 +415,7 @@ RSpec.describe "Discussions" do
 
       it { is_expected.to have_http_status(:not_found) }
 
-      it "does not reveal the title" do
+      it "does not redirect" do
         expect(response.location.to_s).not_to include(conversation.to_param)
       end
     end
