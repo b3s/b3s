@@ -2,7 +2,7 @@
 
 class SessionsController < ApplicationController
   before_action :detect_admin_signup, only: %i[new create]
-  before_action :check_if_already_logged_in, only: %i[new create]
+  requires_no_user only: %i[new create]
 
   def new
     # Renders login form
@@ -38,11 +38,5 @@ class SessionsController < ApplicationController
     return if User.any?
 
     redirect_to new_registration_path
-  end
-
-  def check_if_already_logged_in
-    return unless current_user?
-
-    redirect_to discussions_url
   end
 end

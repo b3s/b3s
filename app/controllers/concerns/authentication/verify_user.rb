@@ -30,6 +30,10 @@ module Authentication
       )
     end
 
+    def require_no_user_account
+      redirect_to discussions_url if current_user?
+    end
+
     # Verifies the current_user. The user is considered verified if one or more
     # criteria are met. If not, a redirect is performed.
     #
