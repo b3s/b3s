@@ -135,7 +135,10 @@ Rails.application.routes.draw do
 
     collection do
       get "contact_moderators", action: :new, defaults: { moderators: true }
-      get "new/with/:username", action: :new, as: :new_with
+      get "new/with/:username",
+          action: :new,
+          as: :new_with,
+          constraints: { username: %r{[^?/]+} }
       get "archive/:page", action: :index, as: :paged
     end
 

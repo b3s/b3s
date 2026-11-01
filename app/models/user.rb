@@ -13,6 +13,8 @@ class User < ApplicationRecord
   include HasMutedUsers
   include UserScopes
 
+  INVISIBLE_CHARACTERS = '\u200B\u202A-\u202E\u2066-\u2069\uFEFF'
+
   belongs_to :avatar, dependent: :destroy, optional: true
   has_many :exchange_moderators, dependent: :destroy
   has_many :user_links, dependent: :destroy
@@ -27,7 +29,10 @@ class User < ApplicationRecord
   validates :username,
             presence: true,
             uniqueness: { case_sensitive: false },
-            format: { with: /\A[^?]+\Z/ }
+            format: { with: %r{\A[^?/[:cntrl:]#{INVISIBLE_CHARACTERS}]+\z}o }
+
+  normalizes :username,
+             with: -> { it.gsub(/\A[[:space:]]+|[[:space:]]+\z/, "") }
 
   validates :stylesheet_url, url: { allow_blank: true }
   validates :mobile_stylesheet_url, url: { allow_blank: true }

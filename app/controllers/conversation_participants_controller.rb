@@ -36,7 +36,7 @@ class ConversationParticipantsController < ApplicationController
 
   def add_participants(conversation, usernames)
     added = []
-    User.where(username: usernames.map(&:strip)).find_each do |user|
+    User.where(username: usernames).find_each do |user|
       added << user if conversation.add_participant(user)
     end
     added
