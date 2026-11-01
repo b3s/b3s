@@ -13,7 +13,11 @@ class EmbedSanitizer
     "www.youtube.com" => %w[www.youtube.com youtube.com www.youtube-nocookie.com]
   }.freeze
 
+  IFRAME_SANDBOX = "allow-scripts allow-same-origin allow-popups " \
+                   "allow-popups-to-escape-sandbox allow-presentation"
+
   CONFIG = Sanitize::Config.freeze_config(
+    add_attributes: { "iframe" => { "sandbox" => IFRAME_SANDBOX } },
     elements: %w[a b blockquote br div em i iframe img p small span strong
                  time],
     attributes: {
@@ -25,7 +29,7 @@ class EmbedSanitizer
                          data-instgrm-version],
       "div" => %w[class data-did data-href data-language data-width],
       "iframe" => %w[allow allowfullscreen class frameborder height loading
-                     referrerpolicy sandbox scrolling src style width],
+                     referrerpolicy scrolling src style width],
       "img" => %w[alt height src width],
       "span" => %w[class],
       "time" => %w[datetime]

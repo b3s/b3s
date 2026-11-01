@@ -643,11 +643,14 @@ describe EmbedFilter do
       '<div class="youtube-embed" data-youtube-id="ab_c-1" data-youtube-title="&quot;&gt;&lt;b&gt;">' \
         "<b>user content</b></div>"
     end
+    let(:sandbox) do
+      'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"'
+    end
 
     it "builds the iframe" do
       expect(rendered).to eq(
         '<iframe title="&quot;><b>" src="https://www.youtube.com/embed/ab_c-1" ' \
-        'frameborder="0" allowfullscreen="allowfullscreen"></iframe>'
+        "frameborder=\"0\" allowfullscreen=\"allowfullscreen\" #{sandbox}></iframe>"
       )
     end
   end

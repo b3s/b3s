@@ -100,13 +100,16 @@ describe Renderer do
       let(:format) { "markdown" }
       let(:url) { "https://vimeo.com/1" }
       let(:input) { "look: #{url}" }
+      let(:sandbox) do
+        'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"'
+      end
 
       before { OembedResponse.store(url, '<iframe src="https://player.vimeo.com/video/1"></iframe><script></script>') }
 
       it "embeds the cleaned provider HTML" do
         expect(rendered).to include(
           "<div class=\"embed\" data-oembed-url=\"#{url}\">" \
-          '<iframe src="https://player.vimeo.com/video/1"></iframe></div>'
+          "<iframe src=\"https://player.vimeo.com/video/1\" #{sandbox}></iframe></div>"
         )
       end
     end
@@ -114,11 +117,14 @@ describe Renderer do
     context "when the post contains a YouTube code" do
       let(:format) { "markdown" }
       let(:input) { "!y[A \"title\"](https://youtu.be/abcd)" }
+      let(:sandbox) do
+        'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"'
+      end
 
       it "embeds the video" do
         expect(rendered).to eq(
           '<iframe title="A &quot;title&quot;" src="https://www.youtube.com/embed/abcd" ' \
-          "frameborder=\"0\" allowfullscreen=\"allowfullscreen\"></iframe>\n"
+          "frameborder=\"0\" allowfullscreen=\"allowfullscreen\" #{sandbox}></iframe>\n"
         )
       end
     end
