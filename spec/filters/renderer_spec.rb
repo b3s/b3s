@@ -155,6 +155,15 @@ describe Renderer do
       end
     end
 
+    context "when the post contains an HTTP iframe" do
+      let(:format) { "html" }
+      let(:input) { '<iframe src="http://example.com/embed"></iframe>' }
+
+      it "upgrades the iframe to HTTPS" do
+        expect(Nokogiri::HTML5.fragment(rendered).at_css("iframe")["src"]).to eq("https://example.com/embed")
+      end
+    end
+
     context "when the post links to the forum itself" do
       let(:format) { "markdown" }
       let(:input) { "https://b3s.me/discussions/1 and https://example.com/" }
