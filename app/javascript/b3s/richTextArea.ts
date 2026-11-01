@@ -8,8 +8,9 @@ import { bindUploads, uploadImage } from "./richTextArea/upload";
 import { putJson } from "../lib/request";
 
 function undoEmbeds(html: string) {
-  const elem = document.createElement("div");
-  elem.innerHTML = html;
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  const elem = template.content;
   elem.querySelectorAll("div.embed[data-oembed-url]").forEach(function (
     embed: HTMLDivElement
   ) {
@@ -19,7 +20,7 @@ function undoEmbeds(html: string) {
     );
     embed.parentNode.removeChild(embed);
   });
-  return elem.innerHTML;
+  return template.innerHTML;
 }
 
 export default function richTextArea(textarea: RichText.Element) {
