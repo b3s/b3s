@@ -6,6 +6,8 @@ on:
       postgres_db:
         required: true
         type: string
+permissions:
+  contents: read
 jobs:
   eslint:
     name: ESLint

@@ -16,11 +16,16 @@ on:
         required: true
       SSH_PRIVATE_KEY:
         required: true
+permissions:
+  contents: read
 jobs:
   kamal:
     name: Kamal
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
     env:
       VERSION: ${{ github.sha }}
     steps:
