@@ -8,6 +8,9 @@ describe ImageFilter do
   let(:filter) { described_class.new(input) }
 
   before do
+    dns = instance_double(Resolv::DNS, :timeouts= => nil)
+    allow(dns).to receive(:getaddresses) { |host| Resolv.getaddresses(host) }
+    allow(Resolv::DNS).to receive(:new).and_return(dns)
     allow(Resolv).to receive(:getaddresses).and_call_original
     allow(Resolv).to receive(:getaddresses).with("example.com").and_return(["93.184.215.14"])
   end
@@ -34,6 +37,21 @@ describe ImageFilter do
       filter.to_html
       expect(a_request(:get, image_url).with(headers: { "Range" => "bytes=0-65535" }))
         .to have_been_made.once
+    end
+
+    it "bounds DNS lookups" do
+      filter.to_html
+      expect(Resolv::DNS.new).to have_received(:timeouts=).with(1)
+    end
+  end
+
+  context "when the image is on a public IP address" do
+    let(:input) { "<img src=\"http://93.184.215.14/image.png\">" }
+
+    before { stub_request(:get, "http://93.184.215.14/image.png").to_return(body: image) }
+
+    it "fetches the image size" do
+      expect(filter.to_html).to include('width="16" height="16"')
     end
   end
 
@@ -272,6 +290,34 @@ describe ImageFilter do
     end
   end
 
+  context "when the response stalls past the wall-clock limit", :cache do
+    let(:input) { "<img src=\"#{image_url}\">" }
+
+    before do
+      response = Net::HTTPOK.new("1.1", "200", "OK")
+      allow(response).to receive(:read_body) { sleep 1 }
+      allow(SsrfFilter).to receive(:get).and_yield(response)
+      allow(Timeout).to receive(:timeout).and_wrap_original do |original, _, &block|
+        original.call(0.01, &block)
+      end
+    end
+
+    it "limits the probe to five seconds" do
+      filter.to_html
+      expect(Timeout).to have_received(:timeout).with(5)
+    end
+
+    it "is not touched" do
+      expect(filter.to_html).to eq(input)
+    end
+
+    it "caches the failure" do
+      filter.to_html
+      described_class.new(input).to_html
+      expect(SsrfFilter).to have_received(:get).once
+    end
+  end
+
   context "when fetching the image size raises an error" do
     let(:input) { "<img src=\"#{image_url}\">" }
 
@@ -336,6 +382,44 @@ describe ImageFilter do
       it "stops reading at the deadline" do
         filter.to_html
         expect(FastImage).to have_received(:size).exactly(3).times
+      end
+    end
+
+    context "when the DNS lookup runs past the deadline" do
+      let(:input) { "<img src=\"#{image_url}\">" }
+
+      before do
+        allow(Resolv).to receive(:getaddresses).with("example.com") do
+          clock[:now] += 4
+          ["93.184.215.14"]
+        end
+        stub_request(:get, image_url).to_return(body: image)
+      end
+
+      it "is not touched" do
+        expect(filter.to_html).to eq(input)
+      end
+
+      it "does not connect" do
+        filter.to_html
+        expect(a_request(:get, image_url)).not_to have_been_made
+      end
+    end
+
+    context "when the deadline has passed before the DNS lookup" do
+      let(:input) { "<img src=\"#{image_url}\">" }
+
+      before do
+        stub_request(:get, image_url).to_return do
+          clock[:now] += 4
+          { status: 302, headers: { "Location" => "http://other.example.com/image.png" } }
+        end
+        allow(Resolv).to receive(:getaddresses).with("other.example.com").and_return(["93.184.215.15"])
+      end
+
+      it "does not look up the host" do
+        filter.to_html
+        expect(Resolv).not_to have_received(:getaddresses).with("other.example.com")
       end
     end
 
@@ -406,14 +490,14 @@ describe ImageFilter do
   end
 
   context "when a post has more images than the probe limit" do
-    let(:urls) { Array.new(12) { |i| "http://example.com/#{i}.png" } }
+    let(:urls) { Array.new(27) { |i| "http://example.com/#{i}.png" } }
     let(:input) { urls.map { |url| "<img src=\"#{url}\">" }.join }
 
     before { stub_request(:get, %r{\Ahttp://example\.com/}).to_return(body: image) }
 
     it "stops probing" do
       filter.to_html
-      expect(a_request(:get, %r{\Ahttp://example\.com/})).to have_been_made.times(10)
+      expect(a_request(:get, %r{\Ahttp://example\.com/})).to have_been_made.times(25)
     end
 
     it "does not cache the skipped images", :cache do
@@ -423,8 +507,8 @@ describe ImageFilter do
     end
 
     it "does not count cached images", :cache do
-      described_class.new(urls.first(10).map { |url| "<img src=\"#{url}\">" }.join).to_html
-      expect(filter.to_html.scan('width="16"').length).to eq(12)
+      described_class.new(urls.first(25).map { |url| "<img src=\"#{url}\">" }.join).to_html
+      expect(filter.to_html.scan('width="16"').length).to eq(27)
     end
   end
 

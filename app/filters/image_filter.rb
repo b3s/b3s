@@ -4,7 +4,7 @@ class ImageFilter < Filter
   MAX_IMAGE_BYTES = 65_536
   PROBE_DEADLINE = 3
   RENDER_BUDGET = 6
-  MAX_PROBES = 10
+  MAX_PROBES = 25
 
   def process(post)
     parser = Nokogiri::HTML5::DocumentFragment.parse(post)
@@ -74,6 +74,10 @@ class ImageFilter < Filter
 
   def image_head(url)
     deadline = monotonic_now + PROBE_DEADLINE
+    Timeout.timeout(PROBE_DEADLINE + 2) { request_dimensions(url, deadline) }
+  end
+
+  def request_dimensions(url, deadline)
     dimensions = nil
     catch(:image_head) do
       SsrfFilter.get(url, image_request_options(deadline)) do |response|
@@ -88,10 +92,21 @@ class ImageFilter < Filter
 
   def image_request_options(deadline)
     { max_redirects: 3,
+      resolver: image_resolver(deadline),
       headers: { "Range" => "bytes=0-#{MAX_IMAGE_BYTES - 1}",
                  "Accept-Encoding" => "identity" },
       http_options: { open_timeout: 2, read_timeout: 2 },
       request_proc: ->(_) { throw :image_head if monotonic_now >= deadline } }
+  end
+
+  def image_resolver(deadline)
+    dns = Resolv::DNS.new.tap { it.timeouts = 1 }
+    lambda do |host|
+      throw :image_head if monotonic_now >= deadline
+      next [IPAddr.new(host)] if Resolv::AddressRegex.match?(host)
+
+      dns.getaddresses(host).map { IPAddr.new(it.to_s) }
+    end
   end
 
   def read_dimensions(response, deadline)

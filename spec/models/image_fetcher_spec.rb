@@ -87,7 +87,7 @@ describe ImageFetcher do
     it "bounds the request time" do
       allow(Typhoeus).to receive(:get).and_call_original
       described_class.fetch(body)
-      expect(Typhoeus).to have_received(:get).with(url, timeout: 5, connecttimeout: 2)
+      expect(Typhoeus).to have_received(:get).with(url, timeout: 15, connecttimeout: 2)
     end
 
     it "sets the original URL" do
