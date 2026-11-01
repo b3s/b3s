@@ -9,6 +9,7 @@ module VirtualBody
     after_create :create_first_post
     after_update :update_post_body
     validates :body, presence: true, on: :create
+    validates :body, length: { maximum: Post::MAX_BODY_LENGTH }
   end
 
   private

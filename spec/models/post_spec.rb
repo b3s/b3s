@@ -14,6 +14,7 @@ describe Post do
   it { is_expected.to belong_to(:user) }
   it { is_expected.to belong_to(:exchange) }
   it { is_expected.to have_many(:exchange_views) }
+  it { is_expected.to validate_length_of(:body).is_at_most(100_000) }
 
   describe "after_create" do
     let(:post) { create(:post, exchange:) }
@@ -357,6 +358,15 @@ describe Post do
       post.preprocess!
       post.save
       expect(ImageFetcher).to have_received(:fetch).once
+    end
+
+    context "when the body is over the length limit" do
+      let(:post) { build(:post, exchange:, body: "a" * 100_001) }
+
+      it "does not render the body" do
+        post.preprocess!
+        expect(Renderer).not_to have_received(:render)
+      end
     end
   end
 

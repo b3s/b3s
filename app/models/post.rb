@@ -7,6 +7,8 @@ class Post < ApplicationRecord
   include Paginatable::PositionKeyed
   include Viewable
 
+  MAX_BODY_LENGTH = 100_000
+
   self.per_page = 50
 
   belongs_to :user, counter_cache: true, touch: true
@@ -15,7 +17,7 @@ class Post < ApplicationRecord
 
   acts_as_list scope: :exchange, add_new_at: :bottom
 
-  validates :body, presence: true
+  validates :body, presence: true, length: { maximum: MAX_BODY_LENGTH }
   validates :format, inclusion: %w[markdown html]
 
   attr_accessor :skip_preprocess
@@ -59,13 +61,17 @@ class Post < ApplicationRecord
   end
 
   def preprocess!
-    return self if skip_preprocess
+    return self if skip_preprocess || body_too_long?
 
     fetch_budget = FetchBudget.new
     fetch_images(fetch_budget)
     self.body_html = Renderer.render(body, format:, fetch_budget:)
     self.skip_preprocess = true
     self
+  end
+
+  def body_too_long?
+    body.to_s.length > MAX_BODY_LENGTH
   end
 
   def mentions_users?

@@ -45,7 +45,10 @@ class ExchangePostsController < ApplicationController
   end
 
   def preview
-    @post = @exchange.posts.new(post_params.merge(user: current_user)).preprocess!
+    @post = @exchange.posts.new(post_params.merge(user: current_user))
+    return render_too_long(@post) if @post.body_too_long?
+
+    @post.preprocess!
 
     render layout: false if request.xhr?
   end
@@ -94,6 +97,11 @@ class ExchangePostsController < ApplicationController
 
   def handle_invalid_uri(exception)
     render plain: exception.message, status: :internal_server_error if request.xhr?
+  end
+
+  def render_too_long(post)
+    post.validate
+    render plain: post.errors.full_messages_for(:body).to_sentence, status: :unprocessable_content
   end
 
   def respond_with_post(post, redirect_url, created: false)

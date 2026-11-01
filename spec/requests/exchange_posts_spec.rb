@@ -423,6 +423,16 @@ RSpec.describe "ExchangePosts" do
         expect(response.body).to be_present
       end
     end
+
+    context "when the body is over the length limit" do
+      let(:post_params) { { body: "a" * 100_001, format: "html" } }
+
+      it { is_expected.to have_http_status(:unprocessable_content) }
+
+      it "explains the error" do
+        expect(response.body).to eq("Body is too long (maximum is 100000 characters)")
+      end
+    end
   end
 
   describe "GET /discussions/:id/posts/search" do
