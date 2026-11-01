@@ -210,7 +210,7 @@ describe EmbedFilter do
   {
     "userinfo" => "https://player.vimeo.com@evil.example/video/1",
     "a backslash" => "https://evil.example\\@player.vimeo.com/video/1",
-    "a fragment with @" => "https://evil.example#@player.vimeo.com/video/1",
+    "a fragment with @" => 'https://evil.example#@player.vimeo.com/video/1',
     "a percent-encoded host" => "https://player%2Evimeo%2Ecom/video/1",
     "a port" => "https://player.vimeo.com:8443/video/1"
   }.each do |description, src|

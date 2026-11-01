@@ -76,6 +76,7 @@ class EmbedSanitizer
     def restrict_iframe_hosts(hosts)
       lambda do |env|
         next unless env[:node_name] == "iframe"
+
         uri = EmbedProviderAttributes.plain_https_uri(env[:node]["src"])
         next if uri && hosts.include?(uri.host.downcase)
 
