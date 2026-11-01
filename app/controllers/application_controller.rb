@@ -34,6 +34,10 @@ class ApplicationController < ActionController::Base
     params.expect(:controller).to_sym
   end
 
+  def normalized_email_param
+    params[:email].to_s.downcase.gsub(/\s+/, "").presence
+  end
+
   def current_user_context
     return {} unless current_user?
 

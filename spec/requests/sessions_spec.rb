@@ -78,6 +78,129 @@ RSpec.describe "Sessions" do
     end
   end
 
+  describe "POST /session throttling", :rate_limit do
+    let!(:user) { create(:user, password: "password123") }
+
+    def sign_in(email, password: "wrong", ip: "10.0.0.1", path: session_path)
+      post path, params: { email:, password: }, headers: { "REMOTE_ADDR" => ip }
+    end
+
+    def sign_in_with_json(email, password: "wrong", ip: "10.0.0.1")
+      post session_path, params: { email:, password: }.to_json,
+                         headers: { "REMOTE_ADDR" => ip,
+                                    "CONTENT_TYPE" => "application/json" }
+    end
+
+    context "when one IP exceeds the limit" do
+      before do
+        5.times { |i| sign_in("none#{i}@example.com") }
+        sign_in(user.email, password: "password123")
+      end
+
+      it "responds with too many requests" do
+        expect(response).to have_http_status(:too_many_requests)
+      end
+
+      it "does not authenticate the user" do
+        expect(session[:user_id]).to be_nil
+      end
+    end
+
+    context "when another IP has exceeded the limit" do
+      before do
+        5.times { |i| sign_in("none#{i}@example.com") }
+        sign_in(user.email, password: "password123", ip: "10.0.0.2")
+      end
+
+      it "authenticates the user" do
+        expect(session[:user_id]).to eq(user.id)
+      end
+    end
+
+    context "when one email exceeds the limit across IPs" do
+      before do
+        5.times { |i| sign_in(user.email, ip: "10.0.1.#{i}") }
+        sign_in(user.email, password: "password123", ip: "10.0.2.1")
+      end
+
+      it "responds with too many requests" do
+        expect(response).to have_http_status(:too_many_requests)
+      end
+
+      it "does not authenticate the user" do
+        expect(session[:user_id]).to be_nil
+      end
+    end
+
+    context "with case and whitespace variants of an email" do
+      before do
+        ["Target@Example.com", " target@example.com", "TARGET@EXAMPLE.COM ",
+         "target @example.com", "tar get@example.com"].each_with_index do |email, i|
+          sign_in(email, ip: "10.0.3.#{i}")
+        end
+        sign_in("target@example.com", ip: "10.0.4.1")
+      end
+
+      it "counts them as the same email" do
+        expect(response).to have_http_status(:too_many_requests)
+      end
+    end
+
+    context "with a trailing slash" do
+      before do
+        6.times { |i| sign_in(user.email, ip: "10.0.1.#{i}", path: "/session/") }
+      end
+
+      it "responds with too many requests" do
+        expect(response).to have_http_status(:too_many_requests)
+      end
+    end
+
+    context "with a format extension" do
+      before do
+        5.times { |i| sign_in(user.email, ip: "10.0.1.#{i}") }
+        sign_in(user.email, ip: "10.0.2.1", path: "/session.json")
+      end
+
+      it "responds with too many requests" do
+        expect(response).to have_http_status(:too_many_requests)
+      end
+    end
+
+    context "with a JSON body" do
+      before do
+        6.times { |i| sign_in_with_json(user.email, ip: "10.0.1.#{i}") }
+      end
+
+      it "responds with too many requests" do
+        expect(response).to have_http_status(:too_many_requests)
+      end
+    end
+
+    context "with an array of emails from one IP" do
+      before do
+        6.times { |i| sign_in([user.email, "none#{i}@example.com"]) }
+      end
+
+      it "responds with too many requests" do
+        expect(response).to have_http_status(:too_many_requests)
+      end
+    end
+  end
+
+  describe "POST /session with an array of emails" do
+    let!(:user) { create(:user, password: "password123") }
+
+    before do
+      post session_path, params: { email: [user.email, "none@example.com"],
+                                   password: "password123" }
+    end
+
+    it "does not authenticate the user" do
+      expect(session[:user_id]).to be_nil
+    end
+  end
+
   describe "DELETE /session" do
     let(:user) { create(:user) }
 

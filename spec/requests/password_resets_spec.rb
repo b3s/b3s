@@ -58,6 +58,13 @@ RSpec.describe "PasswordResets" do
       end
     end
 
+    context "with an array of emails" do
+      it "does not send the email" do
+        expect { post password_reset_path, params: { email: [user.email, "none@example.com"] } }
+          .not_to have_enqueued_mail(Mailer, :password_reset)
+      end
+    end
+
     context "with a non-existant user" do
       before do
         post password_reset_path, params: { email: "none@example.com" }
@@ -73,18 +80,15 @@ RSpec.describe "PasswordResets" do
     end
   end
 
-  describe "POST /password_reset throttling" do
-    around do |example|
-      store = Rack::Attack.cache.store
-      Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
-      example.run
-    ensure
-      Rack::Attack.cache.store = store
+  describe "POST /password_reset throttling", :rate_limit do
+    def request_reset(email, ip: "10.0.0.1", path: password_reset_path)
+      post path, params: { email: }, headers: { "REMOTE_ADDR" => ip }
     end
 
-    def request_reset(email, ip: "10.0.0.1")
-      post password_reset_path, params: { email: },
-                                headers: { "REMOTE_ADDR" => ip }
+    def request_reset_with_json(email, ip: "10.0.0.1")
+      post password_reset_path, params: { email: }.to_json,
+                                headers: { "REMOTE_ADDR" => ip,
+                                           "CONTENT_TYPE" => "application/json" }
     end
 
     context "when one IP exceeds the limit" do
@@ -130,6 +134,65 @@ RSpec.describe "PasswordResets" do
 
       it "sets the flash" do
         request_reset(user.email, ip: "10.0.2.1")
+        expect(flash[:notice]).to include("An email with further instructions has been sent")
+      end
+    end
+
+    context "when the throttled response is returned" do
+      before do
+        5.times { |i| request_reset(user.email, ip: "10.0.1.#{i}") }
+        request_reset(user.email, ip: "10.0.2.1")
+      end
+
+      it "sets the no-referrer policy" do
+        expect(response.headers["Referrer-Policy"]).to eq("no-referrer")
+      end
+    end
+
+    context "with a trailing slash" do
+      before do
+        5.times { |i| request_reset(user.email, ip: "10.0.1.#{i}", path: "/password_reset/") }
+      end
+
+      it "does not send the email" do
+        expect { request_reset(user.email, ip: "10.0.2.1", path: "/password_reset/") }
+          .not_to have_enqueued_mail(Mailer, :password_reset)
+      end
+    end
+
+    context "with a format extension" do
+      before do
+        5.times { |i| request_reset(user.email, ip: "10.0.1.#{i}", path: "/password_reset.json") }
+      end
+
+      it "does not send the email" do
+        expect { request_reset(user.email, ip: "10.0.2.1", path: "/password_reset.json") }
+          .not_to have_enqueued_mail(Mailer, :password_reset)
+      end
+    end
+
+    context "with a JSON body" do
+      before do
+        5.times { |i| request_reset_with_json(user.email, ip: "10.0.1.#{i}") }
+      end
+
+      it "does not send the email" do
+        expect { request_reset_with_json(user.email, ip: "10.0.2.1") }
+          .not_to have_enqueued_mail(Mailer, :password_reset)
+      end
+    end
+
+    context "with an array of emails from one IP" do
+      before do
+        5.times { |i| request_reset([user.email, "none#{i}@example.com"]) }
+        request_reset([user.email, "none@example.com"])
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+
+      it "sets the flash" do
         expect(flash[:notice]).to include("An email with further instructions has been sent")
       end
     end
