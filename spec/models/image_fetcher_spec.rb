@@ -96,6 +96,23 @@ describe ImageFetcher do
       it { is_expected.to eq(body) }
     end
 
+    context "when image is over the pixel limit" do
+      before do
+        stub_request(:get, url)
+          .to_return(
+            status: 200,
+            body: Rails.root.join("spec/support/huge.png").open("rb"),
+            headers: { "Content-Type" => "image/png" }
+          )
+      end
+
+      it { is_expected.to eq(body) }
+
+      it "doesn't store the image" do
+        expect { described_class.fetch(body) }.not_to change(PostImage, :count)
+      end
+    end
+
     it "gets the filename" do
       described_class.fetch(body)
       expect(image.filename).to eq("foobar.png")

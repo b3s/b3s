@@ -119,7 +119,7 @@ class ImageFetcher
       filename: filename(uri),
       original_url: uri
     )
-    image if image.valid?
+    image if image.persisted?
   end
 
   def filename(uri)

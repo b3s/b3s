@@ -103,6 +103,21 @@ RSpec.describe "Uploads" do
       end
     end
 
+    context "with an image over the pixel limit" do
+      let(:file) do
+        Rack::Test::UploadedFile.new(
+          Rails.root.join("spec/support/huge.png"),
+          "image/png"
+        )
+      end
+
+      it { is_expected.to have_http_status(:unprocessable_content) }
+
+      it "does not create a PostImage record" do
+        expect(PostImage.count).to eq(0)
+      end
+    end
+
     context "with a duplicate file" do
       let!(:existing_image) { PostImage.last }
 

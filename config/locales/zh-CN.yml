@@ -28,6 +28,9 @@ zh-CN:
         mobile_stylesheet_url: 自定义手机样式表网址
         banned_until: 直到此日期前禁用我
         memorialized: 纪念
+    errors:
+      messages:
+        too_many_pixels: 图片过大（上限为 %{count} 百万像素）
   configuration:
     configuration: 配置
     documents: 文档
