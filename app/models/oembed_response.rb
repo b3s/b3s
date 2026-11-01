@@ -7,8 +7,11 @@ class OembedResponse < ApplicationRecord
     def html_for(url)
       cached = find_by(url:)
       return cached.html if cached
+      return if Rails.cache.exist?(failure_key(url))
 
-      yield.tap { |html| store(url, html) }
+      yield.tap do |html|
+        html.present? ? store(url, html) : Rails.cache.write(failure_key(url), true, expires_in: 1.day)
+      end
     end
 
     def store(url, html, fetched_at: Time.current)
@@ -24,6 +27,10 @@ class OembedResponse < ApplicationRecord
     end
 
     private
+
+    def failure_key(url)
+      "oembed-failure/#{Digest::SHA256.hexdigest(url)}"
+    end
 
     def purge_scope(url, days)
       raise ArgumentError, "url or older_than_days is required" unless url || days

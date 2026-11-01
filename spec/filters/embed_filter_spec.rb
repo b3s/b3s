@@ -446,6 +446,18 @@ describe EmbedFilter do
       rendered
       expect(OembedResponse.exists?(url:)).to be(false)
     end
+
+    it "doesn't retry within a day", :cache do
+      rendered
+      travel(23.hours) { described_class.new(input).to_html }
+      expect(a_request(:get, /vimeo\.com/)).to have_been_made.once
+    end
+
+    it "retries after a day", :cache do
+      rendered
+      travel(25.hours) { described_class.new(input).to_html }
+      expect(a_request(:get, /vimeo\.com/)).to have_been_made.twice
+    end
   end
 
   context "when the cached HTML cleans up to nothing" do
