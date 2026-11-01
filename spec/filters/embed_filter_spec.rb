@@ -353,6 +353,69 @@ describe EmbedFilter do
     end
   end
 
+  context "when a post has more embeds than the fetch limit" do
+    let(:urls) { Array.new(26) { |i| "https://vimeo.com/#{i}" } }
+    let(:input) { urls.map { |url| placeholder(url) }.join }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>embed</p>" }.to_json)
+    end
+
+    it "stops fetching" do
+      rendered
+      expect(a_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})).to have_been_made.times(25)
+    end
+
+    it "falls back to a link for the rest" do
+      expect(rendered).to end_with("<a href=\"#{urls.last}\" rel=\"nofollow noopener noreferrer ugc\">#{urls.last}</a>")
+    end
+
+    it "does not cache the skipped embeds" do
+      rendered
+      expect(OembedResponse.exists?(url: urls.last)).to be(false)
+    end
+
+    it "does not count cached embeds" do
+      urls.first(25).each { |url| OembedResponse.store(url, "<p>cached</p>") }
+      expect(rendered).to end_with(placeholder(urls.last, "<p>embed</p>"))
+    end
+  end
+
+  context "when fetching exceeds the render budget" do
+    let(:clock) { { now: 0.0 } }
+    let(:input) { Array.new(3) { |i| placeholder("https://vimeo.com/#{i}") }.join }
+
+    before do
+      allow(Process).to receive(:clock_gettime).and_call_original
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { clock[:now] }
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json}).to_return do
+        clock[:now] += 4
+        { body: { type: "rich", version: "1.0", html: "<p>embed</p>" }.to_json }
+      end
+    end
+
+    it "stops fetching" do
+      rendered
+      expect(a_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})).to have_been_made.twice
+    end
+  end
+
+  context "when the fetch budget is already spent" do
+    subject(:rendered) { described_class.new(input, fetch_budget:).to_html }
+
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+    let(:fetch_budget) { instance_double(FetchBudget, spend?: false) }
+
+    before { stub_request(:any, //) }
+
+    it "does not make a request" do
+      rendered
+      expect(a_request(:any, //)).not_to have_been_made
+    end
+  end
+
   context "when the embed is cached" do
     let(:url) { "https://vimeo.com/1" }
     let(:input) { placeholder(url) }

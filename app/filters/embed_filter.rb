@@ -35,8 +35,12 @@ class EmbedFilter < Filter
   def provider_html(url)
     return unless OEmbed::Providers.find(url)
 
-    OembedResponse.html_for(url) do
-      OEmbed::Providers.get(url, timeout: 5).html.strip
+    catch(:skip_fetch) do
+      OembedResponse.html_for(url) do
+        throw :skip_fetch unless fetch_budget.spend?
+
+        OEmbed::Providers.get(url, timeout: 5).html.strip
+      end
     end
   rescue StandardError => e
     logger.error "Unexpected connection error #{e.inspect}"

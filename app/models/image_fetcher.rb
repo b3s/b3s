@@ -4,13 +4,14 @@ class ImageFetcher
   attr_accessor :body
 
   class << self
-    def fetch(body)
-      new(body).fetch
+    def fetch(body, fetch_budget: FetchBudget.new)
+      new(body, fetch_budget:).fetch
     end
   end
 
-  def initialize(body)
+  def initialize(body, fetch_budget: FetchBudget.new)
     @body = body
+    @fetch_budget = fetch_budget
   end
 
   def fetch
@@ -70,7 +71,7 @@ class ImageFetcher
     # Only fetch imgurl URLs for now
     return nil unless host_whitelist?(URI.parse(uri).hostname)
 
-    find_image(uri) || create_image(uri)
+    find_image(uri) || (create_image(uri) if @fetch_budget.spend?)
   end
 
   def host_whitelist?(hostname)

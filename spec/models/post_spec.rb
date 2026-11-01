@@ -360,6 +360,21 @@ describe Post do
     end
   end
 
+  describe "fetching during preprocessing" do
+    let(:imgur_urls) { Array.new(25) { |i| "http://i.imgur.com/#{i}.png" } }
+    let(:post) { build(:post, body: [*imgur_urls, "https://vimeo.com/1"].join("\n\n")) }
+
+    before do
+      stub_request(:get, %r{\Ahttp://i\.imgur\.com/}).to_return(status: 404)
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed})
+    end
+
+    it "shares the fetch budget between images and embeds" do
+      post.preprocess!
+      expect(a_request(:get, %r{\Ahttps://vimeo\.com/api/oembed})).not_to have_been_made
+    end
+  end
+
   describe "#set_edit_timestamp" do
     context "when edited_at is set" do
       let(:timestamp) { 2.days.ago }

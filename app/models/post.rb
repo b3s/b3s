@@ -61,8 +61,9 @@ class Post < ApplicationRecord
   def preprocess!
     return self if skip_preprocess
 
-    fetch_images
-    self.body_html = Renderer.render(body, format:)
+    fetch_budget = FetchBudget.new
+    fetch_images(fetch_budget)
+    self.body_html = Renderer.render(body, format:, fetch_budget:)
     self.skip_preprocess = true
     self
   end
@@ -81,8 +82,8 @@ class Post < ApplicationRecord
 
   private
 
-  def fetch_images
-    self.body = ImageFetcher.fetch(body)
+  def fetch_images(fetch_budget)
+    self.body = ImageFetcher.fetch(body, fetch_budget:)
   end
 
   def increment_public_posts_count

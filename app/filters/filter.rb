@@ -2,9 +2,11 @@
 
 class Filter
   attr_accessor :post
+  attr_reader :fetch_budget
 
-  def initialize(post)
+  def initialize(post, fetch_budget: FetchBudget.new)
     @post = post
+    @fetch_budget = fetch_budget
   end
 
   def process(post)
