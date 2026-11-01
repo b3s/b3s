@@ -64,8 +64,8 @@ module Authenticable
   protected
 
   def password_reset_fingerprint
-    OpenSSL::HMAC.hexdigest("SHA256", Rails.application.secret_key_base,
-                            [email, password_digest].to_json).last(16)
+    key = Rails.application.key_generator.generate_key("password_reset_fingerprint")
+    OpenSSL::HMAC.hexdigest("SHA256", key, [email, password_digest].to_json).last(16)
   end
 
   def clear_banned_until
