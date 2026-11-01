@@ -8,7 +8,54 @@ type ResizeEvent = Event & {
   data?: EventData;
 };
 
+function embedUrl(value: string | undefined): string | null {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+
+  if (
+    url.protocol !== "https:" ||
+    url.username ||
+    url.password ||
+    !url.pathname.endsWith("/embed")
+  ) {
+    return null;
+  }
+
+  return url.toString();
+}
+
+function replaceBlockquotes() {
+  document
+    .querySelectorAll(".post .body blockquote.mastodon-embed[data-embed-url]")
+    .forEach((blockquote: HTMLQuoteElement) => {
+      const src = embedUrl(blockquote.dataset.embedUrl);
+
+      if (!src || blockquote.querySelector("iframe")) {
+        return;
+      }
+
+      const iframe = document.createElement("iframe");
+      iframe.className = "mastodon-embed";
+      iframe.sandbox.add("allow-scripts", "allow-same-origin", "allow-popups");
+      iframe.allow = "fullscreen";
+      iframe.allowFullscreen = true;
+      iframe.width = `${blockquote.clientWidth || 400}`;
+      iframe.style.border = "0";
+      iframe.style.display = "block";
+      iframe.style.maxWidth = "100%";
+      iframe.src = src;
+
+      blockquote.replaceWith(iframe);
+    });
+}
+
 export default function mastodonEmbeds() {
+  replaceBlockquotes();
+
   const iframes = new Map<string, HTMLIFrameElement>();
 
   const iframeId = () => {
