@@ -2,7 +2,7 @@
 
 class CodeFilter < Filter
   def process(post)
-    parser = Nokogiri::HTML::DocumentFragment.parse(post)
+    parser = Nokogiri::HTML5::DocumentFragment.parse(post)
 
     parser.search("code").each do |element|
       code = element.content
