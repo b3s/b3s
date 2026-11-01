@@ -1,28 +1,35 @@
 import js from "@eslint/js";
 import globals from "globals";
 import eslintConfigPrettier from "eslint-config-prettier";
-import react from "eslint-plugin-react";
+import eslintReact from "@eslint-react/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  eslintReact.configs["recommended-type-checked"],
   eslintConfigPrettier,
   {
     plugins: {
-      react: react,
       'react-hooks': reactHooks,
     },
     rules: {
-      ...react.configs.recommended.rules,
-      ...react.configs["jsx-runtime"].rules,
       ...reactHooks.configs.recommended.rules,
     },
-    settings: {
-      react: {
-        version: 'detect',
-      },
+  },
+  eslintReact.configs["disable-conflict-eslint-plugin-react-hooks"],
+  {
+    rules: {
+      "@eslint-react/dom-no-unknown-property": "error",
+      "@eslint-react/dom-no-unsafe-target-blank": "error",
+      "@eslint-react/globals": "error",
+      "@eslint-react/immutability": "error",
+      "@eslint-react/no-duplicate-key": "error",
+      "@eslint-react/no-missing-component-display-name": "error",
+      "@eslint-react/purity": "error",
+      "@eslint-react/refs": "error",
+      "@eslint-react/set-state-in-effect": "error",
     },
   },
   {

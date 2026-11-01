@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { csrfToken as readCsrfToken } from "../lib/request";
 import TypeaheadTextField from "./Input/TypeaheadTextField";
 
 interface Props {
@@ -13,9 +14,7 @@ export default function InviteParticipant(props: Props) {
   const [username, setUsername] = useState("");
   const [users, setUsers] = useState<UserAttributes[]>([]);
 
-  const csrfToken = document.querySelector<HTMLMetaElement>(
-    'meta[name="csrf-token"]'
-  )?.content;
+  const [csrfToken] = useState(readCsrfToken);
 
   const loadUsernames = async () => {
     if (!loading) {
