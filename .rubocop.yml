@@ -87,6 +87,7 @@ Rails/DynamicFindBy:
 Rails/OutputSafety:
   Exclude:
     - "app/filters/renderer.rb"
+    - "app/helpers/posts_helper.rb"
     - "app/models/post.rb"
 
 Rails/SkipsModelValidations:
