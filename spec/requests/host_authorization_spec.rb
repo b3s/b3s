@@ -3,25 +3,15 @@
 require "rails_helper"
 
 RSpec.describe "Host authorization" do
-  let(:production_config) do
-    Rails::Application::Configuration.new(Rails.root)
+  let(:allowed_hosts) do
+    Rails.application.config_for(:allowed_hosts, env: "production")
   end
   let(:app) do
     ActionDispatch::HostAuthorization.new(
       Rails.application,
-      production_config.hosts,
-      **production_config.host_authorization
+      allowed_hosts,
+      exclude: B3s::Application::HEALTH_CHECK_REQUEST
     )
-  end
-
-  before do
-    production_app = Struct.new(:config) do
-      def configure(&) = instance_eval(&)
-    end
-    allow(Rails).to receive(:application)
-      .and_return(production_app.new(production_config))
-    load Rails.root.join("config/environments/production.rb")
-    allow(Rails).to receive(:application).and_call_original
   end
 
   def get_with_host(path, host)
@@ -29,7 +19,7 @@ RSpec.describe "Host authorization" do
   end
 
   it "allows the proxy hosts" do
-    expect(production_config.hosts).to match_array(
+    expect(allowed_hosts).to match_array(
       YAML.load_file(Rails.root.join("config/deploy.yml")).dig("proxy", "hosts")
     )
   end

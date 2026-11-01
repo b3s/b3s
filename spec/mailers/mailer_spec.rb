@@ -71,4 +71,29 @@ describe Mailer do
       end
     end
   end
+
+  context "with the production URL options" do
+    around do |example|
+      original = ActionMailer::Base.default_url_options
+      ActionMailer::Base.default_url_options = B3s::Application::MAILER_URL_OPTIONS
+      example.run
+    ensure
+      ActionMailer::Base.default_url_options = original
+    end
+
+    it "links invites to https://b3s.me" do
+      expect(described_class.invite(invite).body.encoded)
+        .to include("https://b3s.me/invites/#{invite.token}/accept")
+    end
+
+    it "links new users to https://b3s.me" do
+      expect(described_class.new_user(user).body.encoded)
+        .to include("https://b3s.me/session/new")
+    end
+
+    it "links password resets to https://b3s.me" do
+      expect(described_class.password_reset(user).body.encoded)
+        .to match(%r{https://b3s\.me/password_reset\?token=\S+})
+    end
+  end
 end
