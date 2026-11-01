@@ -1,24 +1,7 @@
 # frozen_string_literal: true
 
 class SanitizeFilter < Filter
-  LINK_SCHEMES = %w[http https mailto relative].freeze
-  MEDIA_SCHEMES = %w[http https relative].freeze
-
-  URL_ATTRIBUTES = {
-    "a" => { "href" => LINK_SCHEMES },
-    "audio" => { "src" => MEDIA_SCHEMES },
-    "blockquote" => { "cite" => MEDIA_SCHEMES },
-    "del" => { "cite" => MEDIA_SCHEMES },
-    "div" => { "data-oembed-url" => %w[http https] },
-    "iframe" => { "src" => %w[https] },
-    "img" => { "src" => MEDIA_SCHEMES + ["data"],
-               "srcset" => MEDIA_SCHEMES,
-               "data-full-src" => MEDIA_SCHEMES },
-    "ins" => { "cite" => MEDIA_SCHEMES },
-    "q" => { "cite" => MEDIA_SCHEMES },
-    "source" => { "src" => MEDIA_SCHEMES, "srcset" => MEDIA_SCHEMES },
-    "video" => { "src" => MEDIA_SCHEMES, "poster" => MEDIA_SCHEMES }
-  }.freeze
+  MEDIA_PROTOCOLS = ["http", "https", :relative].freeze
 
   PROVIDER_CLASSES = %w[bluesky-embed fb-post fb-video fb-xfbml-parse-ignore
                         imgur-embed-pub instagram-media mastodon-embed
@@ -63,9 +46,23 @@ class SanitizeFilter < Filter
       "video" => %w[autoplay controls height loop muted playsinline poster
                     preload src width]
     },
+    protocols: {
+      "a" => { "href" => ["http", "https", "mailto", :relative] },
+      "audio" => { "src" => MEDIA_PROTOCOLS },
+      "blockquote" => { "cite" => MEDIA_PROTOCOLS },
+      "del" => { "cite" => MEDIA_PROTOCOLS },
+      "div" => { "data-oembed-url" => %w[http https] },
+      "iframe" => { "src" => %w[https] },
+      "img" => { "src" => MEDIA_PROTOCOLS + ["data"], "data-full-src" => MEDIA_PROTOCOLS },
+      "ins" => { "cite" => MEDIA_PROTOCOLS },
+      "q" => { "cite" => MEDIA_PROTOCOLS },
+      "source" => { "src" => MEDIA_PROTOCOLS },
+      "video" => { "src" => MEDIA_PROTOCOLS, "poster" => MEDIA_PROTOCOLS }
+    },
     css: Sanitize::Config::RELAXED[:css],
     transformers: [
-      SanitizeTransformers.url_attributes(URL_ATTRIBUTES),
+      SanitizeTransformers.urls,
+      SanitizeTransformers.srcset(MEDIA_PROTOCOLS),
       SanitizeTransformers.iframe_permissions,
       SanitizeTransformers.remove_classes(PROVIDER_CLASSES),
       SanitizeTransformers.restrict_positioning,

@@ -19,17 +19,27 @@ module SanitizeTransformers
   BIDI_CONTROLS = /[\u202A-\u202E\u2066-\u2069]/
 
   class << self
-    def url_attributes(rules)
+    def urls
       lambda do |env|
         node = env[:node]
         next unless node.element?
 
-        rules.fetch(env[:node_name], {}).each do |name, schemes|
+        env[:config][:protocols].fetch(env[:node_name], {}).each do |name, protocols|
           next unless node.has_attribute?(name)
 
-          value = UrlPolicy.clean_attribute(name, node[name], schemes)
+          value = UrlPolicy.clean_url(node[name], protocols)
           value ? node[name] = value : node.remove_attribute(name)
         end
+      end
+    end
+
+    def srcset(protocols)
+      lambda do |env|
+        node = env[:node]
+        next unless node.element? && node.has_attribute?("srcset")
+
+        value = UrlPolicy.clean_srcset(node["srcset"], protocols)
+        value ? node["srcset"] = value : node.remove_attribute("srcset")
       end
     end
 
@@ -58,7 +68,7 @@ module SanitizeTransformers
         node = env[:node]
         next unless env[:node_name] == "a"
 
-        if node.has_attribute?("href") && UrlPolicy.scheme(node["href"]) != "relative"
+        if UrlPolicy.external?(node["href"], env[:config][:protocols]["a"]["href"])
           node["rel"] = EXTERNAL_LINK_REL
         else
           node.remove_attribute("rel")

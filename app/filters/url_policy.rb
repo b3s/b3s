@@ -6,52 +6,36 @@ module UrlPolicy
   DATA_IMAGE_MAX_BYTES = 100_000
 
   class << self
-    def clean_attribute(name, value, schemes)
-      return clean_srcset(value, schemes) if name == "srcset"
-
-      clean_url(value, schemes)
-    end
-
-    def scheme(url)
-      if (match = url.match(/\A([a-z][a-z\d+\-.]*):/i))
-        match[1].downcase
-      elsif url.start_with?("//")
-        "scheme-relative"
-      elsif !url.match?(%r{\A[^/?#]*:})
-        "relative"
+    def clean_url(value, protocols)
+      url = value.to_s.gsub(/[\t\n\r]/, "").gsub(/\A[\u0000- ]+|[\u0000- ]+\z/, "")
+      if url.start_with?("//") && protocols.exclude?(:relative) && protocols.include?("https")
+        "https:#{url}"
+      elsif protocol(url) != "data" || data_image?(url)
+        url
       end
     end
 
-    private
-
-    def clean_srcset(value, schemes)
+    def clean_srcset(value, protocols)
       candidates = value.split(",").map(&:strip).compact_blank.map do |candidate|
         url, descriptor = candidate.split(/\s+/, 2)
-        clean_url(url, schemes)&.then { |clean| [clean, descriptor].compact.join(" ") }
+        url = clean_url(url, protocols)
+        [url, descriptor].compact.join(" ") if url && allowed?(url, protocols)
       end
       candidates.join(", ") if candidates.any? && candidates.all?
     end
 
-    def clean_url(value, schemes)
-      url = normalize(value)
-      case (url_scheme = scheme(url))
-      when nil then nil
-      when "scheme-relative" then clean_scheme_relative_url(url, schemes)
-      when "data" then url if schemes.include?("data") && data_image?(url)
-      else url if schemes.include?(url_scheme)
-      end
+    def external?(url, protocols)
+      url && allowed?(url, protocols) && (protocol(url) || url.start_with?("//"))
     end
 
-    def normalize(value)
-      value.to_s.gsub(/[\t\n\r]/, "").gsub(/\A[\u0000- ]+|[\u0000- ]+\z/, "")
+    private
+
+    def allowed?(url, protocols)
+      protocols.include?(protocol(url) || :relative)
     end
 
-    def clean_scheme_relative_url(url, schemes)
-      if schemes.include?("relative")
-        url
-      elsif schemes.include?("https")
-        "https:#{url}"
-      end
+    def protocol(url)
+      url[Sanitize::REGEX_PROTOCOL, 1]&.downcase
     end
 
     def data_image?(url)
