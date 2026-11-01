@@ -18,7 +18,8 @@ RSpec.describe "Sentry context" do
   describe "POST /discussions/:discussion_id/posts" do
     before do
       post discussion_posts_path(create(:discussion), email: "user@example.com"),
-           params: { post: { body: "Secret post", format: "html" } }
+           params: { q: "search",
+                     post: { body: "Secret post", format: "html" } }
     end
 
     it "filters the post body" do
@@ -29,6 +30,10 @@ RSpec.describe "Sentry context" do
 
     it "applies the Rails parameter filter" do
       expect(Sentry).to have_set_params("email" => "[FILTERED]")
+    end
+
+    it "keeps unrelated params" do
+      expect(Sentry).to have_set_params("q" => "search")
     end
   end
 
