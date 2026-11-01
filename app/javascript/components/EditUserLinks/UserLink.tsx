@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { normalizeUrl } from "./url";
+import { isHttpUrl, normalizeUrl } from "./url";
 
 type Props = {
   dispatch: (action: UserLink.Action) => void;
@@ -15,6 +15,7 @@ function label(userLink: UserLink.Link) {
 
 export default function UserLink(props: Props) {
   const { dispatch, userLink } = props;
+  const href = normalizeUrl(userLink.url || "");
 
   const {
     attributes,
@@ -54,10 +55,8 @@ export default function UserLink(props: Props) {
       <div className="info">
         <div className="label">{userLink.label}</div>
         <div className="link">
-          {!userLink.url && label(userLink)}
-          {userLink.url && (
-            <a href={normalizeUrl(userLink.url)}>{label(userLink)}</a>
-          )}
+          {!isHttpUrl(href) && label(userLink)}
+          {isHttpUrl(href) && <a href={href}>{label(userLink)}</a>}
         </div>
         {userLink.errors.length > 0 && (
           <div className="link-errors">{userLink.errors.join(", ")}</div>

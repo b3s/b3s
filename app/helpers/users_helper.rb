@@ -30,10 +30,13 @@ module UsersHelper
   end
 
   def edit_user_links_props(user)
-    user.user_links.sort_by { |ul| ul.position.to_i }.map do |ul|
+    links = user.user_links.each_with_index.sort_by do |ul, index|
+      [ul.position || Float::INFINITY, index]
+    end
+    links.map do |ul, _|
       UserLinkResource.new(ul).to_h.merge(
         "deleted" => ul.marked_for_destruction?,
-        "errors" => ul.errors.map(&:message)
+        "errors" => ul.errors.full_messages
       )
     end
   end

@@ -82,6 +82,12 @@ describe ApplicationHelper do
       it { is_expected.to eq(html) }
     end
 
+    context "when the URL has a non-http scheme" do
+      let(:link) { build(:user_link, name: nil, url: "javascript:alert(1)") }
+
+      it { is_expected.to eq("javascript:alert(1)") }
+    end
+
     context "without a URL" do
       let(:link) { build(:user_link, name: "foo", url: "") }
 

@@ -51,15 +51,20 @@ describe UsersHelper do
       user.update(
         user_links_attributes: [
           { id: saved.id, _destroy: "true" },
+          { label: "Blog", url: "example.org" },
           { label: "Website", url: "example.comm", position: 2 }
         ]
       )
     end
 
+    it "sorts unsaved links without a position last" do
+      expect(props.pluck("label")).to eq(%w[Saved Website Blog])
+    end
+
     it "includes unsaved links with their errors" do
-      expect(props.last).to include(
+      expect(props.second).to include(
         "id" => nil, "url" => "https://example.comm", "deleted" => false,
-        "errors" => ["doesn't have a valid domain"]
+        "errors" => ["URL doesn't have a valid domain"]
       )
     end
 

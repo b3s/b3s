@@ -43,7 +43,7 @@ class UserLink < ApplicationRecord
 
   def url=(new_url)
     url = new_url&.strip
-    url = "https://#{url}" if url.present? && !url.match?(%r{\Ahttps?://}i)
+    url = "https://#{url}" if url.present? && !url.match?(/\A[a-z][a-z0-9+.-]*:/i)
     super(url)
   end
 

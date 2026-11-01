@@ -49,6 +49,20 @@ RSpec.describe "Editing user links", :js do
     expect(page).to have_link("example.com/foo", href: "HTTP://example.com/foo")
   end
 
+  it "renders a legacy non-http URL as text" do
+    build(:user_link, user:, name: nil, url: "javascript:alert(1)").save(validate: false)
+    visit_editor
+    expect(find(".user-link", text: "javascript:alert(1)")).to have_no_css("a")
+  end
+
+  it "rejects a URL with another scheme" do
+    visit_editor
+    click_on "Add link"
+    fill_in "label", with: "Email"
+    fill_in "url", with: "mailto:someone@example.com"
+    expect(page).to have_button("Add", disabled: true)
+  end
+
   context "when the server rejects a link" do
     before do
       visit_editor
@@ -63,7 +77,7 @@ RSpec.describe "Editing user links", :js do
 
     it "shows the error next to the link" do
       expect(find(".user-link", text: "example.comm"))
-        .to have_css(".link-errors", text: "doesn't have a valid domain")
+        .to have_css(".link-errors", text: "URL doesn't have a valid domain")
     end
   end
 end

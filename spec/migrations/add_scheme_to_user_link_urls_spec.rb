@@ -10,6 +10,11 @@ describe AddSchemeToUserLinkUrls do
       "http://example.com" => "http://example.com",
       "https://example.com" => "https://example.com",
       "HTTP://example.com" => "HTTP://example.com",
+      "ftp://example.com" => "ftp://example.com",
+      "mailto:someone@example.com" => "mailto:someone@example.com",
+      "javascript:alert(1)" => "javascript:alert(1)",
+      "/discussions/1" => "/discussions/1",
+      "example" => "example",
       "" => "",
       nil => nil }
   end

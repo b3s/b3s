@@ -71,6 +71,18 @@ describe UserLink do
       it { is_expected.to eq("HTTP://example.com/foo") }
     end
 
+    context "with another scheme" do
+      let(:value) { "mailto:someone@example.com" }
+
+      it { is_expected.to eq("mailto:someone@example.com") }
+    end
+
+    context "when validating another scheme" do
+      subject(:user_link) { build(:user_link, url: "mailto:someone@example.com") }
+
+      it { is_expected.not_to be_valid }
+    end
+
     context "when blank" do
       let(:value) { "  " }
 
