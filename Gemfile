@@ -28,6 +28,7 @@ gem "redcarpet", "~> 3.5"
 gem "rouge"
 gem "ruby-oembed", require: "oembed"
 gem "sanitize"
+gem "ssrf_filter"
 gem "thruster", require: false
 gem "typhoeus"
 gem "validate_url"

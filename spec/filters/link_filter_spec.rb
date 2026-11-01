@@ -57,94 +57,38 @@ describe LinkFilter do
   context "when input contains an image not on the HTTPS whitelist" do
     let(:input) { '<img src="http://example.com/image.jpg">' }
 
-    context "when the image exists" do
-      it "rewrites the URL to one without protocol" do
-        req = stub_request(:head, "https://example.com/image.jpg")
-              .to_return(status: 200)
-        expect(filter.to_html).to eq('<img src="//example.com/image.jpg">')
-        assert_requested(req)
-      end
+    before { stub_request(:any, //) }
+
+    it "does not change the URL" do
+      expect(filter.to_html).to eq(input)
     end
 
-    context "when the image doesn't exists" do
-      it "does not change the URL" do
-        req = stub_request(:head, "https://example.com/image.jpg")
-              .to_return(status: 404)
-        expect(filter.to_html).to eq(input)
-        assert_requested(req)
-      end
+    it "does not request the URL" do
+      filter.to_html
+      expect(a_request(:any, //)).not_to have_been_made
+    end
+  end
+
+  context "when input contains an HTTP iframe not on the HTTPS whitelist" do
+    let(:input) { '<iframe src="http://example.com:8080/embed"></iframe>' }
+
+    before { stub_request(:any, //) }
+
+    it "converts the URL to one without protocol" do
+      expect(filter.to_html).to eq('<iframe src="//example.com:8080/embed"></iframe>')
     end
 
-    context "when the server doesn't respond" do
-      it "does not change the URL" do
-        req = stub_request(:head, "https://example.com/image.jpg")
-              .to_raise(SocketError)
-        expect(filter.to_html).to eq(input)
-        assert_requested(req)
-      end
+    it "does not request the URL" do
+      filter.to_html
+      expect(a_request(:any, //)).not_to have_been_made
     end
+  end
 
-    context "when the URL has already been probed", :cache do
-      before do
-        stub_request(:head, "https://example.com/image.jpg")
-          .to_return(status: 200)
-        described_class.new(input).to_html
-      end
+  context "when input contains an HTTPS iframe not on the HTTPS whitelist" do
+    let(:input) { '<iframe src="https://example.com/embed"></iframe>' }
 
-      it "does not request the URL again" do
-        filter.to_html
-        expect(a_request(:head, "https://example.com/image.jpg"))
-          .to have_been_made.once
-      end
-
-      it "rewrites the URL to one without protocol" do
-        expect(filter.to_html).to eq('<img src="//example.com/image.jpg">')
-      end
-
-      it "does not request the URL again an hour later" do
-        travel(2.hours) { filter.to_html }
-        expect(a_request(:head, "https://example.com/image.jpg"))
-          .to have_been_made.once
-      end
-    end
-
-    context "when a failed probe has already been cached", :cache do
-      before do
-        stub_request(:head, "https://example.com/image.jpg")
-          .to_return(status: 404)
-        described_class.new(input).to_html
-      end
-
-      it "does not request the URL again" do
-        filter.to_html
-        expect(a_request(:head, "https://example.com/image.jpg"))
-          .to have_been_made.once
-      end
-
-      it "requests the URL again an hour later" do
-        travel(2.hours) { filter.to_html }
-        expect(a_request(:head, "https://example.com/image.jpg"))
-          .to have_been_made.twice
-      end
-    end
-
-    context "when an unexpected error occurs" do
-      before do
-        stub_request(:head, "https://example.com/image.jpg").to_raise("foo")
-        allow(filter.logger).to receive(:error)
-      end
-
-      it "logs the error" do
-        filter.to_html
-        expect(filter.logger).to(
-          have_received(:error)
-            .with("Unexpected connection error #<StandardError: foo>")
-        )
-      end
-
-      it "returns the input" do
-        expect(filter.to_html).to eq(input)
-      end
+    it "leaves the iframe untouched" do
+      expect(filter.to_html).to eq(input)
     end
   end
 end

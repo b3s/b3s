@@ -3,8 +3,14 @@
 require "rails_helper"
 
 describe ImageFilter do
-  let(:image_url) { "http://example.com/image.jpg" }
+  let(:image_url) { "http://example.com/image.png" }
+  let(:image) { Rails.root.join("spec/support/pink.png").binread }
   let(:filter) { described_class.new(input) }
+
+  before do
+    allow(Resolv).to receive(:getaddresses).and_call_original
+    allow(Resolv).to receive(:getaddresses).with("example.com").and_return(["93.184.215.14"])
+  end
 
   context "when img has no src" do
     let(:input) { '<img class="foo">' }
@@ -16,42 +22,212 @@ describe ImageFilter do
 
   context "when img has no size attributes" do
     let(:input) { "<img src=\"#{image_url}\">" }
-    let(:output) { "<img src=\"#{image_url}\" width=\"640\" height=\"480\">" }
+    let(:output) { "<img src=\"#{image_url}\" width=\"16\" height=\"16\">" }
+
+    before { stub_request(:get, image_url).to_return(body: image) }
 
     it "fetches the image size" do
-      allow(FastImage).to receive(:size)
-        .with(image_url, timeout: 2.0)
-        .and_return([640, 480])
+      expect(filter.to_html).to eq(output)
+    end
+
+    it "only requests the start of the image" do
+      filter.to_html
+      expect(a_request(:get, image_url).with(headers: { "Range" => "bytes=0-65535" }))
+        .to have_been_made.once
+    end
+  end
+
+  context "when the server responds with partial content" do
+    let(:input) { "<img src=\"#{image_url}\">" }
+    let(:output) { "<img src=\"#{image_url}\" width=\"16\" height=\"16\">" }
+
+    before { stub_request(:get, image_url).to_return(status: 206, body: image) }
+
+    it "fetches the image size" do
       expect(filter.to_html).to eq(output)
     end
   end
 
   context "when img has only one size attribute" do
     let(:input) { "<img width=\"320\" src=\"#{image_url}\">" }
-    let(:output) { "<img width=\"640\" src=\"#{image_url}\" height=\"480\">" }
+    let(:output) { "<img width=\"16\" src=\"#{image_url}\" height=\"16\">" }
+
+    before { stub_request(:get, image_url).to_return(body: image) }
 
     it "fetches the image size" do
-      allow(FastImage).to receive(:size)
-        .with(image_url, timeout: 2.0)
-        .and_return([640, 480])
       expect(filter.to_html).to eq(output)
+    end
+  end
+
+  context "when the image is a data URI" do
+    let(:input) { "<img src=\"data:image/png;base64,#{Base64.strict_encode64(image)}\">" }
+
+    it "sets the dimensions" do
+      expect(filter.to_html).to include('width="16" height="16"')
+    end
+  end
+
+  context "when the image redirects to a public address" do
+    let(:input) { "<img src=\"#{image_url}\">" }
+    let(:output) { "<img src=\"#{image_url}\" width=\"16\" height=\"16\">" }
+
+    before do
+      stub_request(:get, image_url)
+        .to_return(status: 302, headers: { "Location" => "http://example.com/other.png" })
+      stub_request(:get, "http://example.com/other.png").to_return(body: image)
+    end
+
+    it "follows the redirect" do
+      expect(filter.to_html).to eq(output)
+    end
+  end
+
+  context "when the image redirects too many times" do
+    let(:input) { "<img src=\"#{image_url}\">" }
+
+    before do
+      stub_request(:get, %r{\Ahttp://example\.com/})
+        .to_return(status: 302, headers: { "Location" => image_url })
+    end
+
+    it "is not touched" do
+      expect(filter.to_html).to eq(input)
+    end
+
+    it "stops after three redirects" do
+      filter.to_html
+      expect(a_request(:get, image_url)).to have_been_made.times(4)
+    end
+  end
+
+  shared_examples "a blocked image" do
+    let(:input) { "<img src=\"#{url}\">" }
+
+    before { stub_request(:any, //).to_return(body: image) }
+
+    it "is not touched" do
+      expect(filter.to_html).to eq(input)
+    end
+
+    it "does not request the image" do
+      filter.to_html
+      expect(a_request(:any, //)).not_to have_been_made
+    end
+  end
+
+  context "when the image is on a loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://127.0.0.1/image.png" }
+    end
+  end
+
+  context "when the image is on an IPv6 loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::1]/image.png" }
+    end
+  end
+
+  context "when the image is on a private address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://10.0.0.1:8080/image.png" }
+    end
+  end
+
+  context "when the image is on a link-local address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://169.254.169.254/latest/meta-data/" }
+    end
+  end
+
+  context "when the image is on an IPv6 link-local address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[fe80::1]/image.png" }
+    end
+  end
+
+  context "when the hostname resolves to a private address" do
+    before do
+      allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["192.168.1.10"])
+    end
+
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://internal.example.com/image.png" }
+    end
+  end
+
+  context "when the hostname resolves to a link-local address" do
+    before do
+      allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["169.254.169.254"])
+    end
+
+    it_behaves_like "a blocked image" do
+      let(:url) { "https://internal.example.com/image.png" }
+    end
+  end
+
+  context "when the image is a local file" do
+    it_behaves_like "a blocked image" do
+      let(:url) { Rails.root.join("spec/support/pink.png").to_s }
+    end
+  end
+
+  context "when the image uses an unsupported scheme" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "ftp://example.com/image.png" }
+    end
+  end
+
+  context "when the image redirects to a private address" do
+    let(:input) { "<img src=\"#{image_url}\">" }
+
+    before do
+      stub_request(:get, image_url)
+        .to_return(status: 302, headers: { "Location" => "http://127.0.0.1/image.png" })
+      stub_request(:get, "http://127.0.0.1/image.png").to_return(body: image)
+    end
+
+    it "is not touched" do
+      expect(filter.to_html).to eq(input)
+    end
+
+    it "does not follow the redirect" do
+      filter.to_html
+      expect(a_request(:get, "http://127.0.0.1/image.png")).not_to have_been_made
+    end
+  end
+
+  context "when the image redirects to a hostname resolving to a private address" do
+    let(:input) { "<img src=\"#{image_url}\">" }
+
+    before do
+      allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["10.1.2.3"])
+      stub_request(:get, image_url)
+        .to_return(status: 301, headers: { "Location" => "http://internal.example.com/image.png" })
+      stub_request(:get, "http://internal.example.com/image.png").to_return(body: image)
+    end
+
+    it "is not touched" do
+      expect(filter.to_html).to eq(input)
+    end
+
+    it "does not follow the redirect" do
+      filter.to_html
+      expect(a_request(:get, "http://internal.example.com/image.png")).not_to have_been_made
     end
   end
 
   context "when the size has already been fetched", :cache do
     let(:input) { "<img src=\"#{image_url}\">" }
-    let(:output) { "<img src=\"#{image_url}\" width=\"640\" height=\"480\">" }
+    let(:output) { "<img src=\"#{image_url}\" width=\"16\" height=\"16\">" }
 
     before do
-      allow(FastImage).to receive(:size)
-        .with(image_url, timeout: 2.0)
-        .and_return([640, 480])
+      stub_request(:get, image_url).to_return(body: image)
       described_class.new(input).to_html
     end
 
     it "does not fetch the image size again" do
       filter.to_html
-      expect(FastImage).to have_received(:size).once
+      expect(a_request(:get, image_url)).to have_been_made.once
     end
 
     it "sets the dimensions from the cache" do
@@ -63,18 +239,36 @@ describe ImageFilter do
     let(:input) { "<img src=\"#{image_url}\">" }
 
     before do
-      allow(FastImage).to receive(:size).and_return(nil)
+      stub_request(:get, image_url).to_return(status: 404)
       described_class.new(input).to_html
     end
 
     it "does not fetch the image size again" do
       filter.to_html
-      expect(FastImage).to have_received(:size).once
+      expect(a_request(:get, image_url)).to have_been_made.once
     end
 
     it "fetches the image size again an hour later" do
       travel(2.hours) { filter.to_html }
-      expect(FastImage).to have_received(:size).twice
+      expect(a_request(:get, image_url)).to have_been_made.twice
+    end
+  end
+
+  context "when the request times out" do
+    let(:input) { "<img src=\"#{image_url}\">" }
+
+    before do
+      stub_request(:get, image_url).to_timeout
+      allow(filter.logger).to receive(:error)
+    end
+
+    it "is not touched" do
+      expect(filter.to_html).to eq(input)
+    end
+
+    it "does not log an error" do
+      filter.to_html
+      expect(filter.logger).not_to have_received(:error)
     end
   end
 
@@ -82,13 +276,13 @@ describe ImageFilter do
     let(:input) { "<img src=\"#{image_url}\">" }
 
     before do
-      allow(FastImage).to receive(:size).and_raise(Errno::EPIPE)
+      stub_request(:get, image_url).to_raise(StandardError.new("foo"))
       allow(filter.logger).to receive(:error)
     end
 
     it "logs the error" do
       filter.to_html
-      expect(filter.logger).to have_received(:error).with(/Errno::EPIPE/)
+      expect(filter.logger).to have_received(:error).with("Unexpected connection error #<StandardError: foo>")
     end
 
     it "is not touched" do
@@ -99,10 +293,11 @@ describe ImageFilter do
   context "when img has both size attributes" do
     let(:input) { "<img width=\"320\" height=\"240\" src=\"#{image_url}\">" }
 
-    it "does not call FastImage" do
-      allow(FastImage).to receive(:size).and_return(nil)
-      input
-      expect(FastImage).not_to have_received(:size)
+    before { stub_request(:any, //) }
+
+    it "does not request the image" do
+      filter.to_html
+      expect(a_request(:any, //)).not_to have_been_made
     end
 
     it "is not touched" do
