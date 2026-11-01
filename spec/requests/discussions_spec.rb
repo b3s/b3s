@@ -387,12 +387,69 @@ RSpec.describe "Discussions" do
   end
 
   describe "GET /discussions/:id when id is not a discussion" do
-    let(:conversation) { create(:conversation) }
+    let(:conversation) { create(:conversation, title: "Secret plans") }
 
-    before { get discussion_path(conversation) }
+    before { get discussion_path(conversation.id) }
 
-    it "redirects to the conversation" do
-      expect(response).to redirect_to(conversation_url(conversation))
+    context "when user is a participant" do
+      let(:user) { conversation.poster }
+
+      it { is_expected.to redirect_to(conversation_url(conversation)) }
+    end
+
+    context "when user is not a participant" do
+      it { is_expected.to have_http_status(:not_found) }
+
+      it "does not reveal the title" do
+        expect(response.location.to_s).not_to include(conversation.to_param)
+      end
+    end
+
+    context "when not authenticated with public browsing" do
+      let(:user) { nil }
+
+      before do
+        configure public_browsing: true
+        get discussion_path(conversation.id)
+      end
+
+      it { is_expected.to have_http_status(:not_found) }
+
+      it "does not reveal the title" do
+        expect(response.location.to_s).not_to include(conversation.to_param)
+      end
+    end
+  end
+
+  describe "GET /discussions/:id/edit when id is not a discussion" do
+    let(:conversation) { create(:conversation, title: "Secret plans") }
+
+    before { get edit_discussion_path(conversation.id) }
+
+    context "when user is a participant" do
+      let(:user) { conversation.poster }
+
+      it { is_expected.to redirect_to(conversation_url(conversation)) }
+    end
+
+    context "when user is not a participant" do
+      it { is_expected.to have_http_status(:not_found) }
+    end
+  end
+
+  describe "GET /discussions/:id/mark_as_read when id is not a discussion" do
+    let(:conversation) { create(:conversation, title: "Secret plans") }
+
+    before { get mark_as_read_discussion_path(conversation.id) }
+
+    context "when user is a participant" do
+      let(:user) { conversation.poster }
+
+      it { is_expected.to redirect_to(conversation_url(conversation)) }
+    end
+
+    context "when user is not a participant" do
+      it { is_expected.to have_http_status(:not_found) }
     end
   end
 

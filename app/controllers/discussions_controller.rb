@@ -107,6 +107,8 @@ class DiscussionsController < ApplicationController
     @exchange = Exchange.find(params.expect(:id))
 
     if !@exchange.is_a?(Discussion)
+      raise ActiveRecord::RecordNotFound unless @exchange.viewable_by?(current_user)
+
       redirect_to @exchange
     elsif !@exchange.viewable_by?(current_user)
       render_error 403
