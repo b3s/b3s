@@ -1,3 +1,9 @@
+function escapeHtml(text: string) {
+  const elem = document.createElement("div");
+  elem.textContent = text;
+  return elem.innerHTML;
+}
+
 export default function quote(elem: HTMLDivElement) {
   let html = "";
   let username: string;
@@ -14,7 +20,10 @@ export default function quote(elem: HTMLDivElement) {
     window.getSelection != null &&
     window.getSelection().containsNode(elem, true)
   ) {
-    html = window.getSelection().toString().trim().replace(/\n/g, "<br>");
+    html = escapeHtml(window.getSelection().toString().trim()).replace(
+      /\n/g,
+      "<br>"
+    );
   }
 
   if (html === "") {
