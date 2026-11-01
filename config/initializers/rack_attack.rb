@@ -53,7 +53,7 @@ module Rack
       request.commit_flash
       headers = Rails.application.config.action_dispatch.default_headers.merge(
         "referrer-policy" => "no-referrer",
-        "location" => "#{request.base_url}/session/new",
+        "location" => "/session/new",
         "content-type" => "text/html; charset=utf-8",
         "content-length" => "0"
       )
