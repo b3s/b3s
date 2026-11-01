@@ -50,11 +50,69 @@ RSpec.describe "Content Security Policy" do
       expect(directive("form-action")).to eq("form-action 'self'")
       expect(directive("frame-ancestors")).to eq("frame-ancestors 'self'")
     end
+
+    it "blocks inline event handlers" do
+      expect(directive("script-src-attr")).to eq("script-src-attr 'none'")
+    end
+
+    it "upgrades insecure requests" do
+      expect(policy.split(/;\s*/)).to include("upgrade-insecure-requests")
+    end
+
+    it "allows workers from the same origin" do
+      expect(directive("worker-src")).to eq("worker-src 'self'")
+    end
+
+    it "allows WebSocket connections to the request host" do
+      expect(directive("connect-src")).to eq("connect-src 'self' ws://www.example.com")
+    end
+
+    it "does not report violations without a Sentry DSN" do
+      expect(directive("report-uri")).to be_nil
+    end
+  end
+
+  describe "GET a discussion over HTTPS" do
+    before { get discussion_url(discussion, protocol: "https") }
+
+    it "allows secure WebSocket connections to the request host" do
+      expect(directive("connect-src")).to eq("connect-src 'self' wss://www.example.com")
+    end
+  end
+
+  describe "custom stylesheet URLs that are not plain HTTPS origins" do
+    def policy_with_stylesheet(url)
+      user.stylesheet_url = url
+      user.save!(validate: false)
+      get discussion_path(discussion)
+      policy.sub(/'nonce-[^']+'/, "'nonce'")
+    end
+
+    [
+      "https://*/custom.css",
+      "https://*.com/custom.css",
+      "https://a;b.example.com/custom.css",
+      "https://example.com;script-src *",
+      "https://a,b.example.com/custom.css",
+      "https://example.com,script-src *",
+      "https://example.com:8443/custom.css",
+      "https://user@example.com/custom.css",
+      "https://192.0.2.1/custom.css",
+      "https://[2001:db8::1]/custom.css",
+      "https://localhost/custom.css",
+      "http://example.com/custom.css",
+      "data:text/css,body{color:red}",
+      "javascript://example.com/%0Aalert(1)"
+    ].each do |url|
+      it "ignores #{url}" do
+        expect(policy_with_stylesheet(url)).to eq(policy_with_stylesheet(nil))
+      end
+    end
   end
 
   context "when the user has a custom stylesheet" do
     let(:user) do
-      create(:user, stylesheet_url: "https://styles.example.com/b3s/custom.css")
+      create(:user, stylesheet_url: "https://Styles.Example.com/b3s/custom.css?v=2")
     end
 
     before { get discussion_path(discussion) }
