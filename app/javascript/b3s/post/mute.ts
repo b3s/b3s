@@ -9,7 +9,7 @@ export default function mute(post: HTMLElement) {
   if (mutedUsers && mutedUsers.indexOf(userId) !== -1) {
     const notice = document.createElement("div");
     const showLink = document.createElement("a");
-    let username = "";
+    let username: string;
     if (post.classList.contains("me_post")) {
       username = post.querySelector(".content a.poster").textContent;
     } else {

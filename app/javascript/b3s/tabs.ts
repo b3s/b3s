@@ -20,7 +20,6 @@ export function setupTabs(
 
   const settings = { showFirstTab: true, ...options };
 
-  let anchorTab = null;
   let tabShown = false;
 
   const hideAllTabs = () => {
@@ -52,7 +51,7 @@ export function setupTabs(
   hideAllTabs();
 
   if (document.location.toString().match(/(#[\w\d\-_]+)$/)) {
-    anchorTab = document.location.toString().match(/(#[\w\d\-_]+)$/)[1];
+    const anchorTab = document.location.toString().match(/(#[\w\d\-_]+)$/)[1];
 
     for (let a = 0; a < tabs.length; a++) {
       if (tabs[a].tabId === anchorTab) {

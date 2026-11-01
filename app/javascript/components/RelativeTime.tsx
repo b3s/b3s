@@ -64,7 +64,7 @@ function formattedDistance(diff: number) {
 }
 
 export default function RelativeTime(props: Props) {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(() => new Date());
 
   const time =
     typeof props.time == "string" ? new Date(props.time) : props.time;

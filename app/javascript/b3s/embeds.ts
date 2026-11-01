@@ -80,7 +80,7 @@ readyHandler.ready(function () {
           return;
         }
 
-        let boxSize = pCache.height;
+        let boxSize: number;
         if (entry.borderBoxSize && entry.borderBoxSize.length) {
           boxSize = entry.borderBoxSize[0].blockSize;
         } else {
