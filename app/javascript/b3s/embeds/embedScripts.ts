@@ -20,6 +20,7 @@ type Provider = {
   process: () => void;
   prepare?: () => void;
   afterLoad?: () => void;
+  reinject?: boolean;
 };
 
 type State = "idle" | "waiting" | "loading" | "loaded";
@@ -29,7 +30,7 @@ const states = new Map<string, State>();
 function scoped(selector: string) {
   return selector
     .split(",")
-    .map((s) => `.post .body ${s.trim()}`)
+    .map((s) => `.post .body div.embed[data-oembed-url] ${s.trim()}`)
     .join(", ");
 }
 
@@ -39,8 +40,9 @@ function pendingEmbeds(provider: Provider) {
 
 function injectScript(provider: Provider, onLoad: () => void) {
   const script = document.createElement("script");
-  const nonce =
-    document.querySelector<HTMLScriptElement>("script[nonce]")?.nonce;
+  const nonce = document.querySelector<HTMLMetaElement>(
+    'meta[name="csp-nonce"]'
+  )?.content;
 
   script.src = provider.src;
   script.async = true;
@@ -63,13 +65,22 @@ function processImgur() {
   if (!imgurEmbed) {
     return;
   }
-  pendingEmbeds(imgur).forEach(() => {
-    if (imgurEmbed.createIframe) {
+  const count = pendingEmbeds(imgur).length;
+  if (imgurEmbed.createIframe) {
+    for (let i = 0; i < count; i++) {
       imgurEmbed.createIframe();
-    } else {
-      imgurEmbed.tasks++;
     }
-  });
+  } else {
+    imgurEmbed.tasks = Math.max(imgurEmbed.tasks, count);
+  }
+}
+
+function parseFacebook() {
+  const containers = new Set<Element>();
+  pendingEmbeds(facebook).forEach((elem) =>
+    containers.add(elem.closest("div.embed"))
+  );
+  containers.forEach((container) => window.FB?.XFBML?.parse?.(container));
 }
 
 const bluesky: Provider = {
@@ -96,15 +107,12 @@ const facebook: Provider = {
   name: "facebook",
   selector:
     "div.fb-post:not([fb-xfbml-state]), div.fb-video:not([fb-xfbml-state])",
-  src: "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v26.0",
+  src: "https://connect.facebook.net/en_US/sdk.js#version=v26.0",
   legacyScripts: 'script[src*="connect.facebook.net/"][src*="/sdk.js"]',
   crossOrigin: "anonymous",
   loaded: () => typeof window.FB?.XFBML?.parse === "function",
-  process: () => {
-    const parents = new Set<Element>();
-    pendingEmbeds(facebook).forEach((elem) => parents.add(elem.parentElement));
-    parents.forEach((parent) => window.FB?.XFBML?.parse?.(parent));
-  },
+  process: parseFacebook,
+  afterLoad: parseFacebook,
   prepare: () => {
     if (!document.getElementById("fb-root")) {
       const root = document.createElement("div");
@@ -116,11 +124,12 @@ const facebook: Provider = {
 
 const tumblr: Provider = {
   name: "tumblr",
-  selector: "div.tumblr-post",
+  selector: 'div.tumblr-post[data-href*="tumblr.com/"]',
   src: "https://assets.tumblr.com/post.js",
   legacyScripts: 'script[src*="assets.tumblr.com/post.js"]',
   loaded: () => false,
-  process: () => injectScript(tumblr, () => {})
+  process: () => {},
+  reinject: true
 };
 
 const imgur: Provider = {
@@ -142,34 +151,36 @@ function loadProvider(provider: Provider) {
 
   const state = states.get(provider.name) || "idle";
 
-  if (state === "loaded") {
+  if (state === "waiting" || state === "loading") {
+    return;
+  }
+  if (state === "loaded" && !provider.reinject) {
     provider.process();
     return;
   }
-  if (state !== "idle") {
-    return;
-  }
 
-  if (
-    document.readyState !== "complete" &&
-    document.querySelector(provider.legacyScripts)
-  ) {
-    states.set(provider.name, "waiting");
-    window.addEventListener(
-      "load",
-      () => {
-        states.set(provider.name, "idle");
-        loadProvider(provider);
-      },
-      { once: true }
-    );
-    return;
-  }
+  if (state === "idle") {
+    if (
+      document.readyState !== "complete" &&
+      document.querySelector(provider.legacyScripts)
+    ) {
+      states.set(provider.name, "waiting");
+      window.addEventListener(
+        "load",
+        () => {
+          states.set(provider.name, "idle");
+          loadProvider(provider);
+        },
+        { once: true }
+      );
+      return;
+    }
 
-  if (provider.loaded()) {
-    states.set(provider.name, "loaded");
-    provider.process();
-    return;
+    if (provider.loaded()) {
+      states.set(provider.name, "loaded");
+      provider.process();
+      return;
+    }
   }
 
   provider.prepare?.();
