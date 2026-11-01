@@ -1,0 +1,14 @@
+<fieldset>
+  <h2>
+    <%= t("authentication.log_out_everywhere.title") %>
+  </h2>
+
+  <p>
+    <%= t("authentication.log_out_everywhere.description") %>
+  </p>
+
+  <%= button_to(t("authentication.log_out_everywhere.button"),
+                everywhere_session_path,
+                method: :delete,
+                data: { confirm: t("authentication.log_out_everywhere.confirm") }) %>
+</fieldset>

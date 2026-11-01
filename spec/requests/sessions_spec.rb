@@ -285,4 +285,70 @@ RSpec.describe "Sessions" do
       expect(flash[:notice]).to include("logged out")
     end
   end
+
+  describe "DELETE /session/everywhere" do
+    let(:user) { create(:user) }
+    let!(:other_device) do
+      open_session { |device| device.post(session_path, params: { email: user.email, password: user.password }) }
+    end
+    let!(:previous_token) { user.persistence_token }
+
+    context "when logged in" do
+      before do
+        login_as(user)
+        delete everywhere_session_path
+      end
+
+      it "rotates the persistence token" do
+        expect(user.reload.persistence_token).not_to eq(previous_token)
+      end
+
+      it "logs out the current device" do
+        expect(session[:user_id]).to be_nil
+      end
+
+      it "logs out other devices" do
+        other_device.get edit_user_profile_path(user.username)
+        expect(other_device.response).to redirect_to(new_session_url)
+      end
+
+      it "sets the flash" do
+        expect(flash[:notice]).to eq("You have been logged out on all devices.")
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+    end
+
+    context "when not logged in" do
+      before { delete everywhere_session_path }
+
+      it "keeps other devices logged in" do
+        expect(user.reload.persistence_token).to eq(previous_token)
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+    end
+
+    context "without a CSRF token" do
+      before do
+        login_as(user)
+        ActionController::Base.allow_forgery_protection = true
+        delete everywhere_session_path
+      end
+
+      after { ActionController::Base.allow_forgery_protection = false }
+
+      it "rejects the request" do
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "keeps other devices logged in" do
+        expect(user.reload.persistence_token).to eq(previous_token)
+      end
+    end
+  end
 end

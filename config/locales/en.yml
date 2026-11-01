@@ -51,6 +51,14 @@ en:
   authentication:
     invalid: That's not a valid email or password.
     logged_out: You have been logged out.
+    logged_out_everywhere: You have been logged out on all devices.
+    log_out_everywhere:
+      title: Sessions
+      description: >-
+        Log out on every device and browser where you're signed in,
+        including this one.
+      button: Log out everywhere
+      confirm: Are you sure you want to log out on all devices?
     notice:
       inactive: >-
         Your account has been disabled due to inactivity/lack of

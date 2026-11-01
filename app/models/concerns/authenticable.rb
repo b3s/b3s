@@ -56,6 +56,11 @@ module Authenticable
     banned_until? && banned_until > Time.now.utc
   end
 
+  def log_out_everywhere!
+    self.persistence_token = self.class.random_persistence_token
+    save!(validate: false)
+  end
+
   def require_password_challenge
     if email.presence != email_was.presence || password_digest_changed?
       self.password_challenge ||= ""

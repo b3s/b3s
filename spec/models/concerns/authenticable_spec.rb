@@ -256,6 +256,21 @@ describe Authenticable do
     end
   end
 
+  describe "#log_out_everywhere!" do
+    let!(:previous_token) { user.persistence_token }
+
+    it "rotates the persistence token" do
+      expect { user.log_out_everywhere! }
+        .to change { user.reload.persistence_token }.from(previous_token)
+    end
+
+    it "disconnects the user's cable connections" do
+      expect { user.log_out_everywhere! }
+        .to have_broadcasted_to("action_cable/#{user.to_gid_param}")
+        .with(type: "disconnect", reconnect: true)
+    end
+  end
+
   describe "#reactivate_if_eligible!" do
     subject { user.reload.status }
 
