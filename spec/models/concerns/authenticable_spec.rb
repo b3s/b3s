@@ -217,6 +217,45 @@ describe Authenticable do
     end
   end
 
+  describe "#disconnect_cable_connections" do
+    let(:internal_channel) { "action_cable/#{user.to_gid_param}" }
+
+    context "when the user is banned" do
+      let(:attributes) { { status: :banned } }
+
+      it "disconnects the user's cable connections" do
+        expect { user.update(attributes) }
+          .to have_broadcasted_to(internal_channel).with(type: "disconnect", reconnect: true)
+      end
+    end
+
+    context "when the password is changed" do
+      let(:attributes) { { password: "new password", password_confirmation: "new password" } }
+
+      it "disconnects the user's cable connections" do
+        expect { user.update(attributes) }
+          .to have_broadcasted_to(internal_channel).with(type: "disconnect", reconnect: true)
+      end
+    end
+
+    context "when the persistence token is rotated" do
+      let(:attributes) { { persistence_token: User.random_persistence_token } }
+
+      it "disconnects the user's cable connections" do
+        expect { user.update(attributes) }
+          .to have_broadcasted_to(internal_channel).with(type: "disconnect", reconnect: true)
+      end
+    end
+
+    context "when other attributes are changed" do
+      let(:attributes) { { realname: "New name" } }
+
+      it "leaves the user's cable connections alone" do
+        expect { user.update(attributes) }.not_to have_broadcasted_to(internal_channel)
+      end
+    end
+  end
+
   describe "#reactivate_if_eligible!" do
     subject { user.reload.status }
 

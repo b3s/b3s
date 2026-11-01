@@ -35,6 +35,7 @@ module Authenticable
     end
 
     before_validation :update_persistence_token
+    after_update_commit :disconnect_cable_connections, if: :access_changed?
   end
 
   module ClassMethods
@@ -99,6 +100,14 @@ module Authenticable
     return unless password_digest_changed?
 
     self.persistence_token = self.class.random_persistence_token
+  end
+
+  def access_changed?
+    saved_change_to_status? || saved_change_to_persistence_token?
+  end
+
+  def disconnect_cable_connections
+    ActionCable.server.remote_connections.where(current_user: self).disconnect
   end
 
   def schedule_reactivation_job
