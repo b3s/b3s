@@ -74,7 +74,13 @@ class ApplicationController < ActionController::Base
 
   def set_sentry_context
     Sentry.set_user(current_user_context)
-    Sentry.set_extras(params: request.filtered_parameters)
+    Sentry.set_extras(params: sentry_parameter_filter.filter(params.to_unsafe_h))
+  end
+
+  def sentry_parameter_filter
+    ActiveSupport::ParameterFilter.new(
+      Rails.application.config.filter_parameters + [:body, "conversation.title"]
+    )
   end
 
   def set_section
