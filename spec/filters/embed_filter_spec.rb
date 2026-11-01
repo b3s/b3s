@@ -142,6 +142,75 @@ describe EmbedFilter do
     end
   end
 
+  {
+    "youtube" => "www.youtube.com",
+    "vimeo" => "player.vimeo.com",
+    "spotify" => "open.spotify.com",
+    "soundcloud" => "w.soundcloud.com",
+    "tidal" => "embed.tidal.com",
+    "tiktok" => "www.tiktok.com"
+  }.each do |name, host|
+    context "when the #{name} embed has an iframe" do
+      let(:input) { placeholder(fixture(name)["url"]) }
+
+      before { OembedResponse.store(fixture(name)["url"], fixture(name)["html"]) }
+
+      it "keeps the iframe on #{host}" do
+        expect(parsed.css("iframe").map { |iframe| URI.parse(iframe["src"]).host }).to eq([host])
+      end
+    end
+  end
+
+  {
+    "https://www.youtube.com/watch?v=abcd" => %w[www.youtube.com youtube.com www.youtube-nocookie.com],
+    "https://vimeo.com/1" => %w[player.vimeo.com],
+    "https://giphy.com/gifs/x" => %w[giphy.com],
+    "https://www.kickstarter.com/projects/a/b" => %w[www.kickstarter.com],
+    "https://codepen.io/a/pen/b" => %w[codepen.io],
+    "https://hachyderm.io/@a/1" => %w[hachyderm.io],
+    "https://bsky.app/profile/a/post/b" => [],
+    "https://imgur.com/gallery/a" => [],
+    "https://example.com/" => []
+  }.each do |url, hosts|
+    context "when the provider for #{url} is matched" do
+      subject { EmbedSanitizer.iframe_hosts(url) }
+
+      it { is_expected.to eq(hosts) }
+    end
+  end
+
+  context "when an embed has iframes on other hosts" do
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+    let(:html) do
+      '<iframe src="https://player.vimeo.com/video/1"></iframe>' \
+        '<iframe src="https://www.youtube.com/embed/x"></iframe>' \
+        '<iframe src="https://evil.example/"></iframe>' \
+        '<iframe src="https://player.vimeo.com.evil.example/"></iframe>'
+    end
+
+    before { OembedResponse.store(url, html) }
+
+    it "drops them" do
+      expect(parsed.css("iframe").pluck("src")).to eq(["https://player.vimeo.com/video/1"])
+    end
+  end
+
+  context "when a Mastodon embed has a legacy iframe" do
+    let(:url) { "https://hachyderm.io/@a/1" }
+    let(:input) { placeholder(url) }
+    let(:html) do
+      '<iframe class="mastodon-embed" src="https://hachyderm.io/@a/1/embed"></iframe>' \
+        '<iframe class="mastodon-embed" src="https://mastodon.social/@a/1/embed"></iframe>'
+    end
+
+    before { OembedResponse.store(url, html) }
+
+    it "keeps only the iframe on the matched instance" do
+      expect(parsed.css("iframe.mastodon-embed").pluck("src")).to eq(["https://hachyderm.io/@a/1/embed"])
+    end
+  end
+
   context "when the cached HTML is hostile" do
     let(:url) { "https://vimeo.com/1" }
     let(:input) { placeholder(url) }
@@ -236,7 +305,8 @@ describe EmbedFilter do
     end
 
     it "fetches it" do
-      expect(rendered).to include('<div class="tumblr-post"><a href="https://staff.tumblr.com/post/1">x</a></div>')
+      expect(rendered).to include('<div class="tumblr-post"><a href="https://staff.tumblr.com/post/1" ' \
+                                  'rel="nofollow noopener noreferrer ugc">x</a></div>')
     end
 
     it { is_expected.to be_free_of_script_vectors }
@@ -276,7 +346,7 @@ describe EmbedFilter do
     before { stub_request(:get, /vimeo\.com/).to_return(status: 500) }
 
     it "falls back to a link" do
-      expect(rendered).to eq("<a href=\"#{url}\">#{url}</a>")
+      expect(rendered).to eq("<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>")
     end
 
     it "doesn't cache the response" do
@@ -292,7 +362,7 @@ describe EmbedFilter do
     before { OembedResponse.store(url, "<script>alert(1)</script>") }
 
     it "falls back to a link" do
-      expect(rendered).to eq("<a href=\"#{url}\">#{url}</a>")
+      expect(rendered).to eq("<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>")
     end
   end
 
@@ -312,7 +382,7 @@ describe EmbedFilter do
     let(:input) { placeholder(url, "<b>user content</b>") }
 
     it "turns it into a plain link" do
-      expect(rendered).to eq("<a href=\"#{url}\">#{url}</a>")
+      expect(rendered).to eq("<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>")
     end
 
     it "doesn't make a request" do

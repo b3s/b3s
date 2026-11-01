@@ -109,7 +109,62 @@ describe Renderer do
       end
 
       it "renders a plain link" do
-        expect(rendered.strip).to eq('<a href="https://example.com/">https://example.com/</a>')
+        expect(rendered.strip).to eq(
+          '<a href="https://example.com/" rel="nofollow noopener noreferrer ugc">https://example.com/</a>'
+        )
+      end
+    end
+
+    formats.each do |post_format|
+      context "when a #{post_format} post has a hand-written placeholder for a registered URL" do
+        let(:format) { post_format }
+        let(:url) { "https://vimeo.com/1" }
+        let(:input) { "<div class=\"embed\" data-oembed-url=\"#{url}\"><b>user</b> <i>content</i></div>" }
+        let(:bare) { described_class.render(url, format:) }
+
+        before { OembedResponse.store(url, '<iframe src="https://player.vimeo.com/video/1"></iframe>') }
+
+        it "renders the same embed as the bare URL" do
+          expect(Nokogiri::HTML5.fragment(rendered).at_css("div.embed").to_html)
+            .to eq(Nokogiri::HTML5.fragment(bare).at_css("div.embed").to_html)
+        end
+      end
+
+      context "when a #{post_format} post has a hand-written placeholder for an unregistered URL" do
+        let(:format) { post_format }
+        let(:url) { "https://example.com/" }
+        let(:input) { "<div class=\"embed\" data-oembed-url=\"#{url}\"><b>user</b> content</div>" }
+        let(:bare) { described_class.render(url, format:) }
+
+        it "renders the same link as the bare URL" do
+          expect(Nokogiri::HTML5.fragment(rendered).css("a").to_html)
+            .to eq(Nokogiri::HTML5.fragment(bare).css("a").to_html)
+        end
+      end
+    end
+
+    context "when the post has a hand-written YouTube placeholder" do
+      let(:format) { "markdown" }
+      let(:input) do
+        '<div class="youtube-embed" data-youtube-id="abcd" data-youtube-title="A title">' \
+          "<b>user content</b></div>"
+      end
+
+      it "renders the same as the YouTube code" do
+        expect(rendered).to eq(described_class.render("!y[A title](https://youtu.be/abcd)", format:))
+      end
+    end
+
+    context "when the post links to the forum itself" do
+      let(:format) { "markdown" }
+      let(:input) { "https://b3s.me/discussions/1 and https://example.com/" }
+
+      before { B3S.config.domain_names = "b3s.me" }
+
+      it "doesn't mark the internal link as nofollow" do
+        expect(Nokogiri::HTML5.fragment(rendered).css("a").map { |a| [a["href"], a["rel"]] }).to eq(
+          [["/discussions/1", nil], ["https://example.com/", "nofollow noopener noreferrer ugc"]]
+        )
       end
     end
 
@@ -143,6 +198,43 @@ describe Renderer do
           let(:input) { html }
 
           it { expect(rendered).to be_free_of_script_vectors }
+        end
+      end
+    end
+  end
+
+  describe "re-sanitizing the output" do
+    formats = %w[markdown html]
+
+    let(:rendered) { described_class.render(input, format:) }
+
+    inputs = SCRIPT_VECTORS.values + [
+      "*markdown* with a [link](https://example.com/) and ![image](/a.png)",
+      "> quote\n\n<div class=\"spoiler\">secret</div>",
+      "```ruby\nputs 1\n```",
+      "<table><tr><td style=\"color: red; position: fixed\">x</td></tr></table>",
+      "<iframe src=\"//www.youtube.com/embed/abcd\" allow=\"autoplay\"></iframe>",
+      "<a href=\"https://example.com/\" target=\"_blank\">x</a> <img src=\"data:image/png;base64,AAAA\">"
+    ]
+
+    inputs.product(formats).each_with_index do |(html, post_format), index|
+      context "when a #{post_format} post is regression input #{index}" do
+        let(:format) { post_format }
+        let(:input) { html }
+
+        it "is stable" do
+          expect(SanitizeFilter.new(rendered).to_html).to eq(rendered.to_str)
+        end
+      end
+    end
+
+    Rails.root.glob("spec/support/requests/oembed/*.json").each do |path|
+      context "when the embed is the #{File.basename(path, '.json')} fixture" do
+        let(:fixture) { JSON.parse(File.read(path)) }
+        let(:cleaned) { EmbedSanitizer.clean(fixture["html"], fixture["url"]) }
+
+        it "is stable" do
+          expect(EmbedSanitizer.clean(cleaned, fixture["url"])).to eq(cleaned)
         end
       end
     end

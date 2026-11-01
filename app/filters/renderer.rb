@@ -17,7 +17,7 @@ class Renderer
       options[:format] ||= "markdown"
       filters(options[:format]).inject(post) do |str, filter|
         filter.new(str).to_html
-      end
+      end.html_safe
     end
   end
 end

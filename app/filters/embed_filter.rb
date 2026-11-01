@@ -12,7 +12,7 @@ class EmbedFilter < Filter
     placeholders(fragment).each do |element|
       element.matches?(OEMBED) ? expand_oembed(element) : expand_youtube(element)
     end
-    fragment.to_html.html_safe
+    fragment.to_html
   end
 
   private
@@ -24,28 +24,12 @@ class EmbedFilter < Filter
 
   def expand_oembed(element)
     url = element["data-oembed-url"]
-    html = EmbedSanitizer.clean(provider_html(url))
+    html = EmbedSanitizer.clean(provider_html(url), url)
     if html.present?
       element.inner_html = html
-      match_embed_url_hosts(element, url)
     else
-      element.replace(tag.a(url, href: url))
+      element.replace(tag.a(url, href: url, rel: SanitizeTransformers::EXTERNAL_LINK_REL))
     end
-  end
-
-  def match_embed_url_hosts(element, url)
-    host = url_host(url)
-    element.css("[data-embed-url]").each do |node|
-      next if host && url_host(node["data-embed-url"]) == host
-
-      node.remove_attribute("data-embed-url")
-    end
-  end
-
-  def url_host(url)
-    URI.parse(url).host
-  rescue URI::InvalidURIError
-    nil
   end
 
   def provider_html(url)

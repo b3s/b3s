@@ -12,7 +12,9 @@ module SanitizeTransformers
     web-share
   ].freeze
 
-  DATA_IMAGE_TYPES = %w[image/avif image/gif image/jpeg image/png image/webp].freeze
+  EXTERNAL_LINK_REL = "nofollow noopener noreferrer ugc"
+
+  POSITIONS = %w[absolute relative static].freeze
 
   BIDI_CONTROLS = /[\u202A-\u202E\u2066-\u2069]/
 
@@ -25,7 +27,7 @@ module SanitizeTransformers
         rules.fetch(env[:node_name], {}).each do |name, schemes|
           next unless node.has_attribute?(name)
 
-          value = clean_url_attribute(name, node[name], schemes)
+          value = UrlPolicy.clean_attribute(name, node[name], schemes)
           value ? node[name] = value : node.remove_attribute(name)
         end
       end
@@ -51,6 +53,29 @@ module SanitizeTransformers
       end
     end
 
+    def external_link_rel
+      lambda do |env|
+        node = env[:node]
+        next unless env[:node_name] == "a"
+
+        if node.has_attribute?("href") && UrlPolicy.scheme(node["href"]) != "relative"
+          node["rel"] = EXTERNAL_LINK_REL
+        else
+          node.remove_attribute("rel")
+        end
+      end
+    end
+
+    def restrict_positioning
+      lambda do |env|
+        node = env[:node]
+        next unless node.element? && node.has_attribute?("style")
+
+        properties = Crass.parse_properties(node["style"]).reject { |property| unsafe_position?(property) }
+        node["style"] = Crass::Parser.stringify(properties)
+      end
+    end
+
     def strip_bidi_controls
       lambda do |env|
         node = env[:node]
@@ -62,16 +87,6 @@ module SanitizeTransformers
       end
     end
 
-    def url_scheme(url)
-      if (match = url.match(/\A([a-z][a-z\d+\-.]*):/i))
-        match[1].downcase
-      elsif url.start_with?("//")
-        "scheme-relative"
-      elsif !url.match?(%r{\A[^/?#]*:})
-        "relative"
-      end
-    end
-
     private
 
     def allowed_permissions(value)
@@ -80,44 +95,10 @@ module SanitizeTransformers
       end.join("; ")
     end
 
-    def clean_url_attribute(name, value, schemes)
-      return clean_srcset(value, schemes) if name == "srcset"
-
-      clean_url(value, schemes)
-    end
-
-    def clean_srcset(value, schemes)
-      candidates = value.split(",").map(&:strip).compact_blank.map do |candidate|
-        url, descriptor = candidate.split(/\s+/, 2)
-        clean_url(url, schemes)&.then { |clean| [clean, descriptor].compact.join(" ") }
-      end
-      candidates.join(", ") if candidates.any? && candidates.all?
-    end
-
-    def clean_url(value, schemes)
-      url = normalize_url(value)
-      case (scheme = url_scheme(url))
-      when nil then nil
-      when "scheme-relative" then clean_scheme_relative_url(url, schemes)
-      when "data" then url if schemes.include?("data") && data_image?(url)
-      else url if schemes.include?(scheme)
-      end
-    end
-
-    def normalize_url(value)
-      value.to_s.gsub(/[\t\n\r]/, "").gsub(/\A[\u0000-\u0020]+|[\u0000-\u0020]+\z/, "")
-    end
-
-    def clean_scheme_relative_url(url, schemes)
-      if schemes.include?("relative")
-        url
-      elsif schemes.include?("https")
-        "https:#{url}"
-      end
-    end
-
-    def data_image?(url)
-      DATA_IMAGE_TYPES.include?(url.sub(/\Adata:/i, "").split(/[;,]/, 2).first.to_s.strip.downcase)
+    def unsafe_position?(property)
+      property[:node] == :property &&
+        property[:name].casecmp?("position") &&
+        POSITIONS.exclude?(property[:value].to_s.strip.downcase)
     end
   end
 end

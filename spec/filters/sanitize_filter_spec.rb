@@ -5,6 +5,9 @@ require "rails_helper"
 describe SanitizeFilter do
   subject(:output) { described_class.new(input).to_html }
 
+  let(:sandbox) { 'sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"' }
+  let(:rel) { 'rel="nofollow noopener noreferrer ugc"' }
+
   context "when input contains a form tag" do
     let(:input) { '<form action="/" method="post"></form>' }
 
@@ -40,7 +43,8 @@ describe SanitizeFilter do
     let(:output_html) do
       '<blockquote class="quote">a</blockquote><blockquote>b</blockquote><blockquote>c</blockquote>' \
         "<div><blockquote>d</blockquote></div><div>e</div><blockquote>f</blockquote>" \
-        '<iframe src="https://mastodon.social/@a/1/embed"></iframe><div>g</div>'
+        '<iframe src="https://mastodon.social/@a/1/embed" ' \
+        "#{sandbox}></iframe><div>g</div>"
     end
 
     it { is_expected.to eq(output_html) }
@@ -103,7 +107,7 @@ describe SanitizeFilter do
         '<a href="https://vimeo.com/1">https://vimeo.com/1</a></div>'
     end
 
-    it { is_expected.to eq(input) }
+    it { is_expected.to eq(input.sub("<a href=\"https://vimeo.com/1\"", "<a href=\"https://vimeo.com/1\" #{rel}")) }
   end
 
   context "when input contains a YouTube placeholder" do
@@ -127,13 +131,25 @@ describe SanitizeFilter do
   context "when input contains a mailto link" do
     let(:input) { '<a href="mailto:foo@example.com">foo</a>' }
 
-    it { is_expected.to eq(input) }
+    it { is_expected.to eq("<a href=\"mailto:foo@example.com\" #{rel}>foo</a>") }
+  end
+
+  context "when input contains an external link" do
+    let(:input) { '<a href="https://example.com/" rel="me" target="_blank">foo</a>' }
+
+    it { is_expected.to eq("<a href=\"https://example.com/\" #{rel} target=\"_blank\">foo</a>") }
+  end
+
+  context "when input contains a protocol-relative link" do
+    let(:input) { '<a href="//example.com/">foo</a>' }
+
+    it { is_expected.to eq("<a href=\"//example.com/\" #{rel}>foo</a>") }
   end
 
   context "when input contains a relative link" do
-    let(:input) { '<a href="/discussions/1#post-2">foo</a>' }
+    let(:input) { '<a href="/discussions/1#post-2" rel="nofollow">foo</a>' }
 
-    it { is_expected.to eq(input) }
+    it { is_expected.to eq('<a href="/discussions/1#post-2">foo</a>') }
   end
 
   context "when input contains a link with an unsupported scheme" do
@@ -144,6 +160,18 @@ describe SanitizeFilter do
 
   context "when input contains a data URI image" do
     let(:input) { '<img src="data:image/png;base64,iVBORw0KGgo=">' }
+
+    it { is_expected.to eq(input) }
+  end
+
+  context "when input contains a data URI image over 100 kB" do
+    let(:input) { "<img src=\"data:image/png;base64,#{'A' * 100_000}\">" }
+
+    it { is_expected.to eq("<img>") }
+  end
+
+  context "when input contains a data URI image just under 100 kB" do
+    let(:input) { "<img src=\"data:image/png;base64,#{'A' * 99_900}\">" }
 
     it { is_expected.to eq(input) }
   end
@@ -161,7 +189,8 @@ describe SanitizeFilter do
     end
     let(:output_html) do
       '<iframe src="https://www.youtube.com/embed/abcd" width="560" height="315" ' \
-        'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>'
+        'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen="" ' \
+        "#{sandbox}></iframe>"
     end
 
     it { is_expected.to eq(output_html) }
@@ -170,19 +199,48 @@ describe SanitizeFilter do
   context "when input contains an iframe with a protocol-relative URL" do
     let(:input) { '<iframe src="//www.youtube.com/embed/abcd"></iframe>' }
 
-    it { is_expected.to eq('<iframe src="https://www.youtube.com/embed/abcd"></iframe>') }
+    it { is_expected.to eq("<iframe src=\"https://www.youtube.com/embed/abcd\" #{sandbox}></iframe>") }
   end
 
   context "when input contains an iframe with a plain HTTP URL" do
     let(:input) { '<iframe src="http://example.com/"></iframe>' }
 
-    it { is_expected.to eq("<iframe></iframe>") }
+    it { is_expected.to eq("<iframe #{sandbox}></iframe>") }
   end
 
   context "when input contains an iframe with a relative URL" do
     let(:input) { '<iframe src="/admin"></iframe>' }
 
-    it { is_expected.to eq("<iframe></iframe>") }
+    it { is_expected.to eq("<iframe #{sandbox}></iframe>") }
+  end
+
+  context "when input contains an iframe with its own sandbox" do
+    let(:input) do
+      '<iframe src="https://www.youtube.com/embed/abcd" ' \
+        'sandbox="allow-scripts allow-same-origin allow-top-navigation allow-modals"></iframe>'
+    end
+
+    it { is_expected.to eq("<iframe src=\"https://www.youtube.com/embed/abcd\" #{sandbox}></iframe>") }
+  end
+
+  context "when input contains fixed positioning" do
+    let(:input) do
+      '<div style="position: fixed; top: 0; color: red">a</div>' \
+        '<div style="POSITION:Sticky">b</div>' \
+        '<div style="position: f\\69xed !important">c</div>' \
+        '<div style="position: -webkit-sticky">d</div>' \
+        '<div style="position: var(--x)">e</div>'
+    end
+
+    it "removes it" do
+      expect(output).not_to match(/position/i)
+    end
+  end
+
+  context "when input contains relative positioning" do
+    let(:input) { '<div style="position: relative; top: 2px">a</div>' }
+
+    it { is_expected.to eq(input) }
   end
 
   context "when input contains an id attribute" do
@@ -191,63 +249,23 @@ describe SanitizeFilter do
     it { is_expected.to eq("<p>foo</p>") }
   end
 
-  {
-    "a script tag" => "<script>alert('foo');</script>",
-    "a mixed case script tag" => "<ScRiPt>alert(1)</sCrIpT>",
-    "a script tag inside svg" => "<svg><script>alert(document.domain)</script></svg>",
-    "a script tag inside math" => "<math><mi><script>alert(1)</script></mi></math>",
-    "an svg animate setting href" =>
-      '<svg><a><animate attributeName="href" values="0;javascript:alert(1)"/>' \
-      '<text x="20" y="20">x</text></a></svg>',
-    "an svg link with xlink:href" =>
-      '<svg><a xlink:href="javascript:alert(1)"><text>x</text></a></svg>',
-    "an svg with onload" => '<svg onload="alert(1)">',
-    "math with an href" => '<math href="javascript:alert(1)"><mi>x</mi></math>',
-    "an iframe with srcdoc" =>
-      '<iframe srcdoc="&lt;script&gt;alert(1)&lt;/script&gt;"></iframe>',
-    "an iframe with a data URI" =>
-      '<iframe src="data:text/html,&lt;script&gt;alert(1)&lt;/script&gt;"></iframe>',
-    "an iframe with a javascript URL" => '<iframe src="javascript:alert(1)"></iframe>',
-    "a javascript URL" => "<a href=\"javascript:alert('hi');\">link</a>",
-    "a mixed case javascript URL" => '<a href="JaVaScRiPt:alert(1)">link</a>',
-    "a javascript URL with an encoded tab" => '<a href="java&#9;script:alert(1)">link</a>',
-    "a javascript URL with an encoded newline" => '<a href="java&#x0A;script:alert(1)">link</a>',
-    "a javascript URL with a literal tab" => "<a href=\"java\tscript:alert(1)\">link</a>",
-    "a javascript URL with leading control characters" =>
-      '<a href="&#1;&#31; javascript:alert(1)">link</a>',
-    "a javascript URL with an encoded colon" => '<a href="javascript&colon;alert(1)">link</a>',
-    "a javascript URL with encoded letters" =>
-      '<a href="&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;alert(1)">link</a>',
-    "a javascript URL with unterminated entities" =>
-      '<a href="&#0000106&#0000097vascript:alert(1)">link</a>',
-    "a vbscript URL" => '<a href="vbscript:msgbox(1)">link</a>',
-    "a data URL link" => '<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">link</a>',
-    "a javascript image source" => '<img src="javascript:alert(1)">',
-    "an event handler" => "<img src=\"image.jpg\" onload=\"alert('hi');\">",
-    "a mixed case event handler" => '<img src="x" OnErRoR="alert(1)">',
-    "a formaction attribute" =>
-      '<form><button formaction="javascript:alert(1)">x</button></form>',
-    "a button with formaction" => '<button formaction="javascript:alert(1)">x</button>',
-    "an input with formaction" => '<input type="image" formaction="javascript:alert(1)">',
-    "a base tag" => '<base href="javascript:alert(1)//">',
-    "a meta refresh" => '<meta http-equiv="refresh" content="0;url=javascript:alert(1)">',
-    "a link tag" => '<link rel="stylesheet" href="theme.css">',
-    "a style tag" => "<style>@import 'javascript:alert(1)'; body { background: red }</style>",
-    "a style tag inside svg" => "<svg><style>*{x:expression(alert(1))}</style></svg>",
-    "an object tag" => '<object data="javascript:alert(1)"></object>',
-    "an embed tag" => '<embed src="javascript:alert(1)">',
-    "a noscript tag" => '<noscript><p title="</noscript><img src=x onerror=alert(1)>"></noscript>',
-    "a template tag" => "<template><script>alert(1)</script></template>",
-    "a video poster" => '<video poster="javascript:alert(1)"></video>',
-    "a blockquote cite" => '<blockquote cite="javascript:alert(1)">x</blockquote>',
-    "a comment breaking out" => "<!--><script>alert(1)</script>-->",
-    "a mangled script tag" => "<scr<script>ipt>alert(1)</script>",
-    "a script with a slash" => "<script/x>alert(1)</script>"
-  }.each do |description, html|
+  SCRIPT_VECTORS.each do |description, html|
     context "when input contains #{description}" do
       let(:input) { html }
 
       it { is_expected.to be_free_of_script_vectors }
+    end
+  end
+
+  describe "allowlists" do
+    excluded = %w[svg math noscript template style script object embed]
+
+    [SanitizeFilter::CONFIG, EmbedSanitizer::CONFIG].each do |config|
+      excluded.each do |element|
+        it "doesn't allow #{element}" do
+          expect(config[:elements]).not_to include(element)
+        end
+      end
     end
   end
 end

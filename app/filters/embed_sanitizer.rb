@@ -11,51 +11,24 @@ class EmbedSanitizer
     "img" => { "src" => %w[https] }
   }.freeze
 
-  PROVIDER_URLS = {
-    "data-embed-url" => lambda do |node, uri|
-      node.name == "blockquote" &&
-        MASTODON_PROVIDERS.include?(uri.host) &&
-        uri.path.end_with?("/embed")
-    end,
-    "data-href" => lambda do |node, uri|
-      classes = node["class"].to_s.split
-      if classes.intersect?(%w[fb-post fb-video])
-        uri.host.to_s.match?(/(\A|\.)facebook\.com\z/)
-      elsif classes.include?("tumblr-post")
-        uri.host.to_s.match?(/(\A|\.)tumblr\.(com|net)\z/)
-      end
-    end,
-    "data-instgrm-permalink" => lambda do |_node, uri|
-      uri.host.to_s.match?(/(\A|\.)instagram\.com\z/)
-    end
+  IFRAME_HOSTS = {
+    "codepen.io" => %w[codepen.io],
+    "giphy.com" => %w[giphy.com],
+    "oembed.tidal.com" => %w[embed.tidal.com],
+    "open.spotify.com" => %w[open.spotify.com],
+    "soundcloud.com" => %w[w.soundcloud.com],
+    "vimeo.com" => %w[player.vimeo.com],
+    "www.kickstarter.com" => %w[www.kickstarter.com],
+    "www.tiktok.com" => %w[www.tiktok.com],
+    "www.youtube.com" => %w[www.youtube.com youtube.com www.youtube-nocookie.com]
   }.freeze
-
-  CHECK_PROVIDER_URLS = lambda do |env|
-    node = env[:node]
-    next unless node.element?
-
-    PROVIDER_URLS.each do |name, check|
-      next unless node.has_attribute?(name)
-
-      uri = EmbedSanitizer.plain_https_uri(node[name])
-      node.remove_attribute(name) unless uri && check.call(node, uri)
-    end
-  end
-
-  CHECK_BLUESKY_URI = lambda do |env|
-    node = env[:node]
-    next unless env[:node_name] == "blockquote" && node.has_attribute?("data-bluesky-uri")
-    next if node["data-bluesky-uri"].match?(%r{\Aat://[\w:.\-/]+\z})
-
-    node.remove_attribute("data-bluesky-uri")
-  end
 
   CONFIG = Sanitize::Config.freeze_config(
     elements: %w[a b blockquote br div em i iframe img p small span strong
                  time],
     attributes: {
       all: %w[dir lang title],
-      "a" => %w[href],
+      "a" => %w[href rel],
       "blockquote" => %w[cite class data-bluesky-cid data-bluesky-embed-color-mode
                          data-bluesky-uri data-context data-embed-url data-id
                          data-instgrm-captioned data-instgrm-permalink
@@ -72,20 +45,55 @@ class EmbedSanitizer
       SanitizeTransformers.strip_bidi_controls,
       SanitizeTransformers.url_attributes(URL_ATTRIBUTES),
       SanitizeTransformers.iframe_permissions,
-      CHECK_PROVIDER_URLS,
-      CHECK_BLUESKY_URI
+      SanitizeTransformers.restrict_positioning,
+      SanitizeTransformers.external_link_rel,
+      EmbedProviderAttributes::CHECK_URLS,
+      EmbedProviderAttributes::CHECK_BLUESKY_URI
     ]
   )
 
   class << self
-    def clean(html)
-      Sanitize.fragment(html, CONFIG)
+    def clean(html, url)
+      config = Sanitize::Config.merge(
+        CONFIG,
+        transformers: CONFIG[:transformers] + [
+          restrict_iframe_hosts(iframe_hosts(url)),
+          restrict_embed_url_host(url_host(url))
+        ]
+      )
+      Sanitize.fragment(html, config)
     end
 
-    def plain_https_uri(url)
-      return unless url.to_s.match?(%r{\Ahttps://[^/?#:@]+(?:[/?#]|\z)})
+    def iframe_hosts(url)
+      endpoint_host = OEmbed::Providers.find(url)&.endpoint.to_s[%r{\Ahttps://([^/?#:]+)}, 1]
+      return [endpoint_host] if MASTODON_PROVIDERS.include?(endpoint_host)
 
-      URI.parse(url)
+      IFRAME_HOSTS.fetch(endpoint_host, [])
+    end
+
+    private
+
+    def restrict_iframe_hosts(hosts)
+      lambda do |env|
+        next unless env[:node_name] == "iframe"
+        next if hosts.include?(url_host(env[:node]["src"]))
+
+        env[:node].unlink
+      end
+    end
+
+    def restrict_embed_url_host(host)
+      lambda do |env|
+        node = env[:node]
+        next unless node.element? && node.has_attribute?("data-embed-url")
+        next if host && url_host(node["data-embed-url"]) == host
+
+        node.remove_attribute("data-embed-url")
+      end
+    end
+
+    def url_host(url)
+      URI.parse(url.to_s).host
     rescue URI::InvalidURIError
       nil
     end
