@@ -362,6 +362,18 @@ RSpec.describe "PasswordResets" do
       end
     end
 
+    context "with a whitespace-only password" do
+      before do
+        get password_reset_path, params: { token: }
+        put password_reset_path,
+            params: { user: { password: " " * 10, password_confirmation: " " * 10 } }
+      end
+
+      it "does not change the password" do
+        expect(user.reload.authenticate(user.password)).to eq(user)
+      end
+    end
+
     context "without a token in the session" do
       before { put password_reset_path, params: { token:, user: user_params } }
 

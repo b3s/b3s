@@ -67,7 +67,8 @@ module Users
 
     def verify_editable
       verify_user(user: @user,
-                  user_admin: true,
+                  admin: true,
+                  user_admin: !@user.admin?,
                   redirect: user_profile_url(@user.username))
     end
 
@@ -79,12 +80,18 @@ module Users
       [:birthday, :description, :email, :pronouns, :latitude,
        :location, :longitude, :mobile_stylesheet_url, :mobile_theme,
        :notify_on_message, :realname, :stylesheet_url, :theme,
-       :time_zone, :password, :password_confirmation, :hiatus_until,
-       :preferred_format,
+       :time_zone, :hiatus_until, :preferred_format,
        { avatar_attributes: [:file],
          user_links_attributes: [
            %i[id position label name url _destroy]
-         ] }] + allowed_user_admin_params + allowed_admin_params
+         ] }] + allowed_credential_params + allowed_user_admin_params +
+        allowed_admin_params
+    end
+
+    def allowed_credential_params
+      return [] unless @user == current_user
+
+      %i[password password_confirmation password_challenge]
     end
 
     def allowed_user_admin_params
@@ -102,9 +109,11 @@ module Users
     end
 
     def update_user
-      return nil unless @user.update(user_params)
+      @user.assign_attributes(user_params)
+      @user.require_password_challenge if @user == current_user
+      return nil unless @user.save
 
-      current_user.reload if @user == current_user
+      reauthenticate!(@user) if @user == current_user
       @user
     end
 

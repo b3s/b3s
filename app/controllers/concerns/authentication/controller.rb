@@ -66,6 +66,11 @@ module Authentication
       @current_user = nil
     end
 
+    def reauthenticate!(user)
+      deauthenticate!
+      authenticate!(user)
+    end
+
     def update_last_active
       current_user.mark_active! if current_user?
     end

@@ -11,6 +11,25 @@ describe Mailer do
     B3S.config.mail_sender = "test@example.com"
   end
 
+  describe "email_changed" do
+    let(:mail) { described_class.email_changed(user, "old@example.com") }
+
+    specify do
+      expect(mail.subject).to eq("Your email address on B3S has changed")
+    end
+
+    specify { expect(mail.to).to eq(["old@example.com"]) }
+    specify { expect(mail.from).to eq(["test@example.com"]) }
+
+    describe "its body" do
+      subject { mail.body.encoded }
+
+      it { is_expected.to match(user.username) }
+      it { is_expected.not_to include(user.email) }
+      it { is_expected.to match("contact the moderators") }
+    end
+  end
+
   describe "invite" do
     let(:mail) { described_class.invite(invite) }
 

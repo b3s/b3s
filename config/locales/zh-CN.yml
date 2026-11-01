@@ -23,6 +23,7 @@ zh-CN:
         email: Email 地址
         password: 密码
         password_confirmation: 确认密码
+        password_challenge: 当前密码
         stylesheet_url: 自定义样式表网址
         mobile_stylesheet_url: 自定义手机样式表网址
         banned_until: 直到此日期前禁用我
@@ -82,6 +83,7 @@ zh-CN:
       account_info: 帐户信息
       settings: 设置
       theme: 主题
+      password_challenge_description: 更改 Email 地址或密码时需要填写
       stylesheet_url_description: 输入一个网址来覆盖整个主题
       mobile_stylesheet_url_description: 输入一个网址来覆盖整个手机主题
       warning: 警告

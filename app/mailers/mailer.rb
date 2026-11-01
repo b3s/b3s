@@ -1,6 +1,14 @@
 # frozen_string_literal: true
 
 class Mailer < ApplicationMailer
+  def email_changed(user, old_email)
+    @user = user
+    mail(
+      to: old_email,
+      subject: "Your email address on #{B3S.config.forum_name} has changed"
+    )
+  end
+
   def invite(invite)
     @invite = invite
     @url    = accept_invites_url(token: invite.token)

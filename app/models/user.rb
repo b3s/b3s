@@ -25,6 +25,8 @@ class User < ApplicationRecord
   before_validation :ensure_last_active_is_set
   before_create :check_for_first_user
   before_update :check_username_change
+  after_update_commit :notify_email_change,
+                      if: -> { saved_change_to_email? && email_before_last_save.present? }
 
   validates :username,
             presence: true,
@@ -113,6 +115,10 @@ class User < ApplicationRecord
 
   def check_for_first_user
     self.admin = true unless User.any?
+  end
+
+  def notify_email_change
+    Mailer.email_changed(self, email_before_last_save).deliver_later
   end
 
   def check_username_change
