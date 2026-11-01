@@ -44,6 +44,58 @@ describe UserLink do
     end
   end
 
+  describe "#url=" do
+    subject(:url) { build(:user_link, url: value).url }
+
+    context "without a scheme" do
+      let(:value) { "example.com/foo" }
+
+      it { is_expected.to eq("https://example.com/foo") }
+    end
+
+    context "with http://" do
+      let(:value) { "http://example.com/foo" }
+
+      it { is_expected.to eq("http://example.com/foo") }
+    end
+
+    context "with https://" do
+      let(:value) { "https://example.com/foo" }
+
+      it { is_expected.to eq("https://example.com/foo") }
+    end
+
+    context "with a mixed-case scheme" do
+      let(:value) { "HTTP://example.com/foo" }
+
+      it { is_expected.to eq("HTTP://example.com/foo") }
+    end
+
+    context "when blank" do
+      let(:value) { "  " }
+
+      it { is_expected.to eq("") }
+    end
+
+    context "when nil" do
+      let(:value) { nil }
+
+      it { is_expected.to be_nil }
+    end
+
+    context "with surrounding spaces" do
+      let(:value) { "  example.com/foo  " }
+
+      it { is_expected.to eq("https://example.com/foo") }
+    end
+  end
+
+  describe "#name_or_pretty_url" do
+    subject { build(:user_link, name: nil, url: "example.com/foo").name_or_pretty_url }
+
+    it { is_expected.to eq("example.com/foo") }
+  end
+
   describe ".labels" do
     subject { described_class.labels }
 

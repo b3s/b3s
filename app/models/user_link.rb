@@ -2,7 +2,7 @@
 
 class UserLink < ApplicationRecord
   URL_PATTERN = %r{
-    \A(?:https?://)?
+    \Ahttps?://
     (?<host>(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)
     (?:/\S*)?\z
   }ix
@@ -42,7 +42,9 @@ class UserLink < ApplicationRecord
   end
 
   def url=(new_url)
-    super(new_url&.strip)
+    url = new_url&.strip
+    url = "https://#{url}" if url.present? && !url.match?(%r{\Ahttps?://}i)
+    super(url)
   end
 
   def name_or_pretty_url
