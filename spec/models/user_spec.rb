@@ -33,6 +33,22 @@ describe User do
   it { is_expected.to allow_value("Gustave Moíre").for(:username) }
   it { is_expected.not_to allow_value("").for(:username) }
   it { is_expected.not_to allow_value("elektronaut?admin=1").for(:username) }
+  it { is_expected.not_to allow_value("elektronaut/admin").for(:username) }
+  it { is_expected.not_to allow_value("elektro\nnaut").for(:username) }
+  it { is_expected.not_to allow_value("elektro\u0007naut").for(:username) }
+  it { is_expected.to allow_value("K.O.").for(:username) }
+  it { is_expected.to allow_value("<elektronaut>").for(:username) }
+  it { is_expected.to allow_value("Tom & Jerry").for(:username) }
+
+  it "strips surrounding whitespace from the username" do
+    expect(build(:user, username: "  elektronaut \n").username)
+      .to eq("elektronaut")
+  end
+
+  it "finds users by username with surrounding whitespace" do
+    elektronaut = create(:user, username: "elektronaut")
+    expect(described_class.find_by(username: " elektronaut ")).to eq(elektronaut)
+  end
 
   specify do
     expect(user).to validate_uniqueness_of(:email)

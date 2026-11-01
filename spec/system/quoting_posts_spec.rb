@@ -120,7 +120,8 @@ RSpec.describe "Quoting posts", :js do
 
   context "when the poster has a newline in their username" do
     let(:quoted_post) do
-      create(:post, exchange: discussion, user: create(:user, username: "a\n> b"), body: "Text")
+      user = build(:user, username: "a\n> b").tap { it.save!(validate: false) }
+      create(:post, exchange: discussion, user:, body: "Text")
     end
 
     def expect_single_line_username_in_quote

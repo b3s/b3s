@@ -27,7 +27,9 @@ class User < ApplicationRecord
   validates :username,
             presence: true,
             uniqueness: { case_sensitive: false },
-            format: { with: /\A[^?]+\Z/ }
+            format: { with: %r{\A[^?/[:cntrl:]]+\z} }
+
+  normalizes :username, with: -> { it.strip }
 
   validates :stylesheet_url, url: { allow_blank: true }
   validates :mobile_stylesheet_url, url: { allow_blank: true }
