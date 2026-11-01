@@ -59,7 +59,7 @@ describe Authenticable do
   end
 
   describe ".find_and_authenticate_with_password" do
-    subject { User.find_and_authenticate_with_password(email, password) }
+    subject(:authenticated) { User.find_and_authenticate_with_password(email, password) }
 
     let(:email) { "test@example.com" }
     let(:password) { "password123" }
@@ -104,6 +104,28 @@ describe Authenticable do
       let(:password) { nil }
 
       it { is_expected.to be_falsey }
+    end
+
+    context "when email is not a string" do
+      let(:email) { { "email" => "test@example.com" } }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when password is not a string" do
+      let(:password) { ["password123"] }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context "when email is unknown" do
+      let(:email) { "unknown@example.com" }
+
+      it "still hashes the password" do
+        allow(BCrypt::Password).to receive(:create).and_call_original
+        authenticated
+        expect(BCrypt::Password).to have_received(:create)
+      end
     end
   end
 
