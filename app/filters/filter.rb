@@ -26,8 +26,10 @@ class Filter
     cached = Rails.cache.read(key)
     return cached[:result] if cached
 
-    yield.tap do |result|
-      Rails.cache.write(key, { result: }, expires_in: result ? 1.week : 1.hour)
+    catch(:skip_probe) do
+      yield.tap do |result|
+        Rails.cache.write(key, { result: }, expires_in: result ? 1.week : 1.hour)
+      end
     end
   end
 end
