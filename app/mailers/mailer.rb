@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Mailer < ApplicationMailer
-  def invite(invite, login_url)
-    @invite    = invite
-    @login_url = login_url
+  def invite(invite)
+    @invite = invite
+    @url    = accept_invite_url(id: invite.token)
     mail(
       to: @invite.email,
       subject: "#{@invite.user.realname_or_username} has invited you to " \
@@ -11,9 +11,9 @@ class Mailer < ApplicationMailer
     )
   end
 
-  def new_user(user, login_url)
-    @user      = user
-    @login_url = login_url
+  def new_user(user)
+    @user = user
+    @url  = new_session_url
     mail(
       to: @user.email,
       subject: "Welcome to #{B3S.config.forum_name}!"

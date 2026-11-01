@@ -58,9 +58,8 @@ class ApplicationController < ActionController::Base
   end
 
   def mobile_user_agent?
-    request.host =~ /^(iphone|m|mobile)\./ ||
-      (request.env["HTTP_USER_AGENT"] &&
-      request.env["HTTP_USER_AGENT"][%r{(Mobile/.+Safari|Android|IEMobile)}])
+    request.env["HTTP_USER_AGENT"] &&
+      request.env["HTTP_USER_AGENT"][%r{(Mobile/.+Safari|Android|IEMobile)}]
   end
 
   def mobile_variant?

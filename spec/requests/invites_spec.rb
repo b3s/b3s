@@ -137,6 +137,31 @@ RSpec.describe "Invites" do
       it { is_expected.to redirect_to(invites_url) }
     end
 
+    context "when the request comes from another host" do
+      before do
+        host! "elsewhere.example.org"
+        login_as(user)
+        perform_enqueued_jobs do
+          post invites_path, params: { invite: invite_params }
+        end
+      end
+
+      it "links to the default host in the email" do
+        expect(last_email.body.encoded).to include(
+          "http://example.com/invites/#{Invite.last.token}/accept"
+        )
+      end
+    end
+
+    context "when the email is enqueued" do
+      before { login_as(user) }
+
+      it "only passes the invite to the mailer" do
+        expect { post invites_path, params: { invite: invite_params } }
+          .to have_enqueued_mail(Mailer, :invite).with(an_instance_of(Invite))
+      end
+    end
+
     context "when email is invalid" do
       before do
         allow(Mailer).to receive(:invite).and_raise(

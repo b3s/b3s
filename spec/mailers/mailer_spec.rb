@@ -3,9 +3,8 @@
 require "rails_helper"
 
 describe Mailer do
-  let(:user)      { create(:user) }
-  let(:invite)    { create(:invite) }
-  let(:login_url) { "http://example.com/login" }
+  let(:user)   { create(:user) }
+  let(:invite) { create(:invite) }
 
   before do
     B3S.config.forum_name = "B3S"
@@ -13,7 +12,7 @@ describe Mailer do
   end
 
   describe "invite" do
-    let(:mail) { described_class.invite(invite, login_url) }
+    let(:mail) { described_class.invite(invite) }
 
     specify do
       expect(
@@ -31,13 +30,13 @@ describe Mailer do
 
       it { is_expected.to match(B3S.config.forum_name) }
       it { is_expected.to match(invite.user.realname) }
-      it { is_expected.to match(login_url) }
+      it { is_expected.to include("http://example.com/invites/#{invite.token}/accept") }
       it { is_expected.to match("My message") }
     end
   end
 
   describe "new_user" do
-    let(:mail) { described_class.new_user(user, login_url) }
+    let(:mail) { described_class.new_user(user) }
 
     specify { expect(mail.subject).to eq("Welcome to B3S!") }
     specify { expect(mail.to).to eq([user.email]) }
@@ -47,7 +46,7 @@ describe Mailer do
       subject { mail.body.encoded }
 
       it { is_expected.to match(user.username) }
-      it { is_expected.to match(login_url) }
+      it { is_expected.to include("http://example.com/session/new") }
     end
   end
 

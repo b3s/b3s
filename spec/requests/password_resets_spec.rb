@@ -217,10 +217,22 @@ RSpec.describe "PasswordResets" do
       end
     end
 
+    context "with a token that is about to expire" do
+      before do
+        token
+        travel 1.hour + 59.minutes
+        get password_reset_path, params: { token: }
+      end
+
+      it "redirects to the password reset page without the token" do
+        expect(response).to redirect_to(password_reset_url)
+      end
+    end
+
     context "with an expired token" do
       before do
         token
-        travel 25.hours
+        travel 2.hours + 1.minute
         get password_reset_path, params: { token: }
       end
 
@@ -365,7 +377,7 @@ RSpec.describe "PasswordResets" do
     context "with an expired token" do
       before do
         get password_reset_path, params: { token: }
-        travel 25.hours
+        travel 2.hours + 1.minute
         put password_reset_path, params: { user: user_params }
       end
 

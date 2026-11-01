@@ -106,4 +106,25 @@ RSpec.describe "Registrations" do
       end
     end
   end
+
+  describe "welcome email" do
+    let(:user_params) do
+      attributes_for(:user).slice(
+        :username, :email, :password, :password_confirmation, :realname
+      )
+    end
+
+    let(:params) { { token: invite.token, user: user_params } }
+
+    it "only passes the user to the mailer" do
+      expect { post registrations_path, params: }
+        .to have_enqueued_mail(Mailer, :new_user).with(an_instance_of(User))
+    end
+
+    it "links to the login page on the default host" do
+      host! "elsewhere.example.org"
+      perform_enqueued_jobs { post registrations_path, params: }
+      expect(last_email.body.encoded).to include("http://example.com/session/new")
+    end
+  end
 end
