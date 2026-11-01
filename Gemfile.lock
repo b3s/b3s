@@ -551,6 +551,7 @@ PLATFORMS
 
 DEPENDENCIES
   acts_as_list
+  addressable
   alba
   bcrypt (~> 3.1.12)
   bootsnap (>= 1.1.0)
@@ -574,6 +575,7 @@ DEPENDENCIES
   postmark-rails
   progress_bar
   propshaft
+  public_suffix
   puma
   rack-attack
   rails (~> 8.1.0)
