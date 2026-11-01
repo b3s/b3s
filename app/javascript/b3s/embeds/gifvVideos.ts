@@ -15,10 +15,20 @@ export default function gifvVideos() {
 
         const link = document.createElement("a");
         link.href = `${baseUrl}.gif`;
-        link.innerHTML =
-          "<video autoplay loop muted>" +
-          `<source type="video/webm" src="${baseUrl}.webm">` +
-          `<source type="video/mp4" src="${baseUrl}.mp4"></video>`;
+        const video = document.createElement("video");
+        ["autoplay", "loop", "muted"].forEach((attribute) =>
+          video.setAttribute(attribute, "")
+        );
+        [
+          ["video/webm", "webm"],
+          ["video/mp4", "mp4"]
+        ].forEach(([type, extension]) => {
+          const source = document.createElement("source");
+          source.type = type;
+          source.src = `${baseUrl}.${extension}`;
+          video.append(source);
+        });
+        link.append(video);
 
         img.replaceWith(link);
       }

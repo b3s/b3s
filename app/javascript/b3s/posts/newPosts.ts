@@ -109,7 +109,7 @@ readyHandler.ready(() => {
 
   // Show the notification on new posts
   document.addEventListener("newposts", (event: NewPostsEvent) => {
-    let notificationString =
+    const notificationString =
       event.detail.unread === 1
         ? "A new post has been made"
         : `${event.detail.unread} new posts have been made`;
@@ -117,17 +117,18 @@ readyHandler.ready(() => {
     const discussionLink = document.querySelector(
       "#discussionLink"
     ) as HTMLAnchorElement;
-    notificationString += `, <a href="${discussionLink.href}">click here to load</a>.`;
 
-    newPosts.innerHTML = `<p>${notificationString}</p>`;
+    const loadLink = document.createElement("a");
+    loadLink.href = discussionLink.href;
+    loadLink.textContent = "click here to load";
+    loadLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      loadNewPosts();
+    });
 
-    const loadLink = newPosts.querySelector("a");
-    if (loadLink) {
-      loadLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        loadNewPosts();
-      });
-    }
+    const paragraph = document.createElement("p");
+    paragraph.append(`${notificationString}, `, loadLink, ".");
+    newPosts.replaceChildren(paragraph);
 
     if (!newPosts.classList.contains("new_posts_since_refresh")) {
       newPosts.classList.add("new_posts_since_refresh");
