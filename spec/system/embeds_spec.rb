@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "Embeds", :js do
   let(:user) { create(:user) }
   let(:discussion) { create(:discussion, poster: user) }
-  let(:body) { nil }
+  let(:body_html) { nil }
   let(:bluesky_script) { "https://embed.bsky.app/static/embed.js" }
 
   def browser
@@ -20,8 +20,10 @@ RSpec.describe "Embeds", :js do
     embed(
       "https://bsky.app/profile/example.com/post/#{id}",
       "<blockquote class=\"bluesky-embed\" " \
-      "data-bluesky-uri=\"at://did:plc:example/app.bsky.feed.post/#{id}\">" \
-      "<p>Post #{id}</p></blockquote>"
+      "data-bluesky-uri=\"at://did:plc:example/app.bsky.feed.post/#{id}\" " \
+      "data-bluesky-cid=\"bafyexample#{id}\"><p lang=\"en\">Post #{id}</p>" \
+      "&mdash; <a href=\"https://bsky.app/profile/example.com/post/#{id}\">" \
+      "Example</a></blockquote>"
     )
   end
 
@@ -40,23 +42,25 @@ RSpec.describe "Embeds", :js do
   end
 
   def visit_post
-    create(:post, exchange: discussion, format: "html", body:) if body
+    if body_html
+      create(:post, exchange: discussion, body: "Embed", body_html:,
+                    skip_preprocess: true)
+    end
     visit discussion_path(discussion)
   end
 
   before do
-    browser.execute_cdp("Network.enable")
-    browser.execute_cdp(
-      "Network.setBlockedURLs",
-      urls: %w[*bsky.app* *instagram.com* *facebook.net* *tumblr.com*
-               *imgur.com* *mastodon.social* *mastodon.example*]
-    )
+    driven_by :selenium, using: :headless_chrome do |options|
+      options.add_argument(
+        "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1"
+      )
+    end
     login_as(user)
     find_link("Sign out")
   end
 
   context "when a post has several embeds from one provider" do
-    let(:body) { bluesky_embed(1) + bluesky_embed(2) }
+    let(:body_html) { bluesky_embed(1) + bluesky_embed(2) }
 
     before { visit_post }
 
@@ -75,7 +79,7 @@ RSpec.describe "Embeds", :js do
   end
 
   context "when a post includes the provider's own script" do
-    let(:body) do
+    let(:body_html) do
       bluesky_embed(1) + "<script async src=\"#{bluesky_script}\"></script>"
     end
 
@@ -114,7 +118,7 @@ RSpec.describe "Embeds", :js do
   end
 
   context "when a post has a Mastodon embed" do
-    let(:body) { mastodon_embed("https://mastodon.social/@user/1/embed") }
+    let(:body_html) { mastodon_embed("https://mastodon.social/@user/1/embed") }
 
     before { visit_post }
 
@@ -133,7 +137,7 @@ RSpec.describe "Embeds", :js do
   end
 
   context "when Mastodon embeds have unsafe URLs" do
-    let(:body) do
+    let(:body_html) do
       [
         mastodon_embed("http://mastodon.social/@user/1/embed"),
         mastodon_embed("https://user:pass@mastodon.social/@user/2/embed"),
@@ -151,7 +155,8 @@ RSpec.describe "Embeds", :js do
     before { visit_post }
 
     it "replaces only the embed with a safe URL" do
-      expect(page).to have_css("iframe.mastodon-embed", count: 1)
+      expect(all("iframe.mastodon-embed", minimum: 1).pluck(:src))
+        .to eq(["https://mastodon.social/@user/7/embed"])
     end
   end
 end
