@@ -25,7 +25,8 @@ module UrlPolicy
     end
 
     def external?(url, protocols)
-      url && allowed?(url, protocols) && (protocol(url) || url.start_with?("//"))
+      url && (protocols.nil? || allowed?(url, protocols)) &&
+        (protocol(url) || url.start_with?("//", "\\", "/\\"))
     end
 
     private

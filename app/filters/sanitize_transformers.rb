@@ -68,7 +68,7 @@ module SanitizeTransformers
         node = env[:node]
         next unless env[:node_name] == "a"
 
-        if UrlPolicy.external?(node["href"], env[:config][:protocols]["a"]["href"])
+        if UrlPolicy.external?(node["href"], env[:config][:protocols].dig("a", "href"))
           node["rel"] = EXTERNAL_LINK_REL
         else
           node.remove_attribute("rel")
