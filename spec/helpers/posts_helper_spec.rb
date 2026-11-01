@@ -134,7 +134,7 @@ describe PostsHelper do
          "<p title=\"x>/me <b>:smile:</b>\">/me</p>",
          "<pre><code class=\"ruby\">/me :smile:</code></pre>",
          '<ul><li data-me="/me">/me</li><li>:smile:</li></ul>',
-         "<p>:smile::smile: /me/me</p>"].map { |html| SanitizeFilter.new(html).to_html }
+         "<p>:smile::smile: /me/me</p>"].map { |html| Renderer.render(html, format: "html") }
       end
 
       def without_inserted(html)
@@ -230,6 +230,56 @@ describe PostsHelper do
       let(:input) { '<p><a href="/foo">/me</a></p>'.html_safe }
 
       it { is_expected.to eq(input) }
+    end
+  end
+
+  describe "#format_post with rendered posts" do
+    attribute_vectors = {
+      "a link" => '<a href="https://example.com/:smile:/me" title=":smile: /me waves">x</a>',
+      "an image" => '<img src="/a.png" alt=":smile:" title="/me :+1:">',
+      "an abbreviation" => '<abbr title="/me :smile:">x</abbr> /me :smile:',
+      "a spoiler" => '<div class="spoiler" title=":smile:">/me :smile:</div>'
+    }
+    formats = %w[markdown html]
+
+    subject(:output) { helper.format_post(Renderer.render(input, format:), user) }
+
+    def without_inserted_markup(html)
+      fragment = Nokogiri::HTML5.fragment(html)
+      fragment.css("img.emoji, a.poster").each(&:remove)
+      fragment.to_html
+    end
+
+    def attributes_with_aliases(html)
+      Nokogiri::HTML5.fragment(html).css("[title], [alt], [href]").map do |elem|
+        elem.attributes.slice("href", "title", "alt").transform_values(&:value)
+      end
+    end
+
+    SCRIPT_VECTORS.merge(attribute_vectors).to_a.product(formats).each do |(description, html), post_format|
+      context "when a #{post_format} post contains #{description}" do
+        let(:input) { html }
+        let(:format) { post_format }
+
+        it { is_expected.to be_free_of_script_vectors }
+
+        it "is stable under the post allowlist" do
+          cleaned = without_inserted_markup(output)
+          expect(SanitizeFilter.new(cleaned).to_html).to eq(cleaned)
+        end
+      end
+    end
+
+    attribute_vectors.to_a.product(formats).each do |(description, html), post_format|
+      context "when a #{post_format} post has aliases and /me in the attributes of #{description}" do
+        let(:input) { html }
+        let(:format) { post_format }
+
+        it "leaves the attributes alone" do
+          expect(attributes_with_aliases(without_inserted_markup(output)))
+            .to eq(attributes_with_aliases(Renderer.render(input, format:)))
+        end
+      end
     end
   end
 
