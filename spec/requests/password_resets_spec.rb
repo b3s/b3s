@@ -4,11 +4,9 @@ require "rails_helper"
 
 RSpec.describe "PasswordResets" do
   let(:user) { create(:user) }
-  let(:expires_at) { 24.hours.from_now }
-
-  let(:token) do
-    Rails.application.message_verifier(:password_reset)
-         .generate(user.id, expires_at:)
+  let(:token) { user.generate_token_for(:password_reset) }
+  let(:user_params) do
+    { password: "new password", password_confirmation: "new password" }
   end
 
   describe "GET /password_reset/new" do
@@ -40,6 +38,26 @@ RSpec.describe "PasswordResets" do
       end
     end
 
+    context "when the email is enqueued" do
+      it "does not put the token in the job arguments" do
+        expect { post password_reset_path, params: { email: user.email } }
+          .to have_enqueued_mail(Mailer, :password_reset).with(user)
+      end
+    end
+
+    context "with a legacy password digest" do
+      before do
+        user.update(password_digest: Digest::SHA1.hexdigest("legacy"))
+        perform_enqueued_jobs do
+          post password_reset_path, params: { email: user.email }
+        end
+      end
+
+      it "sends an email to the user" do
+        expect(last_email.to).to eq([user.email])
+      end
+    end
+
     context "with a non-existant user" do
       before do
         post password_reset_path, params: { email: "none@example.com" }
@@ -56,17 +74,61 @@ RSpec.describe "PasswordResets" do
   end
 
   describe "GET /password_reset" do
+    it "sets the no-referrer policy" do
+      get password_reset_path
+      expect(response.headers["Referrer-Policy"]).to eq("no-referrer")
+    end
+
     context "with a valid token" do
-      before do
-        get password_reset_path, params: { token: }
+      before { get password_reset_path, params: { token: } }
+
+      it "redirects to the password reset page without the token" do
+        expect(response).to redirect_to(password_reset_url)
       end
 
-      it "returns success" do
+      it "renders the password reset form" do
+        follow_redirect!
         expect(response).to have_http_status(:success)
+      end
+
+      it "shows which account is being reset" do
+        follow_redirect!
+        expect(response.body).to include(
+          "Resetting the password for #{user.username}"
+        )
       end
     end
 
-    context "without a valid token" do
+    context "with a token for a legacy password digest" do
+      before do
+        user.update(password_digest: Digest::SHA1.hexdigest("legacy"))
+        get password_reset_path, params: { token: }
+      end
+
+      it "redirects to the password reset page without the token" do
+        expect(response).to redirect_to(password_reset_url)
+      end
+    end
+
+    context "when decoding the token payload" do
+      subject(:payload) { Base64.decode64(token.split("--").first) }
+
+      it { is_expected.not_to include(user.email) }
+    end
+
+    context "when the email has changed since the token was issued" do
+      before do
+        token
+        user.update(email: "changed@example.com")
+        get password_reset_path, params: { token: }
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+    end
+
+    context "without a token" do
       before { get password_reset_path }
 
       it "redirects to login" do
@@ -79,9 +141,11 @@ RSpec.describe "PasswordResets" do
     end
 
     context "with an expired token" do
-      let(:expires_at) { 2.days.ago }
-
-      before { get password_reset_path, params: { token: } }
+      before do
+        token
+        travel 25.hours
+        get password_reset_path, params: { token: }
+      end
 
       it "redirects to login" do
         expect(response).to redirect_to(new_session_url)
@@ -103,17 +167,30 @@ RSpec.describe "PasswordResets" do
         expect(flash[:notice]).to include("Not a valid URL")
       end
     end
+
+    context "with a token that has already been used" do
+      before do
+        get password_reset_path, params: { token: }
+        put password_reset_path, params: { user: user_params }
+        delete session_path
+        get password_reset_path, params: { token: }
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+
+      it "sets the flash" do
+        expect(flash[:notice]).to include("Not a valid URL")
+      end
+    end
   end
 
   describe "PUT /password_reset" do
     context "with valid data" do
       before do
-        put password_reset_path,
-            params: {
-              token:,
-              user: { password: "new password",
-                      password_confirmation: "new password" }
-            }
+        get password_reset_path, params: { token: }
+        put password_reset_path, params: { user: user_params }
       end
 
       it "sets the flash" do
@@ -127,13 +204,59 @@ RSpec.describe "PasswordResets" do
       it "logs the user in" do
         expect(session[:user_id]).to eq(user.id)
       end
+
+      it "changes the password" do
+        expect(user.reload.authenticate("new password")).to eq(user)
+      end
+
+      it "clears the token from the session" do
+        expect(session[:password_reset_token]).to be_nil
+      end
+
+      it "sets the no-referrer policy" do
+        expect(response.headers["Referrer-Policy"]).to eq("no-referrer")
+      end
+    end
+
+    context "when signed in as another user" do
+      let(:other_user) { create(:user) }
+
+      before do
+        login_as(other_user)
+        get password_reset_path, params: { token: }
+        put password_reset_path, params: { user: user_params }
+      end
+
+      it "redirects to root" do
+        expect(response).to redirect_to(root_url)
+      end
+
+      it "logs in as the user whose password was reset" do
+        expect(session[:user_id]).to eq(user.id)
+      end
+
+      it "changes the password" do
+        expect(user.reload.authenticate("new password")).to eq(user)
+      end
+    end
+
+    context "with a legacy password digest" do
+      before do
+        user.update(password_digest: Digest::SHA1.hexdigest("legacy"))
+        get password_reset_path, params: { token: }
+        put password_reset_path, params: { user: user_params }
+      end
+
+      it "changes the password" do
+        expect(user.reload.authenticate("new password")).to eq(user)
+      end
     end
 
     context "without valid data" do
       before do
+        get password_reset_path, params: { token: }
         put password_reset_path,
             params: {
-              token:,
               user: {
                 password: "new password",
                 password_confirmation: "wrong password"
@@ -144,16 +267,14 @@ RSpec.describe "PasswordResets" do
       it "returns success" do
         expect(response).to have_http_status(:success)
       end
+
+      it "keeps the token in the session" do
+        expect(session[:password_reset_token]).to eq(token)
+      end
     end
 
-    context "without a valid token" do
-      before do
-        put password_reset_path,
-            params: {
-              user: { password: "new password",
-                      password_confirmation: "new password" }
-            }
-      end
+    context "without a token in the session" do
+      before { put password_reset_path, params: { token:, user: user_params } }
 
       it "redirects to login" do
         expect(response).to redirect_to(new_session_url)
@@ -165,15 +286,10 @@ RSpec.describe "PasswordResets" do
     end
 
     context "with an expired token" do
-      let(:expires_at) { 2.days.ago }
-
       before do
-        put password_reset_path,
-            params: {
-              token:,
-              user: { password: "new password",
-                      password_confirmation: "new password" }
-            }
+        get password_reset_path, params: { token: }
+        travel 25.hours
+        put password_reset_path, params: { user: user_params }
       end
 
       it "redirects to login" do
@@ -182,6 +298,27 @@ RSpec.describe "PasswordResets" do
 
       it "sets the flash" do
         expect(flash[:notice]).to include("Not a valid URL")
+      end
+    end
+
+    context "when the password has changed since the token was stored" do
+      before do
+        get password_reset_path, params: { token: }
+        user.update(password: "changed elsewhere",
+                    password_confirmation: "changed elsewhere")
+        put password_reset_path, params: { user: user_params }
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+
+      it "does not change the password" do
+        expect(user.reload.authenticate("new password")).to be(false)
+      end
+
+      it "clears the token from the session" do
+        expect(session[:password_reset_token]).to be_nil
       end
     end
   end

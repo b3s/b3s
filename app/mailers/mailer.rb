@@ -20,10 +20,10 @@ class Mailer < ApplicationMailer
     )
   end
 
-  def password_reset(email, url)
-    @url = url
+  def password_reset(user)
+    @url = password_reset_url(token: user.generate_token_for(:password_reset))
     mail(
-      to: email,
+      to: user.email,
       subject: "Password reset for #{B3S.config.forum_name}"
     )
   end
