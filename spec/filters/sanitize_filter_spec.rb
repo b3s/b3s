@@ -158,6 +158,12 @@ describe SanitizeFilter do
     it { is_expected.to eq("<a href=\"/\\example.com/\" target=\"_blank\" #{rel}>foo</a>") }
   end
 
+  context "when input contains a link starting with a backslash and a slash" do
+    let(:input) { '<a href="\\/example.com/">foo</a>' }
+
+    it { is_expected.to eq("<a href=\"\\/example.com/\" #{rel}>foo</a>") }
+  end
+
   context "when input contains a relative link" do
     let(:input) { '<a href="/discussions/1#post-2" rel="nofollow">foo</a>' }
 
@@ -198,6 +204,12 @@ describe SanitizeFilter do
 
   context "when input contains a link with a tab in the scheme" do
     let(:input) { "<a href=\"ht\ttps://example.com/\">foo</a>" }
+
+    it { is_expected.to eq("<a href=\"https://example.com/\" #{rel}>foo</a>") }
+  end
+
+  context "when input contains a link with leading control characters" do
+    let(:input) { "<a href=\"\u0001 https://example.com/\">foo</a>" }
 
     it { is_expected.to eq("<a href=\"https://example.com/\" #{rel}>foo</a>") }
   end
