@@ -6,6 +6,10 @@ module Authenticable
   included do
     has_secure_password
 
+    generates_token_for :password_reset, expires_in: 24.hours do
+      password_salt&.last(10)
+    end
+
     before_validation :go_on_hiatus
     before_validation :clear_banned_until
     after_save :schedule_reactivation_job

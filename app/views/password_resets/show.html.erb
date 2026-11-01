@@ -3,12 +3,12 @@
 
 <h2 class="section">
   <%= link_to "Login", new_session_path %> &raquo;
-  <%= link_to "Password Reset", password_reset_path(token: @token) %>
+  <%= link_to "Password Reset", password_reset_path %>
 </h2>
 
 <div id="login">
   <%= form_for(@user,
-               url: password_reset_path(token: @token),
+               url: password_reset_path,
                class: 'form') do |f| %>
     <fieldset>
       <%= f.label :password %>

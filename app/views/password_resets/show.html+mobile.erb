@@ -1,7 +1,7 @@
 <% content_for(:page_title, "Password Reset") %>
 
 <%= form_for(@user,
-             url: password_reset_path(token: @token),
+             url: password_reset_path,
              class: "form") do |f| %>
   <p>
     <%= f.label :password %>

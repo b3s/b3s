@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class PasswordResetsController < ApplicationController
+  before_action :set_referrer_policy
+  before_action :store_token, only: %i[show]
   before_action :find_by_token, only: %i[show update]
 
   def show; end
@@ -16,6 +18,7 @@ class PasswordResetsController < ApplicationController
 
   def update
     if user_params[:password].present? && @user.update(user_params)
+      session.delete(:password_reset_token)
       authenticate!(@user)
       flash[:notice] = t("password_reset.changed")
       redirect_to root_url
@@ -29,7 +32,7 @@ class PasswordResetsController < ApplicationController
   def deliver_password_reset(user)
     Mailer.password_reset(
       user.email,
-      recovery_url(user)
+      password_reset_url(token: user.generate_token_for(:password_reset))
     ).deliver_later
   end
 
@@ -39,25 +42,29 @@ class PasswordResetsController < ApplicationController
   end
 
   def find_by_token
-    @token = params[:token]
-    @user = User.find(reset_message_verifier.verify(@token))
-  rescue ActiveSupport::MessageVerifier::InvalidSignature
-    fail_reset(t("password_reset.invalid"))
+    @user = User.find_by_token_for(:password_reset,
+                                   session[:password_reset_token].to_s)
+    fail_reset(t("password_reset.invalid")) unless @user
+  end
+
+  def set_referrer_policy
+    response.set_header("Referrer-Policy", "no-referrer")
+  end
+
+  def store_token
+    token = params[:token]&.to_s
+    return unless token
+
+    if User.find_by_token_for(:password_reset, token)
+      session[:password_reset_token] = token
+      redirect_to password_reset_url
+    else
+      session.delete(:password_reset_token)
+      fail_reset(t("password_reset.invalid"))
+    end
   end
 
   def user_params
     params.expect(user: %i[password password_confirmation])
-  end
-
-  def reset_message_verifier
-    Rails.application.message_verifier(:password_reset)
-  end
-
-  def recovery_token(user)
-    reset_message_verifier.generate(user.id, expires_in: 24.hours)
-  end
-
-  def recovery_url(user)
-    password_reset_url(token: recovery_token(user))
   end
 end
