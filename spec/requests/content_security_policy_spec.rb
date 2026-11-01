@@ -102,10 +102,16 @@ RSpec.describe "Content Security Policy" do
       "https://localhost/custom.css",
       "http://example.com/custom.css",
       "data:text/css,body{color:red}",
-      "javascript://example.com/%0Aalert(1)"
+      "javascript:alert(1)"
     ].each do |url|
       it "ignores #{url}" do
         expect(policy_with_stylesheet(url)).to eq(policy_with_stylesheet(nil))
+      end
+
+      it "still links #{url}" do
+        policy_with_stylesheet(url)
+        expect(response.parsed_body.css('link[rel="stylesheet"]').pluck("href"))
+          .to include(url)
       end
     end
   end
@@ -128,10 +134,31 @@ RSpec.describe "Content Security Policy" do
     end
   end
 
+  context "when the custom stylesheet URL has surrounding whitespace" do
+    let(:user) { create(:user) }
+
+    before do
+      user.stylesheet_url = "  https://styles.example.com/custom.css\n"
+      user.save!(validate: false)
+      get discussion_path(discussion)
+    end
+
+    it "links the stripped URL" do
+      expect(response.parsed_body.css('link[rel="stylesheet"]').pluck("href"))
+        .to include("https://styles.example.com/custom.css")
+    end
+
+    it "allows styles from its origin" do
+      expect(directive("style-src"))
+        .to eq("style-src 'self' 'unsafe-inline' https://styles.example.com")
+    end
+  end
+
   context "when the user has a custom mobile stylesheet" do
     let(:user) do
-      create(:user, stylesheet_url: "https://desktop.example.com/custom.css",
-                    mobile_stylesheet_url: "https://mobile.example.com/custom.css")
+      build(:user, stylesheet_url: "https://desktop.example.com/custom.css",
+                   mobile_stylesheet_url: " https://mobile.example.com/custom.css ")
+        .tap { |user| user.save!(validate: false) }
     end
 
     before do
@@ -139,6 +166,11 @@ RSpec.describe "Content Security Policy" do
       get discussion_path(discussion),
           headers: { "HTTP_USER_AGENT" => "Mozilla/5.0 (Linux; Android 13) " \
                                           "Mobile Safari/537.36" }
+    end
+
+    it "links the stripped mobile stylesheet" do
+      expect(response.parsed_body.css('link[rel="stylesheet"]').pluck("href"))
+        .to include("https://mobile.example.com/custom.css")
     end
 
     it "allows styles from the mobile stylesheet's origin" do

@@ -9,8 +9,8 @@
     <%# Stylesheet %>
     <%= stylesheet_link_tag "application" %>
 
-    <% if current_user? && current_user.stylesheet_url? %>
-      <%= stylesheet_link_tag current_user.stylesheet_url.strip %>
+    <% if current_user&.custom_stylesheet_url %>
+      <%= tag.link rel: "stylesheet", href: current_user.custom_stylesheet_url %>
     <% else %>
       <%= stylesheet_link_tag theme.stylesheet_path %>
     <% end %>

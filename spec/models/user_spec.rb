@@ -67,6 +67,27 @@ describe User do
     )
   end
 
+  describe "#custom_stylesheet_url" do
+    let(:user) do
+      build(:user, stylesheet_url: " https://example.com/desktop.css\n",
+                   mobile_stylesheet_url: "\thttps://example.com/mobile.css ")
+    end
+
+    it "returns the stripped desktop stylesheet URL" do
+      expect(user.custom_stylesheet_url).to eq("https://example.com/desktop.css")
+    end
+
+    it "returns the stripped mobile stylesheet URL" do
+      expect(user.custom_stylesheet_url(mobile: true))
+        .to eq("https://example.com/mobile.css")
+    end
+
+    it "returns nil for a blank URL" do
+      user.stylesheet_url = "  "
+      expect(user.custom_stylesheet_url).to be_nil
+    end
+  end
+
   describe "#name_and_email" do
     subject { user.name_and_email }
 

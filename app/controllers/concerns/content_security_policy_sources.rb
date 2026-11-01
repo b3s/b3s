@@ -30,17 +30,8 @@ module ContentSecurityPolicySources
     "#{request.ssl? ? 'wss' : 'ws'}://#{host}"
   end
 
-  def user_stylesheet_url
-    return unless current_user?
-
-    if request.variant.mobile?
-      current_user.mobile_stylesheet_url
-    else
-      current_user.stylesheet_url
-    end
-  end
-
   def user_stylesheet_origin
-    user_stylesheet_url.to_s.strip[STYLESHEET_ORIGIN_PATTERN, 1]&.downcase
+    url = current_user&.custom_stylesheet_url(mobile: request.variant.mobile?)
+    url.to_s[STYLESHEET_ORIGIN_PATTERN, 1]&.downcase
   end
 end

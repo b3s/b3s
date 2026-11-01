@@ -82,6 +82,10 @@ class User < ApplicationRecord
     super || B3S.config.default_mobile_theme
   end
 
+  def custom_stylesheet_url(mobile: false)
+    (mobile ? mobile_stylesheet_url : stylesheet_url).to_s.strip.presence
+  end
+
   def serializable_params
     %i[id username realname latitude longitude inviter_id last_active created_at
        description admin moderator user_admin location banned_until]
