@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
-OEmbed::Providers.register_all
-OEmbed::Providers.unregister(
-  OEmbed::Providers::Twitter,
-  OEmbed::Providers::FacebookPost,
-  OEmbed::Providers::FacebookVideo,
-  OEmbed::Providers::Instagram
+OEmbed::Providers.register(
+  OEmbed::Providers::CodePen,
+  OEmbed::Providers::Flickr,
+  OEmbed::Providers::Imgur,
+  OEmbed::Providers::Kickstarter,
+  OEmbed::Providers::SoundCloud,
+  OEmbed::Providers::Spotify,
+  OEmbed::Providers::TikTok,
+  OEmbed::Providers::Vimeo,
+  OEmbed::Providers::Youtube
 )
 
 MASTODON_PROVIDERS = [
@@ -93,5 +97,19 @@ OEmbed::Provider.new(
   provider << "http://www.instagram.com/reel/*"
   provider << "https://instagram.com/reel/*"
   provider << "https://www.instagram.com/reel/*"
+  OEmbed::Providers.register(provider)
+end
+
+OEmbed::Provider.new(
+  "https://www.tumblr.com/oembed/1.0/", format: :json
+).tap do |provider|
+  provider << "http://*.tumblr.com/post/*"
+  provider << "https://*.tumblr.com/post/*"
+  OEmbed::Providers.register(provider)
+end
+
+OEmbed::Provider.new("https://giphy.com/services/oembed").tap do |provider|
+  provider << "http://giphy.com/*"
+  provider << "https://giphy.com/*"
   OEmbed::Providers.register(provider)
 end

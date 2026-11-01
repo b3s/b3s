@@ -106,4 +106,29 @@ describe AutolinkFilter do
       )
     end
   end
+
+  context "when URL is a Tumblr post" do
+    let(:input) { "https://staff.tumblr.com/post/123456789" }
+    let(:html) { '<div class="tumblr-post"></div>' }
+
+    before do
+      stub_request(:get, "https://www.tumblr.com/oembed/1.0/")
+        .with(query: { format: "json", url: input })
+        .to_return(status: 200, body: { type: "rich", version: "1.0", html: }.to_json)
+    end
+
+    it "converts it to an embed" do
+      expect(filter.to_html).to(
+        eq("<div class=\"embed\" data-oembed-url=\"#{input}\">#{html}</div>")
+      )
+    end
+  end
+
+  context "when URL is from a provider that isn't registered" do
+    let(:input) { "https://www.ted.com/talks/some_talk" }
+
+    it "links it" do
+      expect(filter.to_html).to eq("<a href=\"#{input}\">#{input}</a>")
+    end
+  end
 end
