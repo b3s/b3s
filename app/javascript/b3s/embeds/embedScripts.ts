@@ -40,15 +40,9 @@ function pendingEmbeds(provider: Provider) {
 
 function injectScript(provider: Provider, onLoad: () => void) {
   const script = document.createElement("script");
-  const nonce = document.querySelector<HTMLMetaElement>(
-    'meta[name="csp-nonce"]'
-  )?.content;
 
   script.src = provider.src;
   script.async = true;
-  if (nonce) {
-    script.nonce = nonce;
-  }
   if (provider.crossOrigin) {
     script.crossOrigin = provider.crossOrigin;
   }
@@ -78,7 +72,7 @@ function processImgur() {
 function parseFacebook() {
   const containers = new Set<Element>();
   pendingEmbeds(facebook).forEach((elem) =>
-    containers.add(elem.closest("div.embed"))
+    containers.add(elem.closest("div.embed[data-oembed-url]"))
   );
   containers.forEach((container) => window.FB?.XFBML?.parse?.(container));
 }
@@ -89,7 +83,8 @@ const bluesky: Provider = {
   src: "https://embed.bsky.app/static/embed.js",
   legacyScripts: 'script[src*="embed.bsky.app/static/embed.js"]',
   loaded: () => typeof window.bluesky?.scan === "function",
-  process: () => window.bluesky?.scan?.()
+  process: () => window.bluesky?.scan?.(),
+  afterLoad: () => window.bluesky?.scan?.()
 };
 
 const instagram: Provider = {
@@ -100,7 +95,8 @@ const instagram: Provider = {
     'script[src*="instagram.com/embed.js"], ' +
     'script[src*="instagram.com/en_US/embeds.js"]',
   loaded: () => typeof window.instgrm?.Embeds?.process === "function",
-  process: () => window.instgrm?.Embeds?.process?.()
+  process: () => window.instgrm?.Embeds?.process?.(),
+  afterLoad: () => window.instgrm?.Embeds?.process?.()
 };
 
 const facebook: Provider = {
