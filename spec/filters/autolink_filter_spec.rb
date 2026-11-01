@@ -67,114 +67,66 @@ describe AutolinkFilter do
     end
   end
 
-  context "when URL is an Instagram photo" do
-    let(:instagram_embed) do
-      Rails.root.join("spec/support/requests/instagram_embed.json").read
-    end
-    let(:instagram_json) { JSON.parse(instagram_embed) }
-    let(:input) { "https://www.instagram.com/p/8ql-VChPSZ/" }
-
-    let(:oembed_request) do
-      stub_request(
-        :get,
-        "https://graph.facebook.com/v26.0/instagram_oembed?" \
-        "format=json&url=https://www.instagram.com/p/8ql-VChPSZ/"
-      )
+  context "when input contains a URL with HTML characters" do
+    let(:input) { "http://example.com/?a=1&b='x'" }
+    let(:output) do
+      '<a href="http://example.com/?a=1&amp;b=&#39;x&#39;">' \
+        "http://example.com/?a=1&amp;b=&#39;x&#39;</a>"
     end
 
-    let(:provider_response) { { status: 200, body: instagram_embed } }
-
-    before { oembed_request.to_return(provider_response) }
-
-    it "converts it to an embed" do
-      expect(filter.to_html).to(
-        eq("<div class=\"embed\" data-oembed-url=\"#{input}\">" \
-           "#{instagram_json['html']}</div>")
-      )
+    it "escapes the URL" do
+      expect(filter.to_html).to eq(output)
     end
+  end
 
-    it "caches the response" do
-      filter.to_html
-      expect(OembedResponse.find_by(url: input).html).to eq(instagram_json["html"].strip)
+  context "when input contains an image URL with HTML characters" do
+    let(:input) { "http://example.com/a&b'.png" }
+    let(:output) { '<img src="http://example.com/a&amp;b&#39;.png">' }
+
+    it "escapes the URL" do
+      expect(filter.to_html).to eq(output)
     end
+  end
 
-    context "when the response is cached" do
-      before { OembedResponse.store(input, "<blockquote>cached</blockquote>") }
+  context "when a URL is followed by markup" do
+    let(:input) { 'http://example.com/"><script>alert(1)</script>' }
 
-      it "uses the cached response" do
-        expect(filter.to_html).to(
-          eq("<div class=\"embed\" data-oembed-url=\"#{input}\">" \
-             "<blockquote>cached</blockquote></div>")
-        )
+    it "leaves the markup outside the link" do
+      expect(filter.to_html).to start_with('<a href="http://example.com/">http://example.com/</a>"><script>')
+    end
+  end
+
+  {
+    "an Instagram photo" => "https://www.instagram.com/p/8ql-VChPSZ/",
+    "a Facebook video" => "https://www.facebook.com/facebook/videos/10153231379946729/",
+    "a Tumblr post" => "https://staff.tumblr.com/post/123456789",
+    "a Giphy GIF" => "https://giphy.com/gifs/cat-funny-JIX9t2j0ZTN9S",
+    "a Mastodon post" => "https://mastodon.social/@ghorwood/110149321725092169"
+  }.each do |description, url|
+    context "when URL is #{description}" do
+      let(:input) { url }
+      let(:output) do
+        "<div class=\"embed\" data-oembed-url=\"#{url}\"><a href=\"#{url}\">#{url}</a></div>"
       end
 
-      it "does not request the provider" do
+      it "converts it to an embed placeholder" do
+        expect(filter.to_html).to eq(output)
+      end
+
+      it "doesn't make a request" do
         filter.to_html
-        expect(oembed_request).not_to have_been_requested
-      end
-    end
-
-    context "when the provider request fails" do
-      let(:provider_response) { { status: 500 } }
-
-      it "falls back to a link" do
-        expect(filter.to_html).to eq("<a href=\"#{input}\">#{input}</a>")
-      end
-
-      it "does not cache the response" do
-        filter.to_html
-        expect(OembedResponse.exists?(url: input)).to be(false)
+        expect(a_request(:any, //)).not_to have_been_made
       end
     end
   end
 
-  context "when URL is a Facebook video" do
-    let(:input) { "https://www.facebook.com/facebook/videos/10153231379946729/" }
-    let(:html) { '<div class="fb-video"></div>' }
+  context "when an embeddable URL contains HTML characters" do
+    let(:input) { "https://vimeo.com/1?a=1&b='x'" }
+    let(:url) { "https://vimeo.com/1?a=1&amp;b=&#39;x&#39;" }
 
-    before do
-      stub_request(:get, "https://graph.facebook.com/v26.0/oembed_video")
-        .with(query: { format: "json", url: input })
-        .to_return(status: 200, body: { type: "video", version: "1.0", html: }.to_json)
-    end
-
-    it "converts it to an embed" do
-      expect(filter.to_html).to(
-        eq("<div class=\"embed\" data-oembed-url=\"#{input}\">#{html}</div>")
-      )
-    end
-  end
-
-  context "when URL is a Tumblr post" do
-    let(:input) { "https://staff.tumblr.com/post/123456789" }
-    let(:html) { '<div class="tumblr-post"></div>' }
-
-    before do
-      stub_request(:get, "https://www.tumblr.com/oembed/1.0/")
-        .with(query: { format: "json", url: input })
-        .to_return(status: 200, body: { type: "rich", version: "1.0", html: }.to_json)
-    end
-
-    it "converts it to an embed" do
-      expect(filter.to_html).to(
-        eq("<div class=\"embed\" data-oembed-url=\"#{input}\">#{html}</div>")
-      )
-    end
-  end
-
-  context "when URL is a Giphy GIF" do
-    let(:input) { "https://giphy.com/gifs/cat-funny-JIX9t2j0ZTN9S" }
-    let(:html) { '<img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif">' }
-
-    before do
-      stub_request(:get, "https://giphy.com/services/oembed")
-        .with(query: { format: "json", url: input })
-        .to_return(status: 200, body: { type: "rich", version: "1.0", html: }.to_json)
-    end
-
-    it "converts it to an embed" do
-      expect(filter.to_html).to(
-        eq("<div class=\"embed\" data-oembed-url=\"#{input}\">#{html}</div>")
+    it "escapes the URL" do
+      expect(filter.to_html).to eq(
+        "<div class=\"embed\" data-oembed-url=\"#{url}\"><a href=\"#{url}\">#{url}</a></div>"
       )
     end
   end

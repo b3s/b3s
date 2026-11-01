@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class MarkdownRenderer < Redcarpet::Render::HTML
+  include ActionView::Helpers::TagHelper
+
   def preprocess(document)
     document = normalize_newlines(document)
     document = escape_leading_gts_without_space(document)
@@ -47,17 +49,17 @@ class MarkdownRenderer < Redcarpet::Render::HTML
     if url =~ %r{youtu\.be/([^?]*)}
       Regexp.last_match(1)
     else
-      url.match(%r{^.*((v/)|(embed/)|(watch\?))\??v?=?([^&?]*).*})[5]
+      url.match(%r{^.*((v/)|(embed/)|(watch\?))\??v?=?([^&?]*).*})&.[](5)
     end
   end
 
   def youtube_embed(document)
-    document.gsub(/!y\[(.*)\]\((.*)\)/) do
+    document.gsub(/!y\[(.*)\]\((.*)\)/) do |code|
       title = Regexp.last_match(1)
-      youtube_url = Regexp.last_match(2)
-      "<iframe title=\"#{title}\" " \
-        "src=\"https://www.youtube.com/embed/#{youtube_id(youtube_url)}\" " \
-        'frameborder="0" allowfullscreen></iframe>'
+      id = youtube_id(Regexp.last_match(2))
+      next code unless id
+
+      tag.div(class: "youtube-embed", data: { youtube_id: id, youtube_title: title })
     end
   end
 end

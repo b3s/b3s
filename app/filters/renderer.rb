@@ -9,7 +9,8 @@ class Renderer
        ImageFilter,
        LinkFilter,
        PostImageFilter,
-       SanitizeFilter].flatten
+       SanitizeFilter,
+       EmbedFilter].flatten
     end
 
     def render(post, options = {})

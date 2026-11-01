@@ -1,114 +1,74 @@
 # frozen_string_literal: true
 
 class SanitizeFilter < Filter
+  LINK_SCHEMES = %w[http https mailto relative].freeze
+  MEDIA_SCHEMES = %w[http https relative].freeze
+
+  URL_ATTRIBUTES = {
+    "a" => { "href" => LINK_SCHEMES },
+    "audio" => { "src" => MEDIA_SCHEMES },
+    "blockquote" => { "cite" => MEDIA_SCHEMES },
+    "del" => { "cite" => MEDIA_SCHEMES },
+    "div" => { "data-oembed-url" => %w[http https] },
+    "iframe" => { "src" => %w[https] },
+    "img" => { "src" => MEDIA_SCHEMES + ["data"],
+               "srcset" => MEDIA_SCHEMES,
+               "data-full-src" => MEDIA_SCHEMES },
+    "ins" => { "cite" => MEDIA_SCHEMES },
+    "q" => { "cite" => MEDIA_SCHEMES },
+    "source" => { "src" => MEDIA_SCHEMES, "srcset" => MEDIA_SCHEMES },
+    "video" => { "src" => MEDIA_SCHEMES, "poster" => MEDIA_SCHEMES }
+  }.freeze
+
+  PROVIDER_CLASSES = %w[bluesky-embed fb-post fb-video fb-xfbml-parse-ignore
+                        imgur-embed-pub instagram-media mastodon-embed
+                        tumblr-post].freeze
+
+  CONFIG = Sanitize::Config.freeze_config(
+    elements: %w[a abbr audio b bdi bdo big blockquote br caption center cite
+                 code col colgroup dd del details dfn div dl dt em figcaption
+                 figure font h1 h2 h3 h4 h5 h6 hr i iframe img ins kbd li mark
+                 ol p picture pre q rp rt ruby s samp small source span strike
+                 strong sub summary sup table tbody td tfoot th thead time tr
+                 tt u ul var video wbr],
+    attributes: {
+      all: %w[class dir lang style title],
+      "a" => %w[href target],
+      "audio" => %w[controls loop preload src],
+      "blockquote" => %w[cite],
+      "col" => %w[span width],
+      "colgroup" => %w[span width],
+      "del" => %w[cite datetime],
+      "details" => %w[open],
+      "div" => %w[data-oembed-url data-youtube-id data-youtube-title],
+      "font" => %w[color face size],
+      "iframe" => %w[allow allowfullscreen frameborder height loading
+                     referrerpolicy sandbox scrolling src width],
+      "img" => %w[align alt border data-full-src height loading sizes src
+                  srcset width],
+      "ins" => %w[cite datetime],
+      "li" => %w[value],
+      "ol" => %w[reversed start type],
+      "q" => %w[cite],
+      "source" => %w[media sizes src srcset type],
+      "table" => %w[border cellpadding cellspacing width],
+      "td" => %w[align colspan rowspan valign width],
+      "th" => %w[align colspan rowspan scope valign width],
+      "time" => %w[datetime],
+      "tr" => %w[align valign],
+      "ul" => %w[type],
+      "video" => %w[autoplay controls height loop muted playsinline poster
+                    preload src width]
+    },
+    css: Sanitize::Config::RELAXED[:css],
+    transformers: [
+      SanitizeTransformers.url_attributes(URL_ATTRIBUTES),
+      SanitizeTransformers.iframe_permissions,
+      SanitizeTransformers.remove_classes(PROVIDER_CLASSES)
+    ]
+  )
+
   def process(post)
-    # Normalize <script> tags so the parser will find them
-    post = post.gsub(%r{<script[\s/]*}i, "<script ")
-
-    parser = Nokogiri::HTML5::DocumentFragment.parse(post)
-
-    remove_unsafe_tags(parser)
-    strip_event_handlers(parser)
-    strip_ujs_attributes(parser)
-    enforce_allowscriptaccess(parser)
-
-    parser.to_html.html_safe
-  end
-
-  private
-
-  def script_whitelist
-    [
-      "www.instagram.com/embed.js",
-      "secure.assets.tumblr.com/post.js",
-      "embed.bsky.app/static/embed.js"
-    ] + MASTODON_PROVIDERS.map { |host| "#{host}/embed.js" }
-  end
-
-  def remove_unsafe_tags(parser)
-    %w[applet base meta link form].each do |tag_name|
-      parser.xpath(".//#{tag_name}").remove
-    end
-    parser.xpath(".//script").each do |elem|
-      src = elem.attributes["src"]&.value&.gsub(%r{\A(https?:)?//}, "")
-      elem.remove unless script_whitelist.include?(src)
-    end
-  end
-
-  def ujs_attributes
-    %w[data-confirm
-       data-disable-with
-       data-method
-       data-params
-       data-remote
-       data-type
-       data-url]
-  end
-
-  def strip_event_handlers(parser)
-    parser.xpath(".//*").each do |elem|
-      elem.attributes.each do |name, a|
-        # XSS fix
-        elem.remove_attribute(name) if a.value && a.value.downcase.gsub(/\\*/, "") =~ /^\s*javascript:/
-        # Strip out event handlers
-        elem.remove_attribute(name) if /^on/.match?(name.downcase)
-      end
-    end
-  end
-
-  def strip_ujs_attributes(parser)
-    parser.xpath(".//*").each do |elem|
-      elem.attributes.each_key do |name|
-        elem.remove_attribute(name) if ujs_attributes.include?(name.downcase)
-      end
-    end
-  end
-
-  # Enforces allowScriptAccess = sameDomain on iframes and other embeds.
-  def enforce_allowscriptaccess(parser)
-    parser.xpath(".//*").each { |e| change_allowscriptaccess_attribute_on(e) }
-
-    parser.xpath(".//embed")
-          .each { |e| enforce_allowscriptaccess_attribute_on(e) }
-
-    # Change allowScriptAccess in param tags
-    parser.xpath(".//param").each { |e| change_allowscriptaccess_for_param(e) }
-
-    # Make sure there's a <param name="allowScriptAccess" value="sameDomain">
-    # in object tags
-    parser.xpath(".//object").each { |e| enforce_allowscriptaccess_param_in(e) }
-  end
-
-  # Changes allowScriptAccess to sameDomain on element if the attribute
-  # is present.
-  def change_allowscriptaccess_attribute_on(element)
-    element.attributes.each_key do |name|
-      element.set_attribute name, "sameDomain" if name.downcase.match?(/^allowscriptaccess/)
-    end
-  end
-
-  # Adds allowScriptAccess to element if the attribute isn't present.
-  def enforce_allowscriptaccess_attribute_on(element)
-    element.set_attribute "allowScriptAccess", "sameDomain"
-  end
-
-  # Changes value on param to sameDomain if name = allowScriptAccess.
-  def change_allowscriptaccess_for_param(element)
-    element.attributes.each do |name, attr|
-      # Change allowScriptAccess to sameDomain
-      next unless name.casecmp("name").zero? &&
-                  attr.value.casecmp("allowscriptaccess").zero?
-
-      element.set_attribute "name", "allowScriptAccess"
-      element.set_attribute "value", "sameDomain"
-    end
-  end
-
-  # Makes sure the element contains an allowScriptAccess param.
-  def enforce_allowscriptaccess_param_in(element)
-    return unless element.xpath("./param[@name='allowScriptAccess']").empty?
-
-    element.inner_html +=
-      '<param name="allowScriptAccess" value="sameDomain" />'
+    Sanitize.fragment(post, CONFIG)
   end
 end
