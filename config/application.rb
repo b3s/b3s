@@ -50,6 +50,8 @@ module B3s
 
     config.active_record.schema_format = :sql
 
+    config.action_dispatch.default_headers["X-Frame-Options"] = "DENY"
+
     config.solid_queue.connects_to = { database: { writing: :queue } }
 
     config.semantic_logger.application = "b3s"

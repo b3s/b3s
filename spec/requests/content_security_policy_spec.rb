@@ -48,7 +48,11 @@ RSpec.describe "Content Security Policy" do
       expect(directive("object-src")).to eq("object-src 'none'")
       expect(directive("base-uri")).to eq("base-uri 'self'")
       expect(directive("form-action")).to eq("form-action 'self'")
-      expect(directive("frame-ancestors")).to eq("frame-ancestors 'self'")
+      expect(directive("frame-ancestors")).to eq("frame-ancestors 'none'")
+    end
+
+    it "denies framing in browsers without CSP" do
+      expect(response.headers["X-Frame-Options"]).to eq("DENY")
     end
 
     it "blocks inline event handlers" do
