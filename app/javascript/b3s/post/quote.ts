@@ -1,8 +1,4 @@
-function escapeHtml(text: string) {
-  const elem = document.createElement("div");
-  elem.textContent = text;
-  return elem.innerHTML;
-}
+import { escapeHtml } from "../../lib/escape";
 
 export default function quote(elem: HTMLDivElement) {
   let html = "";
