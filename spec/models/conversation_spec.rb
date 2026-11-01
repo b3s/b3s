@@ -58,6 +58,12 @@ describe Conversation do
           conversation.remove_participant(user)
         end.to change { conversation.participants.count }.by(-1)
       end
+
+      it "disconnects the removed participant's cable connections" do
+        expect { conversation.remove_participant(user) }
+          .to have_broadcasted_to("action_cable/#{user.to_gid_param}")
+          .with(type: "disconnect", reconnect: true)
+      end
     end
 
     context "with only one participant" do
