@@ -3,8 +3,6 @@
 class ImageFilter < Filter
   MAX_IMAGE_BYTES = 65_536
   PROBE_DEADLINE = 3
-  RENDER_BUDGET = 6
-  MAX_PROBES = 25
 
   def process(post)
     parser = Nokogiri::HTML5::DocumentFragment.parse(post)
@@ -49,16 +47,10 @@ class ImageFilter < Filter
     return if data_image?(url) && url.bytesize > UrlPolicy::DATA_IMAGE_MAX_BYTES
 
     cached_probe("image-size", url) do
-      throw :skip_probe unless data_image?(url) || probe_budget?
+      throw :skip_probe unless data_image?(url) || fetch_budget.spend?
 
       fetch_image_size(url)
     end
-  end
-
-  def probe_budget?
-    @render_deadline ||= monotonic_now + RENDER_BUDGET
-    @probes = (@probes || 0) + 1
-    @probes <= MAX_PROBES && monotonic_now < @render_deadline
   end
 
   def fetch_image_size(url)
