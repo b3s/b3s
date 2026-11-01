@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
 
   def self.sentry_parameter_filter
     @sentry_parameter_filter ||= ActiveSupport::ParameterFilter.new(
-      Rails.application.config.filter_parameters + [:body, "conversation.title"]
+      Rails.application.config.filter_parameters + [:body, "conversation.title", "invite.message"]
     )
   end
 
