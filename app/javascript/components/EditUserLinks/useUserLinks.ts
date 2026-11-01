@@ -21,6 +21,7 @@ function newUserLink(): UserLink.Link {
     name: "",
     url: "",
     deleted: false,
+    errors: [],
     handle: uuidv4()
   };
 }
@@ -76,7 +77,12 @@ function createInitialState(userLinks: UserLink.Link[]): UserLink.State {
   return {
     editing: null,
     userLinks: userLinks.map((ul) => {
-      return { ...ul, deleted: false, handle: uuidv4() };
+      return {
+        ...ul,
+        deleted: ul.deleted ?? false,
+        errors: ul.errors ?? [],
+        handle: uuidv4()
+      };
     })
   };
 }

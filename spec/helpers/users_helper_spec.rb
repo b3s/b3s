@@ -40,4 +40,38 @@ describe UsersHelper do
       it { is_expected.to eq(output) }
     end
   end
+
+  describe "#edit_user_links_props" do
+    subject(:props) { helper.edit_user_links_props(user) }
+
+    let(:user) { create(:user) }
+    let!(:saved) { create(:user_link, user:, label: "Saved", position: 1) }
+
+    before do
+      user.update(
+        user_links_attributes: [
+          { id: saved.id, _destroy: "true" },
+          { label: "Blog", url: "example.org" },
+          { label: "Website", url: "example.comm", position: 2 }
+        ]
+      )
+    end
+
+    it "sorts unsaved links without a position last" do
+      expect(props.pluck("label")).to eq(%w[Saved Website Blog])
+    end
+
+    it "includes unsaved links with their errors" do
+      expect(props.second).to include(
+        "id" => nil, "url" => "https://example.comm", "deleted" => false,
+        "errors" => ["URL doesn't have a valid domain"]
+      )
+    end
+
+    it "keeps links marked for deletion" do
+      expect(props.first).to include(
+        "id" => saved.id, "deleted" => true, "errors" => []
+      )
+    end
+  end
 end

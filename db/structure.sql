@@ -1397,6 +1397,7 @@ CREATE TRIGGER tsvectorupdate_posts BEFORE INSERT OR UPDATE ON public.posts FOR 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261101180000'),
 ('20261101120000'),
 ('20260904042049'),
 ('20260525200000'),

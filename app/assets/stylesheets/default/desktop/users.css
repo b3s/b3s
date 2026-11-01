@@ -171,6 +171,9 @@ span.admin {
     .info {
       flex-grow: 1;
     }
+    .link-errors {
+      color: #a00;
+    }
     .buttons {
       align-self: center;
     }

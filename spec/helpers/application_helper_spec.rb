@@ -71,4 +71,27 @@ describe ApplicationHelper do
       it { is_expected.to eq(link) }
     end
   end
+
+  describe "#user_link" do
+    subject { helper.user_link(link) }
+
+    context "when the URL has no scheme" do
+      let(:link) { build(:user_link, name: nil, url: "example.com/foo") }
+      let(:html) { '<a href="https://example.com/foo">example.com/foo</a>' }
+
+      it { is_expected.to eq(html) }
+    end
+
+    context "when the URL has a non-http scheme" do
+      let(:link) { build(:user_link, name: nil, url: "javascript:alert(1)") }
+
+      it { is_expected.to eq("javascript:alert(1)") }
+    end
+
+    context "without a URL" do
+      let(:link) { build(:user_link, name: "foo", url: "") }
+
+      it { is_expected.to eq("foo") }
+    end
+  end
 end

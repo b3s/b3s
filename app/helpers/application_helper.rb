@@ -41,7 +41,7 @@ module ApplicationHelper
   end
 
   def user_link(link)
-    return link.name_or_pretty_url unless link.url?
+    return link.name_or_pretty_url unless link.url&.match?(%r{\Ahttps?://}i)
 
     link_to(link.name_or_pretty_url, link.url)
   end

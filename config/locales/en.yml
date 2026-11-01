@@ -27,6 +27,8 @@ en:
         banned_until: Banned until
         hiatus_until: Go on hiatus until
         memorialized: Memorialized
+      user_link:
+        url: URL
     errors:
       models:
         invite:
