@@ -111,6 +111,6 @@ class ApplicationController < ActionController::Base
   end
 
   def search_query
-    params[:q]
+    params[:q]&.to_s&.first(1_000)
   end
 end
