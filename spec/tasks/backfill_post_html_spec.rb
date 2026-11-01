@@ -27,6 +27,14 @@ RSpec.describe "b3s:backfill_post_html", type: :task do
     expect(post.updated_at).to be > 1.minute.ago
   end
 
+  it "touches the post's user" do
+    expect(post.user.reload.updated_at).to be > 1.minute.ago
+  end
+
+  it "touches the post's exchange" do
+    expect(post.exchange.reload.updated_at).to be > 1.minute.ago
+  end
+
   context "when the post already has rendered HTML" do
     let(:post) do
       travel_to(1.day.ago) { create(:post, body: "Hello") }

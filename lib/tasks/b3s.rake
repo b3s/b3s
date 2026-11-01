@@ -43,6 +43,8 @@ namespace :b3s do
         # rubocop:disable-next Rails/SkipsModelValidations
         Post.transaction do
           rendered.each { |post, html| post.update_columns(body_html: html, updated_at: Time.current) }
+          User.where(id: rendered.map { |post, _| post.user_id }.uniq).touch_all
+          Exchange.where(id: rendered.map { |post, _| post.exchange_id }.uniq).touch_all
         end
       end
 
