@@ -4,7 +4,6 @@ import eslintConfigPrettier from "eslint-config-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
-import { fixupPluginRules } from "@eslint/compat";
 
 export default [
   js.configs.recommended,
@@ -13,7 +12,7 @@ export default [
   {
     plugins: {
       react: react,
-      'react-hooks': fixupPluginRules(reactHooks),
+      'react-hooks': reactHooks,
     },
     rules: {
       ...react.configs.recommended.rules,
