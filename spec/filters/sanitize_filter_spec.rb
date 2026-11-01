@@ -146,6 +146,24 @@ describe SanitizeFilter do
     it { is_expected.to eq("<a href=\"//example.com/\" #{rel}>foo</a>") }
   end
 
+  context "when input contains a link starting with two backslashes" do
+    let(:input) { '<a href="\\\\example.com/">foo</a>' }
+
+    it { is_expected.to eq("<a href=\"\\\\example.com/\" #{rel}>foo</a>") }
+  end
+
+  context "when input contains a link starting with a slash and a backslash" do
+    let(:input) { '<a href="/\\example.com/" target="_blank">foo</a>' }
+
+    it { is_expected.to eq("<a href=\"/\\example.com/\" target=\"_blank\" #{rel}>foo</a>") }
+  end
+
+  context "when input contains a link starting with a backslash and a slash" do
+    let(:input) { '<a href="\\/example.com/">foo</a>' }
+
+    it { is_expected.to eq("<a href=\"\\/example.com/\" #{rel}>foo</a>") }
+  end
+
   context "when input contains a relative link" do
     let(:input) { '<a href="/discussions/1#post-2" rel="nofollow">foo</a>' }
 
@@ -156,6 +174,50 @@ describe SanitizeFilter do
     let(:input) { '<a href="ftp://example.com/file">foo</a>' }
 
     it { is_expected.to eq("<a>foo</a>") }
+  end
+
+  context "when input contains a relative link with a colon in the query" do
+    let(:input) { '<a href="page?t=12:30">foo</a>' }
+
+    it { is_expected.to eq("<a>foo</a>") }
+  end
+
+  context "when input contains a root-relative link with a colon in the query" do
+    let(:input) { '<a href="/page?t=12:30">foo</a>' }
+
+    it { is_expected.to eq(input) }
+  end
+
+  ["java\tscript:alert(1)", "java\nscript:alert(1)", "jav&#x09;ascript:alert(1)"].each do |url|
+    context "when input contains a link to #{url.inspect}" do
+      let(:input) { "<a href=\"#{url}\">foo</a>" }
+
+      it { is_expected.to eq("<a>foo</a>") }
+    end
+
+    context "when input contains an image from #{url.inspect}" do
+      let(:input) { "<img src=\"#{url}\">" }
+
+      it { is_expected.to eq("<img>") }
+    end
+  end
+
+  context "when input contains a link with a tab in the scheme" do
+    let(:input) { "<a href=\"ht\ttps://example.com/\">foo</a>" }
+
+    it { is_expected.to eq("<a href=\"https://example.com/\" #{rel}>foo</a>") }
+  end
+
+  context "when input contains a link with leading control characters" do
+    let(:input) { "<a href=\"\u0001 https://example.com/\">foo</a>" }
+
+    it { is_expected.to eq("<a href=\"https://example.com/\" #{rel}>foo</a>") }
+  end
+
+  context "when input contains an image with a tab in the scheme" do
+    let(:input) { "<img src=\"ht\ttps://example.com/a.png\">" }
+
+    it { is_expected.to eq('<img src="https://example.com/a.png">') }
   end
 
   context "when input contains a data URI image" do
