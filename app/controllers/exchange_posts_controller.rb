@@ -7,10 +7,10 @@ class ExchangePostsController < ApplicationController
   requires_user except: %i[since search]
 
   before_action :find_exchange
+  before_action :verify_viewable
   before_action :find_post, only: %i[edit update]
   before_action :verify_editable, only: %i[edit update]
   before_action :verify_postable, only: %i[create preview]
-  before_action :verify_viewable
 
   after_action :mark_conversation_viewed, only: %i[since]
   after_action :mark_exchange_viewed, only: %i[since]

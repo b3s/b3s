@@ -141,14 +141,10 @@ RSpec.describe "ExchangePosts" do
     end
 
     context "when user is not a participant" do
-      it "redirects to the conversation" do
-        expect(response).to redirect_to(
-          conversation_url(exchange, page: exchange.last_page)
-        )
-      end
+      it { is_expected.to redirect_to(root_url) }
 
       it "sets a flash notice" do
-        expect(flash[:notice]).to eq(I18n.t("exchange.closed"))
+        expect(flash[:notice]).to eq(I18n.t("exchange.not_viewable"))
       end
 
       it "does not create a post" do
@@ -323,6 +319,17 @@ RSpec.describe "ExchangePosts" do
       it "sets the flash" do
         expect(flash[:notice]).to eq(I18n.t("exchange.not_viewable"))
       end
+    end
+  end
+
+  describe "GET /conversations/:conversation_id/posts/:id/edit" do
+    let(:exchange) { create(:conversation) }
+    let(:existing_post) { create(:post, exchange:) }
+
+    before { get edit_conversation_post_path(exchange, existing_post) }
+
+    context "when user is not a participant" do
+      it { is_expected.to redirect_to(root_url) }
     end
   end
 
