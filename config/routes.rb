@@ -149,7 +149,6 @@ Rails.application.routes.draw do
     get "all", on: :collection
     get "accept", on: :collection
   end
-  get "/invites/:token/accept" => "invites#accept", as: :legacy_accept_invite
 
   namespace :admin do
     resource :configuration

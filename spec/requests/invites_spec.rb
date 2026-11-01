@@ -109,12 +109,6 @@ RSpec.describe "Invites" do
     end
   end
 
-  describe "GET /invites/:token/accept" do
-    before { get legacy_accept_invite_path(token) }
-
-    it_behaves_like "an invite link"
-  end
-
   describe "GET /invites/new" do
     before do
       login_as(user)
