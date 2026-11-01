@@ -74,7 +74,7 @@ class ApplicationController < ActionController::Base
 
   def set_sentry_context
     Sentry.set_user(current_user_context)
-    Sentry.set_extras(params: params.to_unsafe_h)
+    Sentry.set_extras(params: request.filtered_parameters)
   end
 
   def set_section
