@@ -41,7 +41,9 @@ namespace :b3s do
 
       unless dry_run
         # rubocop:disable-next Rails/SkipsModelValidations
-        Post.transaction { rendered.each { |post, html| post.update_column(:body_html, html) } }
+        Post.transaction do
+          rendered.each { |post, html| post.update_columns(body_html: html, updated_at: Time.current) }
+        end
       end
 
       backfilled += rendered.size
