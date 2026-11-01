@@ -254,6 +254,38 @@ RSpec.describe "ExchangePosts" do
 
       it { is_expected.to have_http_status(:not_found) }
     end
+
+    context "when post belongs to another exchange" do
+      let(:existing_post) { create(:conversation).posts.first }
+      let(:user) { create(:user, :moderator) }
+
+      it { is_expected.to have_http_status(:not_found) }
+
+      it "does not update the post" do
+        expect(existing_post.reload.body).not_to eq("foo")
+      end
+    end
+  end
+
+  describe "PUT /conversations/:conversation_id/posts/:id" do
+    let(:exchange) { create(:conversation) }
+    let(:user) { exchange.poster }
+    let(:existing_post) { exchange.posts.first }
+
+    before do
+      put conversation_post_path(exchange, existing_post),
+          params: { post: { body: "foo", format: "html" } }
+    end
+
+    it "redirects to the conversation with post anchor" do
+      expect(response).to redirect_to(
+        conversation_url(exchange, page: 1, anchor: "post-#{existing_post.id}")
+      )
+    end
+
+    it "updates the post body" do
+      expect(existing_post.reload.body).to eq("foo")
+    end
   end
 
   describe "GET /discussions/:discussion_id/posts/since" do
@@ -336,6 +368,31 @@ RSpec.describe "ExchangePosts" do
       before { get edit_discussion_post_path(exchange, 999_999) }
 
       it { is_expected.to have_http_status(:not_found) }
+    end
+
+    context "when post belongs to another exchange" do
+      let(:existing_post) { create(:conversation).posts.first }
+      let(:user) { create(:user, :moderator) }
+
+      it { is_expected.to have_http_status(:not_found) }
+
+      it "does not include the post body in the response" do
+        expect(response.body).not_to include(existing_post.body)
+      end
+    end
+  end
+
+  describe "GET /conversations/:conversation_id/posts/:id/edit" do
+    let(:exchange) { create(:conversation) }
+    let(:user) { exchange.poster }
+    let(:existing_post) { exchange.posts.first }
+
+    before { get edit_conversation_post_path(exchange, existing_post) }
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes the post body in the response" do
+      expect(response.body).to include(existing_post.body)
     end
   end
 

@@ -85,7 +85,7 @@ class ExchangePostsController < ApplicationController
   end
 
   def find_post
-    @post = Post.find(params.expect(:id))
+    @post = @exchange.posts.find(params.expect(:id))
   end
 
   def post_params
