@@ -7,7 +7,6 @@ class RegistrationsController < ApplicationController
 
   def new
     if @invite
-      session[:invite_token] = @invite.token
       @user = @invite.user.invitees.new
       @user.email = @invite.email
     else
@@ -38,15 +37,8 @@ class RegistrationsController < ApplicationController
   end
 
   def find_invite
-    @invite = Invite.find_by(token: invite_token) if invite_token?
-  end
-
-  def invite_token
-    params[:token] || session[:invite_token]
-  end
-
-  def invite_token?
-    invite_token ? true : false
+    token = session[:invite_token]
+    @invite = Invite.find_by(token: token.to_s) if token
   end
 
   def finalize_successful_signup

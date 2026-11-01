@@ -30,7 +30,7 @@ describe Mailer do
 
       it { is_expected.to match(B3S.config.forum_name) }
       it { is_expected.to match(invite.user.realname) }
-      it { is_expected.to include("http://example.com/invites/#{invite.token}/accept") }
+      it { is_expected.to include("http://example.com/invites/accept?token=#{invite.token}") }
       it { is_expected.to match("My message") }
     end
   end
@@ -83,7 +83,7 @@ describe Mailer do
 
     it "links invites to https://b3s.me" do
       expect(described_class.invite(invite).body.encoded)
-        .to include("https://b3s.me/invites/#{invite.token}/accept")
+        .to include("https://b3s.me/invites/accept?token=#{invite.token}")
     end
 
     it "links new users to https://b3s.me" do

@@ -1,8 +1,4 @@
-<%# locals: (f:, invite: nil) %>
-
-<% if invite %>
-  <%= hidden_field_tag "token", invite.token %>
-<% end %>
+<%# locals: (f:) %>
 
 <%= f.labelled_text_field :username %>
 <%= f.labelled_text_field :email, size: 50 %>

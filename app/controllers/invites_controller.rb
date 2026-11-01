@@ -5,6 +5,7 @@ class InvitesController < ApplicationController
   requires_user except: [:accept]
   requires_user_admin only: [:all]
 
+  before_action :set_referrer_policy, only: %i[accept]
   before_action :find_invite, only: %i[destroy]
   before_action :find_invite_by_token, only: %i[accept]
   before_action :verify_available_invites, only: %i[new create]
@@ -22,7 +23,7 @@ class InvitesController < ApplicationController
     if expire_invite(@invite)
       flash[:notice] ||= t("invite.expired")
     elsif @invite
-      redirect_to new_registration_by_token_url(token: @invite.token)
+      redirect_to new_registration_url
       return
     else
       flash[:notice] ||= t("invite.invalid")
@@ -84,7 +85,7 @@ class InvitesController < ApplicationController
   end
 
   def find_invite_by_token
-    @invite = Invite.find_by(token: params[:id])
+    @invite = Invite.find_by(token: params[:token].to_s) if params[:token]
   end
 
   def session_invite_token(invite)
@@ -92,6 +93,10 @@ class InvitesController < ApplicationController
     return if invite.expired?
 
     invite.token
+  end
+
+  def set_referrer_policy
+    response.set_header("Referrer-Policy", "no-referrer")
   end
 
   def verify_available_invites
