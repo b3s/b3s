@@ -285,6 +285,39 @@ describe SanitizeFilter do
     it { is_expected.to eq("<iframe src=\"https://www.youtube.com/embed/abcd\" #{sandbox}></iframe>") }
   end
 
+  context "when input contains an iframe of the forum itself" do
+    before { B3S.config.domain_names = "b3s.example, Forum.Example" }
+
+    after { B3S.config.domain_names = nil }
+
+    [
+      "https://b3s.example/discussions/1",
+      "https://B3S.Example/",
+      "https://forum.example/",
+      "https://b3s.example:443/",
+      "https://b3s.example./",
+      "https://www.b3s.example/",
+      "https://user@b3s.example/",
+      "https://b3s%2Eexample/",
+      "https:\\\\b3s.example/",
+      "https:/b3s.example/",
+      "//b3s.example/",
+      "https://\uFF42\uFF13s.example/"
+    ].each do |src|
+      context "with the src #{src}" do
+        let(:input) { "<p>a</p><iframe src=\"#{src}\"></iframe>" }
+
+        it { is_expected.to eq("<p>a</p>") }
+      end
+    end
+
+    context "with a host that only ends with the domain name" do
+      let(:input) { '<iframe src="https://notb3s.example/"></iframe>' }
+
+      it { is_expected.to eq("<iframe src=\"https://notb3s.example/\" #{sandbox}></iframe>") }
+    end
+  end
+
   context "when input contains fixed positioning" do
     let(:input) do
       '<div style="position: fixed; top: 0; color: red">a</div>' \

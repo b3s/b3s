@@ -29,6 +29,18 @@ module UrlPolicy
         (protocol(url) || url.start_with?("//", "\\", "/\\"))
     end
 
+    def local_or_ambiguous_host?(url, domains)
+      authority = url[%r{\A[a-z][a-z0-9+.-]*:[/\\]*([^/\\?#]*)}i, 1]
+      return false unless authority
+
+      host = CGI.unescape(authority.split("@").last.sub(/:\d*\z/, "")).downcase.sub(/\.+\z/, "")
+      return true unless host.match?(/\A[a-z0-9.-]+\z/)
+
+      domains.map { |domain| domain.strip.downcase }.compact_blank.any? do |domain|
+        host == domain || host.end_with?(".#{domain}")
+      end
+    end
+
     private
 
     def allowed?(url, protocols)

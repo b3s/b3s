@@ -63,6 +63,7 @@ class SanitizeFilter < Filter
     transformers: [
       SanitizeTransformers.urls,
       SanitizeTransformers.srcset(MEDIA_PROTOCOLS),
+      SanitizeTransformers.remove_local_iframes,
       SanitizeTransformers.iframe_permissions,
       SanitizeTransformers.remove_classes(PROVIDER_CLASSES),
       SanitizeTransformers.restrict_positioning,

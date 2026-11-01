@@ -53,6 +53,15 @@ module SanitizeTransformers
       end
     end
 
+    def remove_local_iframes
+      lambda do |env|
+        node = env[:node]
+        next unless env[:node_name] == "iframe" && node.has_attribute?("src")
+
+        node.unlink if UrlPolicy.local_or_ambiguous_host?(node["src"], B3S.config.domain_names.to_s.split(","))
+      end
+    end
+
     def remove_classes(names)
       lambda do |env|
         node = env[:node]
