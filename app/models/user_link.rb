@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 class UserLink < ApplicationRecord
-  URL_PATTERN = %r{\A(?:https?://)?(?<host>[a-zA-Z0-9\-.]+)(?:/\S*)?\z}
+  URL_PATTERN = %r{
+    \A(?:https?://)?
+    (?<host>(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)
+    (?:/\S*)?\z
+  }ix
 
   belongs_to :user
 

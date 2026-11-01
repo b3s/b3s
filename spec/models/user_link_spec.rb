@@ -27,6 +27,10 @@ describe UserLink do
     it { is_expected.not_to allow_value("co.uk").for(:url) }
     it { is_expected.not_to allow_value("javascript:alert(1)").for(:url) }
     it { is_expected.not_to allow_value("example").for(:url) }
+    it { is_expected.not_to allow_value("example..com").for(:url) }
+    it { is_expected.not_to allow_value("-a.com").for(:url) }
+    it { is_expected.not_to allow_value("a-.com").for(:url) }
+    it { is_expected.not_to allow_value(".com").for(:url) }
 
     it do
       expect(user_link).not_to allow_value("example.comm")
