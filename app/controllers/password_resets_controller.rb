@@ -19,6 +19,7 @@ class PasswordResetsController < ApplicationController
   def update
     if user_params[:password].present? && @user.update(user_params)
       session.delete(:password_reset_token)
+      deauthenticate!
       authenticate!(@user)
       flash[:notice] = t("password_reset.changed")
       redirect_to root_url
@@ -30,10 +31,7 @@ class PasswordResetsController < ApplicationController
   private
 
   def deliver_password_reset(user)
-    Mailer.password_reset(
-      user.email,
-      password_reset_url(token: user.generate_token_for(:password_reset))
-    ).deliver_later
+    Mailer.password_reset(user).deliver_later
   end
 
   def fail_reset(message)
@@ -44,7 +42,10 @@ class PasswordResetsController < ApplicationController
   def find_by_token
     @user = User.find_by_token_for(:password_reset,
                                    session[:password_reset_token].to_s)
-    fail_reset(t("password_reset.invalid")) unless @user
+    return if @user
+
+    session.delete(:password_reset_token)
+    fail_reset(t("password_reset.invalid"))
   end
 
   def set_referrer_policy

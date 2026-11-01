@@ -54,13 +54,22 @@ describe Mailer do
   describe "password_reset" do
     subject { mail }
 
-    let(:mail) do
-      described_class.password_reset("user@example.com", "http://example.com")
-    end
+    let(:user) { create(:user) }
+    let(:mail) { described_class.password_reset(user) }
 
     specify { expect(mail.subject).to eq("Password reset for B3S") }
-    specify { expect(mail.to).to eq(["user@example.com"]) }
+    specify { expect(mail.to).to eq([user.email]) }
     specify { expect(mail.from).to eq(["test@example.com"]) }
-    specify { expect(mail.body.encoded).to match("http://example.com") }
+
+    describe "its reset link" do
+      subject(:token) do
+        url = mail.body.encoded[%r{http://example\.com/password_reset\?\S+}]
+        Rack::Utils.parse_query(URI.parse(url).query)["token"]
+      end
+
+      it "resolves to the user" do
+        expect(User.find_by_token_for(:password_reset, token)).to eq(user)
+      end
+    end
   end
 end

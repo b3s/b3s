@@ -10,6 +10,10 @@
   <%= form_for(@user,
                url: password_reset_path,
                class: 'form') do |f| %>
+    <p>
+      <%= t("password_reset.resetting", username: @user.username) %>
+    </p>
+
     <fieldset>
       <%= f.label :password %>
       <%= f.password_field :password %>

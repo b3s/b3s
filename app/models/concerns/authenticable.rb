@@ -7,7 +7,7 @@ module Authenticable
     has_secure_password
 
     generates_token_for :password_reset, expires_in: 24.hours do
-      password_salt&.last(10)
+      [email, password_reset_fingerprint]
     end
 
     before_validation :go_on_hiatus
@@ -62,6 +62,13 @@ module Authenticable
   end
 
   protected
+
+  def password_reset_fingerprint
+    return password_salt.last(10) if BCrypt::Password.valid_hash?(password_digest)
+
+    OpenSSL::HMAC.hexdigest("SHA256", Rails.application.secret_key_base,
+                            password_digest.to_s).last(10)
+  end
 
   def clear_banned_until
     self.banned_until = nil if banned_until? && banned_until <= Time.now.utc

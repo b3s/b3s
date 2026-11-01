@@ -38,6 +38,26 @@ RSpec.describe "PasswordResets" do
       end
     end
 
+    context "when the email is enqueued" do
+      it "does not put the token in the job arguments" do
+        expect { post password_reset_path, params: { email: user.email } }
+          .to have_enqueued_mail(Mailer, :password_reset).with(user)
+      end
+    end
+
+    context "with a legacy password digest" do
+      before do
+        user.update(password_digest: Digest::SHA1.hexdigest("legacy"))
+        perform_enqueued_jobs do
+          post password_reset_path, params: { email: user.email }
+        end
+      end
+
+      it "sends an email to the user" do
+        expect(last_email.to).to eq([user.email])
+      end
+    end
+
     context "with a non-existant user" do
       before do
         post password_reset_path, params: { email: "none@example.com" }
@@ -69,6 +89,36 @@ RSpec.describe "PasswordResets" do
       it "renders the password reset form" do
         follow_redirect!
         expect(response).to have_http_status(:success)
+      end
+
+      it "shows which account is being reset" do
+        follow_redirect!
+        expect(response.body).to include(
+          "Resetting the password for #{user.username}"
+        )
+      end
+    end
+
+    context "with a token for a legacy password digest" do
+      before do
+        user.update(password_digest: Digest::SHA1.hexdigest("legacy"))
+        get password_reset_path, params: { token: }
+      end
+
+      it "redirects to the password reset page without the token" do
+        expect(response).to redirect_to(password_reset_url)
+      end
+    end
+
+    context "when the email has changed since the token was issued" do
+      before do
+        token
+        user.update(email: "changed@example.com")
+        get password_reset_path, params: { token: }
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
       end
     end
 
@@ -162,6 +212,40 @@ RSpec.describe "PasswordResets" do
       end
     end
 
+    context "when signed in as another user" do
+      let(:other_user) { create(:user) }
+
+      before do
+        login_as(other_user)
+        get password_reset_path, params: { token: }
+        put password_reset_path, params: { user: user_params }
+      end
+
+      it "redirects to root" do
+        expect(response).to redirect_to(root_url)
+      end
+
+      it "logs in as the user whose password was reset" do
+        expect(session[:user_id]).to eq(user.id)
+      end
+
+      it "changes the password" do
+        expect(user.reload.authenticate("new password")).to eq(user)
+      end
+    end
+
+    context "with a legacy password digest" do
+      before do
+        user.update(password_digest: Digest::SHA1.hexdigest("legacy"))
+        get password_reset_path, params: { token: }
+        put password_reset_path, params: { user: user_params }
+      end
+
+      it "changes the password" do
+        expect(user.reload.authenticate("new password")).to eq(user)
+      end
+    end
+
     context "without valid data" do
       before do
         get password_reset_path, params: { token: }
@@ -225,6 +309,10 @@ RSpec.describe "PasswordResets" do
 
       it "does not change the password" do
         expect(user.reload.authenticate("new password")).to be(false)
+      end
+
+      it "clears the token from the session" do
+        expect(session[:password_reset_token]).to be_nil
       end
     end
   end

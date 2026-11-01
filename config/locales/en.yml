@@ -185,6 +185,7 @@ en:
   password_reset:
     changed: Your password has been changed
     invalid: Not a valid URL
+    resetting: Resetting the password for %{username}
     sent: An email with further instructions has been sent
   post:
     not_editable: You don't have permission to edit that post!
