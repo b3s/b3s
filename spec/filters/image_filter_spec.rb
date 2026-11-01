@@ -163,6 +163,48 @@ describe ImageFilter do
     end
   end
 
+  context "when the image is on an IPv4-mapped loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::ffff:127.0.0.1]/image.png" }
+    end
+  end
+
+  context "when the image is on an IPv4-mapped private address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::ffff:10.0.0.1]/image.png" }
+    end
+  end
+
+  context "when the image is on an IPv4-mapped link-local address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::ffff:169.254.169.254]/latest/meta-data/" }
+    end
+  end
+
+  context "when the image is on a hex IPv4-mapped loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::ffff:7f00:1]/image.png" }
+    end
+  end
+
+  context "when the image is on an IPv4-compatible loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::127.0.0.1]/image.png" }
+    end
+  end
+
+  context "when the image is on an IPv4-translated loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::ffff:0:7f00:1]/image.png" }
+    end
+  end
+
+  context "when the image is on a NAT64 loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[64:ff9b::127.0.0.1]/image.png" }
+    end
+  end
+
   context "when the hostname resolves to a private address" do
     before do
       allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["192.168.1.10"])
@@ -180,6 +222,36 @@ describe ImageFilter do
 
     it_behaves_like "a blocked image" do
       let(:url) { "https://internal.example.com/image.png" }
+    end
+  end
+
+  context "when the hostname resolves to an IPv4-mapped loopback address" do
+    before do
+      allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["::ffff:127.0.0.1"])
+    end
+
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://internal.example.com/image.png" }
+    end
+  end
+
+  context "when the hostname resolves to an IPv4-mapped private address" do
+    before do
+      allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["::ffff:10.0.0.1"])
+    end
+
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://internal.example.com/image.png" }
+    end
+  end
+
+  context "when the hostname resolves to an IPv4-mapped link-local address" do
+    before do
+      allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["::ffff:169.254.169.254"])
+    end
+
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://internal.example.com/image.png" }
     end
   end
 
