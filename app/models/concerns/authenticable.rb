@@ -6,7 +6,7 @@ module Authenticable
   included do
     has_secure_password
 
-    generates_token_for :password_reset, expires_in: 24.hours do
+    generates_token_for :password_reset, expires_in: 2.hours do
       password_reset_fingerprint
     end
 

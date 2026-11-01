@@ -63,7 +63,7 @@ class InvitesController < ApplicationController
   end
 
   def deliver_invite!(invite)
-    Mailer.invite(invite, accept_invite_url(id: invite.token)).deliver_later
+    Mailer.invite(invite).deliver_later
   rescue Net::SMTPFatalError, Net::SMTPSyntaxError
     @invite.destroy
     false

@@ -132,6 +132,30 @@ describe Authenticable do
     end
   end
 
+  describe "password reset token" do
+    subject { User.find_by_token_for(:password_reset, token) }
+
+    let(:token) { user.generate_token_for(:password_reset) }
+
+    context "when it is 1 hour and 59 minutes old" do
+      before do
+        token
+        travel 1.hour + 59.minutes
+      end
+
+      it { is_expected.to eq(user) }
+    end
+
+    context "when it is 2 hours and 1 minute old" do
+      before do
+        token
+        travel 2.hours + 1.minute
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe "#update_persistence_token" do
     subject { user.persistence_token }
 
