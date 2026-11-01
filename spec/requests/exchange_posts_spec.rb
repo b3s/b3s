@@ -435,6 +435,37 @@ RSpec.describe "ExchangePosts" do
     end
   end
 
+  describe "rendering posts on create and preview" do
+    before do
+      exchange
+      allow(Renderer).to receive(:render).and_call_original
+    end
+
+    context "when previewing" do
+      before do
+        post preview_discussion_posts_path(exchange),
+             params: { post: { body: "preview text", format: "html" } }
+      end
+
+      it "renders the post once" do
+        expect(Renderer).to have_received(:render).once
+      end
+    end
+
+    context "when creating a post over the length limit as JSON" do
+      before do
+        post discussion_posts_path(exchange, format: :json),
+             params: { post: { body: "a" * 100_001, format: "html" } }
+      end
+
+      it { is_expected.to have_http_status(:unprocessable_content) }
+
+      it "does not render the post" do
+        expect(Renderer).not_to have_received(:render)
+      end
+    end
+  end
+
   describe "GET /discussions/:id/posts/search" do
     let(:query) { nil }
     let!(:matching_post) do

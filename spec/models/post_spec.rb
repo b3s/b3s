@@ -165,6 +165,32 @@ describe Post do
       end
     end
 
+    context "when not saved but preprocessed" do
+      let!(:post) { build(:post, exchange:).preprocess! }
+
+      before { allow(Renderer).to receive(:render) }
+
+      it { is_expected.to eq("<p>#{post.body}</p>\n") }
+
+      it "does not parse the post again" do
+        post.body_html
+        expect(Renderer).not_to have_received(:render)
+      end
+    end
+
+    context "when not saved and the body is over the length limit" do
+      let!(:post) { build(:post, exchange:, body: "a" * 100_001) }
+
+      before { allow(Renderer).to receive(:render) }
+
+      it { is_expected.to eq("") }
+
+      it "does not parse the post" do
+        post.body_html
+        expect(Renderer).not_to have_received(:render)
+      end
+    end
+
     context "when body_html has been set" do
       let!(:post) do
         create(:post, exchange:, body_html: "<p>Test</p>")
