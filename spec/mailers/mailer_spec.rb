@@ -75,8 +75,7 @@ describe Mailer do
   context "with the production URL options" do
     around do |example|
       original = ActionMailer::Base.default_url_options
-      ActionMailer::Base.default_url_options = { host: "b3s.me",
-                                                 protocol: "https" }
+      ActionMailer::Base.default_url_options = B3s::Application::MAILER_URL_OPTIONS
       example.run
     ensure
       ActionMailer::Base.default_url_options = original

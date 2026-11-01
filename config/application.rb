@@ -27,6 +27,7 @@ Bundler.require(*Rails.groups)
 module B3s
   class Application < Rails::Application
     HEALTH_CHECK_REQUEST = ->(request) { request.path == "/up" }
+    MAILER_URL_OPTIONS = { host: "b3s.me", protocol: "https" }.freeze
 
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1

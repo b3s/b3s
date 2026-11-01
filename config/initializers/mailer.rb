@@ -8,8 +8,6 @@ if Rails.env.production?
 end
 
 if Rails.env.production?
-  Rails.application.config.action_mailer.default_url_options = {
-    host: "b3s.me",
-    protocol: "https"
-  }
+  Rails.application.config.action_mailer.default_url_options =
+    B3s::Application::MAILER_URL_OPTIONS
 end
