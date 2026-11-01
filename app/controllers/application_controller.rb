@@ -17,6 +17,13 @@ class ApplicationController < ActionController::Base
   before_action :set_sentry_context
   before_action :set_variant
 
+  content_security_policy do |policy|
+    if (origin = user_stylesheet_origin)
+      policy.style_src(*policy.directives["style-src"], origin)
+      policy.font_src(*policy.directives["font-src"], origin)
+    end
+  end
+
   helper_method :current_section, :mobile_user_agent?, :theme, :mobile_theme,
                 :search_query
 
@@ -88,6 +95,22 @@ class ApplicationController < ActionController::Base
 
   def set_variant
     request.variant = :mobile if mobile_variant?
+  end
+
+  def user_stylesheet_origin
+    return unless current_user?
+
+    url = if request.variant.mobile?
+            current_user.mobile_stylesheet_url
+          else
+            current_user.stylesheet_url
+          end
+    return if url.blank?
+
+    uri = URI.parse(url.strip)
+    uri.origin if uri.is_a?(URI::HTTP) && uri.host.present?
+  rescue URI::InvalidURIError
+    nil
   end
 
   def mobile_theme
