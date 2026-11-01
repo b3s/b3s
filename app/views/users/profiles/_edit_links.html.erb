@@ -3,6 +3,6 @@
   "EditUserLinks",
   props: {
     labels: UserLink.labels,
-    userLinks: UserLinkResource.new(user.user_links.sorted).to_h
+    userLinks: edit_user_links_props(user)
   }
 ) %>

@@ -29,6 +29,15 @@ module UsersHelper
     tag.span(user.admin_labels.to_sentence, class: "admin")
   end
 
+  def edit_user_links_props(user)
+    user.user_links.sort_by { |ul| ul.position.to_i }.map do |ul|
+      UserLinkResource.new(ul).to_h.merge(
+        "deleted" => ul.marked_for_destruction?,
+        "errors" => ul.errors.map(&:message)
+      )
+    end
+  end
+
   def current_users_tab?(options)
     controller = options[:controller] || "users/lists"
     return false unless controller == params[:controller]

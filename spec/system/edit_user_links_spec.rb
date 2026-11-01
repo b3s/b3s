@@ -49,10 +49,21 @@ RSpec.describe "Editing user links", :js do
     expect(page).to have_link("example.com/foo", href: "HTTP://example.com/foo")
   end
 
-  it "reports an invalid domain from the server" do
-    visit_editor
-    add_link("Website", "example.comm")
-    click_on "Save"
-    expect(page).to have_text("Couldn't save your changes")
+  context "when the server rejects a link" do
+    before do
+      visit_editor
+      add_link("Website", "example.comm")
+      click_on "Save"
+      find("body", text: "Couldn't save your changes")
+    end
+
+    it "keeps the link in the editor" do
+      expect(page).to have_link("example.comm", href: "https://example.comm")
+    end
+
+    it "shows the error next to the link" do
+      expect(find(".user-link", text: "example.comm"))
+        .to have_css(".link-errors", text: "doesn't have a valid domain")
+    end
   end
 end

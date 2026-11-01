@@ -39,7 +39,7 @@ export default function Editor(props: EditorProps) {
     evt.preventDefault();
     dispatch({
       type: "save",
-      payload: { ...userLink, url: normalizeUrl(userLink.url) }
+      payload: { ...userLink, url: normalizeUrl(userLink.url), errors: [] }
     });
   };
 

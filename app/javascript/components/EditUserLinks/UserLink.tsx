@@ -59,6 +59,9 @@ export default function UserLink(props: Props) {
             <a href={normalizeUrl(userLink.url)}>{label(userLink)}</a>
           )}
         </div>
+        {userLink.errors.length > 0 && (
+          <div className="link-errors">{userLink.errors.join(", ")}</div>
+        )}
       </div>
       {!isDragging && (
         <div className="buttons">
