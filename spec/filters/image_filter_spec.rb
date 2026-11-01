@@ -181,6 +181,30 @@ describe ImageFilter do
     end
   end
 
+  context "when the image is on a hex IPv4-mapped loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::ffff:7f00:1]/image.png" }
+    end
+  end
+
+  context "when the image is on an IPv4-compatible loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::127.0.0.1]/image.png" }
+    end
+  end
+
+  context "when the image is on an IPv4-translated loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[::ffff:0:7f00:1]/image.png" }
+    end
+  end
+
+  context "when the image is on a NAT64 loopback address" do
+    it_behaves_like "a blocked image" do
+      let(:url) { "http://[64:ff9b::127.0.0.1]/image.png" }
+    end
+  end
+
   context "when the hostname resolves to a private address" do
     before do
       allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["192.168.1.10"])
