@@ -446,6 +446,39 @@ ALTER SEQUENCE public.invites_id_seq OWNED BY public.invites.id;
 
 
 --
+-- Name: oembed_responses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.oembed_responses (
+    id bigint NOT NULL,
+    url text NOT NULL,
+    html text NOT NULL,
+    fetched_at timestamp(6) without time zone NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: oembed_responses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.oembed_responses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: oembed_responses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.oembed_responses_id_seq OWNED BY public.oembed_responses.id;
+
+
+--
 -- Name: post_images; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -767,6 +800,13 @@ ALTER TABLE ONLY public.invites ALTER COLUMN id SET DEFAULT nextval('public.invi
 
 
 --
+-- Name: oembed_responses id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.oembed_responses ALTER COLUMN id SET DEFAULT nextval('public.oembed_responses_id_seq'::regclass);
+
+
+--
 -- Name: post_images id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -878,6 +918,14 @@ ALTER TABLE ONLY public.exchanges
 
 ALTER TABLE ONLY public.invites
     ADD CONSTRAINT invites_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: oembed_responses oembed_responses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.oembed_responses
+    ADD CONSTRAINT oembed_responses_pkey PRIMARY KEY (id);
 
 
 --
@@ -1147,6 +1195,13 @@ CREATE UNIQUE INDEX index_invites_on_email ON public.invites USING btree (email)
 
 
 --
+-- Name: index_oembed_responses_on_url; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_oembed_responses_on_url ON public.oembed_responses USING btree (url);
+
+
+--
 -- Name: index_post_images_on_content_hash; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1342,6 +1397,7 @@ CREATE TRIGGER tsvectorupdate_posts BEFORE INSERT OR UPDATE ON public.posts FOR 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261101120000'),
 ('20260904042049'),
 ('20260525200000'),
 ('20260524080100'),

@@ -33,7 +33,7 @@ class AutolinkFilter < Filter
   end
 
   def oembed(url)
-    embed = OEmbed::Providers.get(url).html.strip
+    embed = OembedResponse.html_for(url) { OEmbed::Providers.get(url).html.strip }
     "<div class=\"embed\" data-oembed-url=\"#{url}\">#{embed}</div>"
   rescue StandardError => e
     logger.error "Unexpected connection error #{e.inspect}"
