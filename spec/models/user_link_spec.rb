@@ -44,6 +44,80 @@ describe UserLink do
     end
   end
 
+  describe "#url=" do
+    subject(:url) { build(:user_link, url: value).url }
+
+    context "without a scheme" do
+      let(:value) { "example.com/foo" }
+
+      it { is_expected.to eq("https://example.com/foo") }
+    end
+
+    context "with http://" do
+      let(:value) { "http://example.com/foo" }
+
+      it { is_expected.to eq("http://example.com/foo") }
+    end
+
+    context "with https://" do
+      let(:value) { "https://example.com/foo" }
+
+      it { is_expected.to eq("https://example.com/foo") }
+    end
+
+    context "with a mixed-case scheme" do
+      let(:value) { "HTTP://example.com/foo" }
+
+      it { is_expected.to eq("HTTP://example.com/foo") }
+    end
+
+    context "with another scheme" do
+      let(:value) { "mailto:someone@example.com" }
+
+      it { is_expected.to eq("mailto:someone@example.com") }
+    end
+
+    context "when validating another scheme" do
+      subject(:user_link) { build(:user_link, url: "mailto:someone@example.com") }
+
+      it { is_expected.not_to be_valid }
+    end
+
+    context "when blank" do
+      let(:value) { "  " }
+
+      it { is_expected.to eq("") }
+    end
+
+    context "when nil" do
+      let(:value) { nil }
+
+      it { is_expected.to be_nil }
+    end
+
+    context "with surrounding spaces" do
+      let(:value) { "  example.com/foo  " }
+
+      it { is_expected.to eq("https://example.com/foo") }
+    end
+  end
+
+  describe "#name_or_pretty_url" do
+    subject { build(:user_link, name: nil, url:).name_or_pretty_url }
+
+    context "without a scheme" do
+      let(:url) { "example.com/foo" }
+
+      it { is_expected.to eq("example.com/foo") }
+    end
+
+    context "with an uppercase scheme" do
+      let(:url) { "HTTP://example.com/foo" }
+
+      it { is_expected.to eq("example.com/foo") }
+    end
+  end
+
   describe ".labels" do
     subject { described_class.labels }
 

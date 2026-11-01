@@ -5,6 +5,7 @@ declare namespace UserLink {
     name: string;
     url: string;
     deleted: boolean;
+    errors: string[];
     handle: string;
   };
 

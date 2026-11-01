@@ -1,6 +1,7 @@
 import { useState, ChangeEvent } from "react";
 
 import TypeaheadTextField from "../Input/TypeaheadTextField";
+import { normalizeUrl, validUrl } from "./url";
 
 interface EditorProps {
   dispatch: (action: UserLink.Action) => void;
@@ -36,12 +37,14 @@ export default function Editor(props: EditorProps) {
 
   const handleSave = (evt: React.MouseEvent) => {
     evt.preventDefault();
-    dispatch({ type: "save", payload: userLink });
+    dispatch({
+      type: "save",
+      payload: { ...userLink, url: normalizeUrl(userLink.url), errors: [] }
+    });
   };
 
   const validUserLink = () => {
-    const urlPattern = /^(https?:\/\/)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,4}/;
-    if (userLink.url && !userLink.url.match(urlPattern)) {
+    if (userLink.url.trim() && !validUrl(userLink.url)) {
       return false;
     }
     return userLink.label && (userLink.name || userLink.url);
