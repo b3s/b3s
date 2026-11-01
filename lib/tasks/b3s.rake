@@ -79,13 +79,6 @@ namespace :b3s do
     puts "#{dry_run ? 'Would backfill' : 'Backfilled'} #{backfilled} posts, #{failed} failed"
   end
 
-  desc "Seed the oEmbed response cache from rendered posts (DRY_RUN=1)"
-  task seed_oembed_responses: :environment do
-    dry_run = ENV["DRY_RUN"].present?
-    seeded = OembedResponse.seed_from_posts(dry_run:)
-    puts "#{dry_run ? 'Would seed' : 'Seeded'} #{seeded} oEmbed responses"
-  end
-
   desc "Scrub private data from the database"
   task scrub_private_data: :environment do
     keep_users = ENV["KEEP_USERS"].split(",").map(&:to_i)
