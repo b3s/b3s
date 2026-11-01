@@ -12,7 +12,7 @@
 <%= avatar_image_tag user %>
 
 <%= f.fields_for :avatar_attributes, user.build_avatar do |a| %>
-  <%= a.labelled_file_field :file, note: t("user.edit.gravatar_link_html") %>
+  <%= a.labelled_file_field :file %>
 <% end %>
 
 <%= f.labelled_text_area(:description,

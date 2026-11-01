@@ -138,10 +138,6 @@ en:
       invites_count: invites
       administator_privileges: Administator privileges
       birthday_description: "Your age won't be shown, but your birthday will"
-      gravatar_link_html: >-
-        Alternatively, upload a picture to
-        <a href="http://www.gravatar.com/">Gravatar</a> using your
-        registered email to get an avatar.
       temporary_ban: Temporary ban
       moderator_description: "Can edit all discussions and posts"
       user_admin_description: >-
