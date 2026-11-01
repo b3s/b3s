@@ -65,4 +65,20 @@ RSpec.describe "Sentry context" do
       )
     end
   end
+
+  describe "POST /invites" do
+    let(:user) { create(:user, available_invites: 1) }
+
+    before do
+      post invites_path,
+           params: { invite: { email: "friend@example.com",
+                               message: "Private note" } }
+    end
+
+    it "filters the invite email and message" do
+      expect(Sentry).to have_set_params(
+        "invite" => { "email" => "[FILTERED]", "message" => "[FILTERED]" }
+      )
+    end
+  end
 end
