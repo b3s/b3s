@@ -8,7 +8,7 @@
   <%= render(partial: "components/pagination",
              locals: { paginated: posts, anchor: :start }) %>
 
-  <% cache posts do %>
+  <% cache [posts, "identicon"] do %>
     <% all_posts     = posts.to_a
        context_posts = all_posts.first(posts.context)
        page_posts    = all_posts.drop(posts.context) %>
