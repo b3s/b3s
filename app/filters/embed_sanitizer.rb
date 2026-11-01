@@ -65,7 +65,7 @@ class EmbedSanitizer
     end
 
     def iframe_hosts(url)
-      endpoint_host = OEmbed::Providers.find(url)&.endpoint.to_s[%r{\Ahttps://([^/?#:]+)}, 1]
+      endpoint_host = OEmbed::Providers.find(url)&.endpoint.to_s[%r{\Ahttps://([^/?#:]+)}, 1]&.downcase
       return [endpoint_host] if MASTODON_PROVIDERS.include?(endpoint_host)
 
       IFRAME_HOSTS.fetch(endpoint_host, [])
@@ -76,7 +76,8 @@ class EmbedSanitizer
     def restrict_iframe_hosts(hosts)
       lambda do |env|
         next unless env[:node_name] == "iframe"
-        next if hosts.include?(url_host(env[:node]["src"]))
+        uri = EmbedProviderAttributes.plain_https_uri(env[:node]["src"])
+        next if uri && hosts.include?(uri.host.downcase)
 
         env[:node].unlink
       end
@@ -93,7 +94,7 @@ class EmbedSanitizer
     end
 
     def url_host(url)
-      URI.parse(url.to_s).host
+      URI.parse(url.to_s).host&.downcase
     rescue URI::InvalidURIError
       nil
     end

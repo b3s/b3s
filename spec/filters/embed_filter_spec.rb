@@ -196,6 +196,36 @@ describe EmbedFilter do
     end
   end
 
+  context "when an embed iframe host differs in case" do
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+
+    before { OembedResponse.store(url, '<iframe src="https://Player.VIMEO.com/video/1"></iframe>') }
+
+    it "keeps it" do
+      expect(parsed.css("iframe").pluck("src")).to eq(["https://Player.VIMEO.com/video/1"])
+    end
+  end
+
+  {
+    "userinfo" => "https://player.vimeo.com@evil.example/video/1",
+    "a backslash" => "https://evil.example\\@player.vimeo.com/video/1",
+    "a fragment with @" => "https://evil.example#@player.vimeo.com/video/1",
+    "a percent-encoded host" => "https://player%2Evimeo%2Ecom/video/1",
+    "a port" => "https://player.vimeo.com:8443/video/1"
+  }.each do |description, src|
+    context "when an embed iframe src has #{description}" do
+      let(:url) { "https://vimeo.com/1" }
+      let(:input) { placeholder(url) }
+
+      before { OembedResponse.store(url, "<p>x</p><iframe src=\"#{src}\"></iframe>") }
+
+      it "removes the iframe" do
+        expect(parsed.css("iframe")).to be_empty
+      end
+    end
+  end
+
   context "when a Mastodon embed has a legacy iframe" do
     let(:url) { "https://hachyderm.io/@a/1" }
     let(:input) { placeholder(url) }
