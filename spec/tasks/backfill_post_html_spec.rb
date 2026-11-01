@@ -20,10 +20,20 @@ RSpec.describe "b3s:backfill_post_html", type: :task do
   end
 
   it "renders the missing HTML" do
-    expect(post.body_html).to include("Hello")
+    expect(post[:body_html]).to include("Hello")
   end
 
   it "touches the post so cached fragments expire" do
     expect(post.updated_at).to be > 1.minute.ago
+  end
+
+  context "when the post already has rendered HTML" do
+    let(:post) do
+      travel_to(1.day.ago) { create(:post, body: "Hello") }
+    end
+
+    it "leaves the post untouched" do
+      expect(post.updated_at).to be < 1.hour.ago
+    end
   end
 end
