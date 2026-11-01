@@ -22,6 +22,12 @@ class ApplicationController < ActionController::Base
   helper_method :current_section, :mobile_user_agent?, :theme, :mobile_theme,
                 :search_query
 
+  def self.sentry_parameter_filter
+    @sentry_parameter_filter ||= ActiveSupport::ParameterFilter.new(
+      Rails.application.config.filter_parameters + [:body, "conversation.title"]
+    )
+  end
+
   protected
 
   def current_section
@@ -74,7 +80,8 @@ class ApplicationController < ActionController::Base
 
   def set_sentry_context
     Sentry.set_user(current_user_context)
-    Sentry.set_extras(params: params.to_unsafe_h)
+    filter = ApplicationController.sentry_parameter_filter
+    Sentry.set_extras(params: filter.filter(params.to_unsafe_h))
   end
 
   def set_section
