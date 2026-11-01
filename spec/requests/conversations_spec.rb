@@ -49,6 +49,23 @@ RSpec.describe "Conversations" do
     it { is_expected.to have_http_status(:success) }
   end
 
+  describe "GET /conversations/new/with/:username" do
+    let(:recipient) { create(:user, username: "A.B.") }
+
+    before { get new_with_conversations_path(username: recipient.username) }
+
+    it "generates the path" do
+      expect(new_with_conversations_path(username: "A.B."))
+        .to eq("/conversations/new/with/A.B.")
+    end
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "addresses the recipient" do
+      expect(response.body).to include("New conversation with A.B.")
+    end
+  end
+
   describe "POST /conversations" do
     let(:recipient) { create(:user) }
     let(:conversation_params) { { title: "Test", body: "Test" } }

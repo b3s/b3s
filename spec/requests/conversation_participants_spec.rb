@@ -78,12 +78,10 @@ RSpec.describe "ConversationParticipants" do
 
   describe "POST /conversations/:id/participants" do
     let(:users) { [create(:user)] }
+    let(:usernames) { users.map(&:username).join(",") }
 
     before do
-      post conversation_participants_path(
-        conversation,
-        usernames: users.map(&:username).join(",")
-      )
+      post conversation_participants_path(conversation, usernames:)
     end
 
     it_behaves_like "authentication is required"
@@ -98,6 +96,17 @@ RSpec.describe "ConversationParticipants" do
 
     context "with multiple users (CSV)" do
       let(:users) { create_list(:user, 2) }
+
+      it "adds the users to the conversation" do
+        expect(conversation.reload.participants).to include(*users)
+      end
+    end
+
+    context "with surrounding whitespace" do
+      let(:users) do
+        [create(:user, username: "someone"), create(:user, username: "other")]
+      end
+      let(:usernames) { users.map { " #{it.username} " }.join(",") }
 
       it "adds the users to the conversation" do
         expect(conversation.reload.participants).to include(*users)
