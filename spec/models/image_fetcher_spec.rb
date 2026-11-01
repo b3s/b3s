@@ -6,7 +6,7 @@ describe ImageFetcher do
   describe ".fetch" do
     subject { described_class.fetch(body) }
 
-    let(:url) { "http://i.imgur.com/foobar.png" }
+    let(:url) { "https://i.imgur.com/foobar.png" }
     let(:image) { PostImage.last }
     let(:body) { url.to_s }
 
@@ -59,6 +59,19 @@ describe ImageFetcher do
       it { is_expected.to eq(body) }
     end
 
+    %w[http ftp gopher].each do |scheme|
+      context "when image URL uses #{scheme}" do
+        let(:body) { "<img src=\"#{scheme}://i.imgur.com/foobar.png\">" }
+
+        it { is_expected.to eq(body) }
+
+        it "doesn't request the image" do
+          described_class.fetch(body)
+          expect(a_request(:any, /i\.imgur\.com/)).not_to have_been_made
+        end
+      end
+    end
+
     context "when image has already been fetched" do
       let!(:image) { create(:post_image, original_url: url) }
 
@@ -75,16 +88,16 @@ describe ImageFetcher do
     end
 
     context "when the body has more images than the fetch limit" do
-      let(:body) { Array.new(26) { |i| "http://i.imgur.com/#{i}.png" }.join(" ") }
+      let(:body) { Array.new(26) { |i| "https://i.imgur.com/#{i}.png" }.join(" ") }
 
       before do
-        stub_request(:get, %r{\Ahttp://i\.imgur\.com/})
+        stub_request(:get, %r{\Ahttps://i\.imgur\.com/})
           .to_return(status: 404)
       end
 
       it "stops fetching" do
         described_class.fetch(body)
-        expect(a_request(:get, %r{\Ahttp://i\.imgur\.com/})).to have_been_made.times(25)
+        expect(a_request(:get, %r{\Ahttps://i\.imgur\.com/})).to have_been_made.times(25)
       end
     end
 
