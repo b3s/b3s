@@ -4,14 +4,12 @@ if Rails.application.credentials.sentry_dsn.present? && !Rails.env.test?
   Sentry.init do |config|
     config.dsn = Rails.application.credentials.sentry_dsn
     config.data_collection.user_info = true
-    config.data_collection.http_headers.request = true
+    config.data_collection.http_headers.request.terms =
+      Sentry::DataCollection::PII_HEADER_SNIPPETS
     config.data_collection.url_query_params = true
     config.data_collection.queues = true
     config.enabled_environments = %w[staging production]
 
-    # Sentry is for error tracking only. Structured logging goes elsewhere,
-    # and sentry-rails 7 would otherwise ship every SQL query and controller
-    # action.
     config.rails.structured_logging.enabled = false
     config.excluded_exceptions += [
       "ActionDispatch::RemoteIp::IpSpoofAttackError",
