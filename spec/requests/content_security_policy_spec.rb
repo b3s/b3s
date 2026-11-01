@@ -63,20 +63,12 @@ RSpec.describe "Content Security Policy" do
       expect(directive("worker-src")).to eq("worker-src 'self'")
     end
 
-    it "allows WebSocket connections to the request host" do
-      expect(directive("connect-src")).to eq("connect-src 'self' ws://www.example.com")
+    it "allows connections to the same origin only" do
+      expect(directive("connect-src")).to eq("connect-src 'self'")
     end
 
     it "does not report violations without a Sentry DSN" do
       expect(directive("report-uri")).to be_nil
-    end
-  end
-
-  describe "GET a discussion over HTTPS" do
-    before { get discussion_url(discussion, protocol: "https") }
-
-    it "allows secure WebSocket connections to the request host" do
-      expect(directive("connect-src")).to eq("connect-src 'self' wss://www.example.com")
     end
   end
 

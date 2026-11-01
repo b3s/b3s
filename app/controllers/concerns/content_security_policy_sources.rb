@@ -10,10 +10,6 @@ module ContentSecurityPolicySources
 
   included do
     content_security_policy do |policy|
-      if (origin = cable_origin)
-        policy.connect_src(*policy.directives["connect-src"], origin)
-      end
-
       if (origin = user_stylesheet_origin)
         policy.style_src(*policy.directives["style-src"], origin)
         policy.font_src(*policy.directives["font-src"], origin)
@@ -22,13 +18,6 @@ module ContentSecurityPolicySources
   end
 
   private
-
-  def cable_origin
-    host = request.host_with_port
-    return unless host.match?(/\A[a-z0-9.-]+(:\d+)?\z/i)
-
-    "#{request.ssl? ? 'wss' : 'ws'}://#{host}"
-  end
 
   def user_stylesheet_origin
     url = current_user&.custom_stylesheet_url(mobile: request.variant.mobile?)
