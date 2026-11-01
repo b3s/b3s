@@ -59,7 +59,8 @@ module PostsHelper
   end
 
   def text_nodes(fragment)
-    skipped = %w[a code pre script style textarea]
+    skipped = %w[a code pre script style textarea iframe noscript noembed noframes
+                 xmp title select option svg math template]
     nodes = []
     fragment.traverse do |node|
       nodes << node if node.text? && node.ancestors.none? { |a| skipped.include?(a.name) }

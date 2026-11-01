@@ -75,6 +75,18 @@ describe PostsHelper do
       it { is_expected.to eq(input) }
     end
 
+    context "when an alias is inside svg" do
+      let(:input) { "<p><svg><text>:smile:</text></svg></p>".html_safe }
+
+      it { is_expected.to eq(input) }
+    end
+
+    context "when an alias is inside a select" do
+      let(:input) { "<p><select><option>:smile:</option></select></p>".html_safe }
+
+      it { is_expected.to eq(input) }
+    end
+
     context "when an alias is in text next to elements with attributes" do
       let(:input) { '<p title=":smile:">:smile: <em class="x">:smile:</em></p>'.html_safe }
       let(:expected) do
@@ -204,6 +216,12 @@ describe PostsHelper do
 
     context "when /me is inside code" do
       let(:input) { "<p><code>/me blushes</code></p>".html_safe }
+
+      it { is_expected.to eq(input) }
+    end
+
+    context "when /me is inside math" do
+      let(:input) { "<p><math><mi>/me</mi></math></p>".html_safe }
 
       it { is_expected.to eq(input) }
     end
