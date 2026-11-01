@@ -205,8 +205,8 @@ RSpec.describe "Registrations" do
     let(:signed_in_user) { create(:user) }
 
     before do
-      accept_invite(invite)
       login_as(signed_in_user)
+      accept_invite(invite)
     end
 
     describe "GET /registrations/new" do

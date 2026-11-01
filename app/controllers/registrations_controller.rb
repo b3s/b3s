@@ -49,7 +49,7 @@ class RegistrationsController < ApplicationController
 
   def finalize_successful_signup
     Mailer.new_user(@user).deliver_later if @user.email?
-    session.delete(:invite_token)
+    renew_session
     authenticate!(@user)
   end
 

@@ -71,6 +71,12 @@ module Authentication
       authenticate!(user)
     end
 
+    def renew_session
+      mobile_format = session[:mobile_format]
+      reset_session
+      session[:mobile_format] = mobile_format if mobile_format
+    end
+
     def update_last_active
       current_user.mark_active! if current_user?
     end

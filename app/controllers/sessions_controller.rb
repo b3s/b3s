@@ -14,6 +14,7 @@ class SessionsController < ApplicationController
   def create
     user = find_and_authenticate_user
     if user
+      renew_session
       authenticate!(user)
       redirect_to discussions_url
     else
@@ -23,6 +24,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    renew_session
     deauthenticate!
     flash[:notice] = t("authentication.logged_out")
     redirect_to B3S.public_browsing? ? discussions_url : new_session_url
