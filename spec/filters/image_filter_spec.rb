@@ -290,6 +290,144 @@ describe ImageFilter do
     end
   end
 
+  context "when the data URI is larger than the sanitizer allows" do
+    let(:padded_image) { image + ("\0" * UrlPolicy::DATA_IMAGE_MAX_BYTES) }
+    let(:input) { "<img src=\"data:image/png;base64,#{Base64.strict_encode64(padded_image)}\">" }
+
+    before { allow(FastImage).to receive(:size).and_call_original }
+
+    it "is not touched" do
+      expect(filter.to_html).to eq(input)
+    end
+
+    it "does not decode the image" do
+      filter.to_html
+      expect(FastImage).not_to have_received(:size)
+    end
+  end
+
+  context "with a stubbed clock" do
+    let(:clock) { { now: 0.0 } }
+
+    before do
+      allow(Process).to receive(:clock_gettime).and_call_original
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { clock[:now] }
+    end
+
+    context "when the server trickles the response" do
+      let(:input) { "<img src=\"#{image_url}\">" }
+
+      before do
+        response = Net::HTTPOK.new("1.1", "200", "OK")
+        allow(response).to receive(:read_body) do |&block|
+          100.times do
+            clock[:now] += 1
+            block.call("\0")
+          end
+        end
+        allow(SsrfFilter).to receive(:get).and_yield(response)
+        allow(FastImage).to receive(:size).and_call_original
+      end
+
+      it "is not touched" do
+        expect(filter.to_html).to eq(input)
+      end
+
+      it "stops reading at the deadline" do
+        filter.to_html
+        expect(FastImage).to have_received(:size).exactly(3).times
+      end
+    end
+
+    context "when redirects run past the deadline" do
+      let(:input) { "<img src=\"#{image_url}\">" }
+
+      before do
+        stub_request(:get, %r{\Ahttp://example\.com/}).to_return do
+          clock[:now] += 2
+          { status: 302, headers: { "Location" => image_url } }
+        end
+      end
+
+      it "is not touched" do
+        expect(filter.to_html).to eq(input)
+      end
+
+      it "stops following redirects" do
+        filter.to_html
+        expect(a_request(:get, image_url)).to have_been_made.twice
+      end
+    end
+
+    context "when probing exceeds the render budget" do
+      let(:input) { Array.new(3) { |i| "<img src=\"http://example.com/#{i}.png\">" }.join }
+
+      before do
+        stub_request(:get, %r{\Ahttp://example\.com/}).to_return do
+          clock[:now] += 4
+          { body: image }
+        end
+      end
+
+      it "stops probing" do
+        filter.to_html
+        expect(a_request(:get, "http://example.com/2.png")).not_to have_been_made
+      end
+
+      it "sets the dimensions of the probed images" do
+        expect(filter.to_html.scan('width="16"').length).to eq(2)
+      end
+    end
+  end
+
+  context "when the dimensions are known before the whole image is read" do
+    let(:input) { "<img src=\"#{image_url}\">" }
+    let(:read_chunks) { [] }
+
+    before do
+      response = Net::HTTPOK.new("1.1", "200", "OK")
+      allow(response).to receive(:read_body) do |&block|
+        (image + ("\0" * 60_000)).bytes.each_slice(512) do |bytes|
+          read_chunks << bytes
+          block.call(bytes.pack("C*"))
+        end
+      end
+      allow(SsrfFilter).to receive(:get).and_yield(response)
+    end
+
+    it "fetches the image size" do
+      expect(filter.to_html).to include('width="16" height="16"')
+    end
+
+    it "stops reading after the first chunk" do
+      filter.to_html
+      expect(read_chunks.length).to eq(1)
+    end
+  end
+
+  context "when a post has more images than the probe limit" do
+    let(:urls) { Array.new(12) { |i| "http://example.com/#{i}.png" } }
+    let(:input) { urls.map { |url| "<img src=\"#{url}\">" }.join }
+
+    before { stub_request(:get, %r{\Ahttp://example\.com/}).to_return(body: image) }
+
+    it "stops probing" do
+      filter.to_html
+      expect(a_request(:get, %r{\Ahttp://example\.com/})).to have_been_made.times(10)
+    end
+
+    it "does not cache the skipped images", :cache do
+      filter.to_html
+      described_class.new(input).to_html
+      expect(a_request(:get, urls.last)).to have_been_made.once
+    end
+
+    it "does not count cached images", :cache do
+      described_class.new(urls.first(10).map { |url| "<img src=\"#{url}\">" }.join).to_html
+      expect(filter.to_html.scan('width="16"').length).to eq(12)
+    end
+  end
+
   context "when img has both size attributes" do
     let(:input) { "<img width=\"320\" height=\"240\" src=\"#{image_url}\">" }
 

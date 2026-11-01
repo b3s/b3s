@@ -84,6 +84,12 @@ describe ImageFetcher do
       expect(image.content_type).to eq("image/png")
     end
 
+    it "bounds the request time" do
+      allow(Typhoeus).to receive(:get).and_call_original
+      described_class.fetch(body)
+      expect(Typhoeus).to have_received(:get).with(url, timeout: 5, connecttimeout: 2)
+    end
+
     it "sets the original URL" do
       described_class.fetch(body)
       expect(image.original_url).to eq(url)

@@ -2,6 +2,9 @@
 
 class ImageFilter < Filter
   MAX_IMAGE_BYTES = 65_536
+  PROBE_DEADLINE = 3
+  RENDER_BUDGET = 6
+  MAX_PROBES = 10
 
   def process(post)
     parser = Nokogiri::HTML5::DocumentFragment.parse(post)
@@ -19,6 +22,10 @@ class ImageFilter < Filter
 
   def image_src(elem)
     elem.attributes["src"].to_s if src?(elem)
+  end
+
+  def data_image?(url)
+    url.start_with?("data:")
   end
 
   def needs_dimensions?(elem)
@@ -39,12 +46,23 @@ class ImageFilter < Filter
   end
 
   def image_size(url)
-    cached_probe("image-size", url) { fetch_image_size(url) }
+    return if data_image?(url) && url.bytesize > UrlPolicy::DATA_IMAGE_MAX_BYTES
+
+    cached_probe("image-size", url) do
+      throw :skip_probe unless data_image?(url) || probe_budget?
+
+      fetch_image_size(url)
+    end
+  end
+
+  def probe_budget?
+    @render_deadline ||= monotonic_now + RENDER_BUDGET
+    @probes = (@probes || 0) + 1
+    @probes <= MAX_PROBES && monotonic_now < @render_deadline
   end
 
   def fetch_image_size(url)
-    source = url.start_with?("data:") ? url : image_head(url)
-    FastImage.size(source) if source
+    data_image?(url) ? FastImage.size(url) : image_head(url)
   rescue SsrfFilter::Error, URI::Error, Timeout::Error, SocketError,
          SystemCallError, EOFError, Net::HTTPBadResponse,
          OpenSSL::SSL::SSLError
@@ -55,29 +73,39 @@ class ImageFilter < Filter
   end
 
   def image_head(url)
-    data = +""
+    deadline = monotonic_now + PROBE_DEADLINE
+    dimensions = nil
     catch(:image_head) do
-      SsrfFilter.get(url, image_request_options) do |response|
+      SsrfFilter.get(url, image_request_options(deadline)) do |response|
         next if response.is_a?(Net::HTTPRedirection)
 
-        read_capped(response, data) if response.is_a?(Net::HTTPSuccess)
+        dimensions = read_dimensions(response, deadline) if response.is_a?(Net::HTTPSuccess)
         throw :image_head
       end
     end
-    StringIO.new(data) if data.present?
+    dimensions
   end
 
-  def image_request_options
+  def image_request_options(deadline)
     { max_redirects: 3,
       headers: { "Range" => "bytes=0-#{MAX_IMAGE_BYTES - 1}",
                  "Accept-Encoding" => "identity" },
-      http_options: { open_timeout: 2, read_timeout: 2 } }
+      http_options: { open_timeout: 2, read_timeout: 2 },
+      request_proc: ->(_) { throw :image_head if monotonic_now >= deadline } }
   end
 
-  def read_capped(response, data)
+  def read_dimensions(response, deadline)
+    data = +""
+    dimensions = nil
     response.read_body do |chunk|
       data << chunk
-      throw :image_head if data.bytesize >= MAX_IMAGE_BYTES
+      dimensions = FastImage.size(StringIO.new(data))
+      break if dimensions || data.bytesize >= MAX_IMAGE_BYTES || monotonic_now >= deadline
     end
+    dimensions
+  end
+
+  def monotonic_now
+    Process.clock_gettime(Process::CLOCK_MONOTONIC)
   end
 end

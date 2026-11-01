@@ -109,7 +109,7 @@ class ImageFetcher
   end
 
   def create_image(uri)
-    request = Typhoeus.get(uri)
+    request = Typhoeus.get(uri, timeout: 5, connecttimeout: 2)
     return nil unless request.success?
 
     image = PostImage.create(
