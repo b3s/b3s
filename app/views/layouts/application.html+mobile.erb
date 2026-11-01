@@ -4,6 +4,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <%= page_title_tag %>
+    <%= tag.meta name: "mastodon-embed-hosts", content: MASTODON_PROVIDERS.join(" ") %>
 
     <%= stylesheet_link_tag "application" %>
 
