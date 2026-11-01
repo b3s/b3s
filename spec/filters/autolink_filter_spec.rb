@@ -5,10 +5,6 @@ require "rails_helper"
 describe AutolinkFilter do
   subject(:filter) { described_class.new(input) }
 
-  before do
-    OEmbed::Providers.register_all(access_tokens: { facebook: "my-token" })
-  end
-
   context "when input contains a URL" do
     let(:input) { "http://example.com/foo?bar=1" }
     let(:output) { "<a href=\"#{input}\">#{input}</a>" }
@@ -81,8 +77,8 @@ describe AutolinkFilter do
     before do
       stub_request(
         :get,
-        "https://graph.facebook.com/v8.0/instagram_oembed?access_token=" \
-        "my-token&format=json&url=https://www.instagram.com/p/8ql-VChPSZ/"
+        "https://graph.facebook.com/v26.0/instagram_oembed?" \
+        "format=json&url=https://www.instagram.com/p/8ql-VChPSZ/"
       ).to_return(status: 200, body: instagram_embed)
     end
 
@@ -90,6 +86,23 @@ describe AutolinkFilter do
       expect(filter.to_html).to(
         eq("<div class=\"embed\" data-oembed-url=\"#{input}\">" \
            "#{instagram_json['html']}</div>")
+      )
+    end
+  end
+
+  context "when URL is a Facebook video" do
+    let(:input) { "https://www.facebook.com/facebook/videos/10153231379946729/" }
+    let(:html) { '<div class="fb-video"></div>' }
+
+    before do
+      stub_request(:get, "https://graph.facebook.com/v26.0/oembed_video")
+        .with(query: { format: "json", url: input })
+        .to_return(status: 200, body: { type: "video", version: "1.0", html: }.to_json)
+    end
+
+    it "converts it to an embed" do
+      expect(filter.to_html).to(
+        eq("<div class=\"embed\" data-oembed-url=\"#{input}\">#{html}</div>")
       )
     end
   end

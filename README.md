@@ -21,7 +21,6 @@ Environment variable   | Info
 -----------------------|------------------
 RAILS_MASTER_KEY       | Rails master key
 DATABASE_URL           | URL to Postgres
-OEMBED_FACEBOOK_TOKEN  | Facebook oEmbed access token
 WEB_CONCURRENCY        | Puma worker count (default: 2)
 NGINX_CACHE_MAX_SIZE   | Max size of nginx image cache (default: 2g)
 
