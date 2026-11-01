@@ -5,6 +5,12 @@ require "rails_helper"
 describe EmbedFilter do
   subject(:rendered) { described_class.new(input).to_html }
 
+  before do
+    dns = instance_double(Resolv::DNS, :timeouts= => nil)
+    allow(dns).to receive(:getaddresses).and_return([Resolv::IPv4.create("93.184.215.14")])
+    allow(Resolv::DNS).to receive(:new).and_return(dns)
+  end
+
   def placeholder(url, content = "<a href=\"#{url}\">#{url}</a>")
     "<div class=\"embed\" data-oembed-url=\"#{url}\">#{content}</div>"
   end
@@ -346,10 +352,117 @@ describe EmbedFilter do
       expect(OembedResponse.find_by(url: "https://staff.tumblr.com/post/123456789").html).to eq(html)
     end
 
-    it "sets a timeout" do
-      allow(OEmbed::Providers).to receive(:get).and_call_original
+    it "requests an unencoded response" do
       rendered
-      expect(OEmbed::Providers).to have_received(:get).with(anything, timeout: 5)
+      expect(oembed_request.with(headers: { "Accept-Encoding" => "identity" })).to have_been_made.once
+    end
+
+    it "limits the fetch to seven seconds" do
+      allow(Timeout).to receive(:timeout).and_call_original
+      rendered
+      expect(Timeout).to have_received(:timeout).with(7)
+    end
+  end
+
+  context "when the provider redirects" do
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+    let(:link) { "<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>" }
+    let(:location) { "https://other.example.com/oembed" }
+
+    before do
+      allow(Resolv::DNS.new).to receive(:getaddresses).with("internal.example.com")
+                                                      .and_return([Resolv::IPv4.create("10.0.0.1")])
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(status: 302, headers: { "Location" => location })
+      stub_request(:get, location)
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>embed</p>" }.to_json)
+    end
+
+    context "when the redirect is to a public address" do
+      it "follows it" do
+        expect(rendered).to eq(placeholder(url, "<p>embed</p>"))
+      end
+    end
+
+    context "when the redirect is to a loopback address" do
+      let(:location) { "http://127.0.0.1/oembed" }
+
+      it "falls back to a link" do
+        expect(rendered).to eq(link)
+      end
+
+      it "does not follow the redirect" do
+        rendered
+        expect(a_request(:get, location)).not_to have_been_made
+      end
+    end
+
+    context "when the redirect is to a link-local address" do
+      let(:location) { "http://169.254.169.254/latest/meta-data/" }
+
+      it "does not follow the redirect" do
+        rendered
+        expect(a_request(:get, location)).not_to have_been_made
+      end
+    end
+
+    context "when the redirect is to a hostname resolving to a private address" do
+      let(:location) { "http://internal.example.com/oembed" }
+
+      it "falls back to a link" do
+        expect(rendered).to eq(link)
+      end
+
+      it "does not follow the redirect" do
+        rendered
+        expect(a_request(:get, location)).not_to have_been_made
+      end
+    end
+  end
+
+  context "when the provider redirects too many times" do
+    let(:input) { placeholder("https://vimeo.com/1") }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(status: 302, headers: { "Location" => "https://other.example.com/0" })
+      4.times do |i|
+        stub_request(:get, "https://other.example.com/#{i}")
+          .to_return(status: 302, headers: { "Location" => "https://other.example.com/#{i + 1}" })
+      end
+    end
+
+    it "gives up after three redirects" do
+      rendered
+      expect(a_request(:get, %r{\Ahttps://other\.example\.com/})).to have_been_made.times(3)
+    end
+  end
+
+  context "when the provider response contains non-ASCII text" do
+    let(:input) { placeholder("https://vimeo.com/1") }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>blåbærsyltetøy</p>" }.to_json)
+    end
+
+    it "keeps the text intact" do
+      expect(rendered).to include("<p>blåbærsyltetøy</p>")
+    end
+  end
+
+  context "when the provider response is too large" do
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>#{'a' * 262_144}</p>" }.to_json)
+    end
+
+    it "falls back to a link" do
+      expect(rendered).to eq("<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>")
     end
   end
 

@@ -92,21 +92,11 @@ class ImageFilter < Filter
 
   def image_request_options(deadline)
     { max_redirects: 3,
-      resolver: image_resolver(deadline),
+      resolver: deadline_resolver(deadline, :image_head),
       headers: { "Range" => "bytes=0-#{MAX_IMAGE_BYTES - 1}",
                  "Accept-Encoding" => "identity" },
       http_options: { open_timeout: 2, read_timeout: 2 },
       request_proc: ->(_) { throw :image_head if monotonic_now >= deadline } }
-  end
-
-  def image_resolver(deadline)
-    dns = Resolv::DNS.new.tap { it.timeouts = 1 }
-    lambda do |host|
-      throw :image_head if monotonic_now >= deadline
-      next [IPAddr.new(host)] if Resolv::AddressRegex.match?(host)
-
-      dns.getaddresses(host).map { IPAddr.new(it.to_s) }
-    end
   end
 
   def read_dimensions(response, deadline)
@@ -118,9 +108,5 @@ class ImageFilter < Filter
       break if dimensions || data.bytesize >= MAX_IMAGE_BYTES || monotonic_now >= deadline
     end
     dimensions
-  end
-
-  def monotonic_now
-    Process.clock_gettime(Process::CLOCK_MONOTONIC)
   end
 end
