@@ -9,14 +9,19 @@ on:
       sentry_project:
         required: true
         type: string
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN:
+        required: true
+      SENTRY_AUTH_TOKEN:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
 jobs:
   kamal:
     name: Kamal
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
       VERSION: ${{ github.sha }}
     steps:
       - name: Checkout code
@@ -32,6 +37,9 @@ jobs:
         with:
           bundler-cache: true
       - name: Deploy with kamal
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
           bundle exec kamal deploy --version=$VERSION
 

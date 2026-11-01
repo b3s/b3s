@@ -12,7 +12,6 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       postgres_db: b3s_test
-    secrets: inherit
 
   automerge:
     name: "Auto-merge Dependabot"

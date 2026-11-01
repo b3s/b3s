@@ -14,7 +14,6 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       postgres_db: b3s_test
-    secrets: inherit
 
   deploy:
     name: "Deploy"
@@ -26,4 +25,7 @@ jobs:
     uses: ./.github/workflows/deploy.yml
     with:
       sentry_project: b3s
-    secrets: inherit
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
