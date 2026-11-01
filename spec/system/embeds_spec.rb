@@ -50,7 +50,8 @@ RSpec.describe "Embeds", :js do
   end
 
   before do
-    driven_by :selenium, using: :headless_chrome do |options|
+    driven_by :selenium, using: :headless_chrome,
+                         options: { name: :headless_chrome_offline } do |options|
       options.add_argument(
         "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1"
       )
