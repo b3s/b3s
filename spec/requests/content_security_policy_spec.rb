@@ -63,6 +63,11 @@ RSpec.describe "Content Security Policy" do
       expect(directive("worker-src")).to eq("worker-src 'self'")
     end
 
+    it "allows styles and fonts from the same origin only", :aggregate_failures do
+      expect(directive("style-src")).to eq("style-src 'self' 'unsafe-inline'")
+      expect(directive("font-src")).to eq("font-src 'self'")
+    end
+
     it "allows connections to the same origin only" do
       expect(directive("connect-src")).to eq("connect-src 'self'")
     end
@@ -108,21 +113,42 @@ RSpec.describe "Content Security Policy" do
     end
   end
 
-  context "when the user has a custom stylesheet" do
+  context "when the user has a custom stylesheet on S3" do
     let(:user) do
-      create(:user, stylesheet_url: "https://Styles.Example.com/b3s/custom.css?v=2")
+      create(:user, stylesheet_url: "https://S3.Amazonaws.com/b3s-styles/custom.css?v=2")
     end
 
     before { get discussion_path(discussion) }
 
-    it "allows styles from its origin" do
+    it "allows styles from its origin and Google Fonts" do
       expect(directive("style-src"))
-        .to eq("style-src 'self' 'unsafe-inline' https://styles.example.com")
+        .to eq("style-src 'self' 'unsafe-inline' https://s3.amazonaws.com " \
+               "https://fonts.googleapis.com")
     end
 
-    it "allows fonts from its origin" do
+    it "allows fonts from its origin and Google Fonts" do
       expect(directive("font-src"))
-        .to eq("font-src 'self' https://styles.example.com")
+        .to eq("font-src 'self' https://s3.amazonaws.com https://fonts.gstatic.com")
+    end
+  end
+
+  context "when the custom stylesheet is on Dropbox" do
+    let(:user) do
+      create(:user, stylesheet_url: "https://dl.dropbox.com/s/abc/custom.css?dl=1")
+    end
+
+    before { get discussion_path(discussion) }
+
+    it "allows styles from both Dropbox origins" do
+      expect(directive("style-src"))
+        .to eq("style-src 'self' 'unsafe-inline' https://dl.dropbox.com " \
+               "https://fonts.googleapis.com https://dl.dropboxusercontent.com")
+    end
+
+    it "allows fonts from both Dropbox origins" do
+      expect(directive("font-src"))
+        .to eq("font-src 'self' https://dl.dropbox.com " \
+               "https://fonts.gstatic.com https://dl.dropboxusercontent.com")
     end
   end
 
@@ -142,7 +168,8 @@ RSpec.describe "Content Security Policy" do
 
     it "allows styles from its origin" do
       expect(directive("style-src"))
-        .to eq("style-src 'self' 'unsafe-inline' https://styles.example.com")
+        .to eq("style-src 'self' 'unsafe-inline' https://styles.example.com " \
+               "https://fonts.googleapis.com")
     end
   end
 
@@ -167,7 +194,8 @@ RSpec.describe "Content Security Policy" do
 
     it "allows styles from the mobile stylesheet's origin" do
       expect(directive("style-src"))
-        .to eq("style-src 'self' 'unsafe-inline' https://mobile.example.com")
+        .to eq("style-src 'self' 'unsafe-inline' https://mobile.example.com " \
+               "https://fonts.googleapis.com")
     end
   end
 end

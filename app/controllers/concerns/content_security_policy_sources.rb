@@ -8,11 +8,21 @@ module ContentSecurityPolicySources
     [a-z](?:[a-z0-9-]*[a-z0-9])?)(?:[/?#]|\z)
   }ix
 
+  DROPBOX_ORIGINS = %w[
+    https://dl.dropbox.com https://www.dropbox.com https://dropbox.com
+  ].freeze
+
   included do
     content_security_policy do |policy|
       if (origin = user_stylesheet_origin)
-        policy.style_src(*policy.directives["style-src"], origin)
-        policy.font_src(*policy.directives["font-src"], origin)
+        style_origins = [origin, "https://fonts.googleapis.com"]
+        font_origins = [origin, "https://fonts.gstatic.com"]
+        if DROPBOX_ORIGINS.include?(origin)
+          style_origins << "https://dl.dropboxusercontent.com"
+          font_origins << "https://dl.dropboxusercontent.com"
+        end
+        policy.style_src(*policy.directives["style-src"], *style_origins)
+        policy.font_src(*policy.directives["font-src"], *font_origins)
       end
     end
   end
