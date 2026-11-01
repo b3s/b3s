@@ -8,19 +8,66 @@ type ResizeEvent = Event & {
   data?: EventData;
 };
 
-function embedUrl(value: string | undefined): string | null {
-  let url: URL;
+const iframes = new Map<string, HTMLIFrameElement>();
+
+function iframeId() {
+  const idBuffer = new Uint32Array(1);
+  let id = 0;
+  while (id === 0 || iframes.has(`${id}`)) {
+    id = crypto.getRandomValues(idBuffer)[0];
+  }
+  return `${id}`;
+}
+
+function receiveMessage(evt: ResizeEvent) {
+  const data = evt.data;
+
+  if (!data || data.type !== "setHeight" || !iframes.has(data.id)) {
+    return;
+  }
+
+  const iframe = iframes.get(data.id);
+
+  if ("source" in evt && iframe.contentWindow !== evt.source) {
+    return;
+  }
+
+  iframe.height = `${data.height}`;
+}
+
+window.addEventListener("message", receiveMessage);
+
+function allowedHosts(): string[] {
+  const meta = document.querySelector<HTMLMetaElement>(
+    'meta[name="mastodon-embed-hosts"]'
+  );
+  return meta ? meta.content.split(/\s+/).filter((host) => host) : [];
+}
+
+function parseUrl(value: string | undefined): URL | null {
   try {
-    url = new URL(value);
+    return new URL(value);
   } catch {
     return null;
   }
+}
+
+function embedUrl(blockquote: HTMLQuoteElement): string | null {
+  const container = blockquote.closest<HTMLElement>(
+    "div.embed[data-oembed-url]"
+  );
+  const url = parseUrl(blockquote.dataset.embedUrl);
+  const oembedUrl = parseUrl(container?.dataset.oembedUrl);
 
   if (
+    !url ||
+    !oembedUrl ||
     url.protocol !== "https:" ||
     url.username ||
     url.password ||
-    !url.pathname.endsWith("/embed")
+    !url.pathname.endsWith("/embed") ||
+    url.host !== oembedUrl.host ||
+    !allowedHosts().includes(url.host)
   ) {
     return null;
   }
@@ -30,9 +77,12 @@ function embedUrl(value: string | undefined): string | null {
 
 function replaceBlockquotes() {
   document
-    .querySelectorAll(".post .body blockquote.mastodon-embed[data-embed-url]")
+    .querySelectorAll(
+      ".post .body div.embed[data-oembed-url] " +
+        "blockquote.mastodon-embed[data-embed-url]"
+    )
     .forEach((blockquote: HTMLQuoteElement) => {
-      const src = embedUrl(blockquote.dataset.embedUrl);
+      const src = embedUrl(blockquote);
 
       if (!src || blockquote.querySelector("iframe")) {
         return;
@@ -56,41 +106,13 @@ function replaceBlockquotes() {
 export default function mastodonEmbeds() {
   replaceBlockquotes();
 
-  const iframes = new Map<string, HTMLIFrameElement>();
-
-  const iframeId = () => {
-    const idBuffer = new Uint32Array(1);
-    let id = 0;
-    while (id === 0 || iframes.has(`${id}`)) {
-      id = crypto.getRandomValues(idBuffer)[0];
-    }
-    return `${id}`;
-  };
-
-  const receiveMessage = (evt: ResizeEvent) => {
-    const data = evt.data;
-
-    if (!data || data.type !== "setHeight" || !iframes.has(data.id)) {
-      return;
-    }
-
-    const iframe = iframes.get(data.id);
-
-    if ("source" in evt && iframe.contentWindow !== evt.source) {
-      return;
-    }
-
-    iframe.height = `${data.height}`;
-  };
-
-  window.addEventListener("message", receiveMessage);
-
   document
-    .querySelectorAll("iframe.mastodon-embed")
+    .querySelectorAll("iframe.mastodon-embed:not([data-embed-id])")
     .forEach((iframe: HTMLIFrameElement) => {
       const id = iframeId();
 
       iframes.set(id, iframe);
+      iframe.dataset.embedId = id;
 
       iframe.scrolling = "no";
       iframe.style.overflow = "hidden";
