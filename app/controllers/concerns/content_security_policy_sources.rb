@@ -16,7 +16,7 @@ module ContentSecurityPolicySources
     content_security_policy do |policy|
       if (origin = user_stylesheet_origin)
         style_origins = [origin, "https://fonts.googleapis.com"]
-        font_origins = [origin, "https://fonts.gstatic.com"]
+        font_origins = [origin, "https://fonts.gstatic.com", :data]
         if DROPBOX_ORIGINS.include?(origin)
           style_origins << "https://dl.dropboxusercontent.com"
           font_origins << "https://dl.dropboxusercontent.com"

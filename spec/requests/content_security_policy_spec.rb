@@ -130,9 +130,9 @@ RSpec.describe "Content Security Policy" do
                "https://fonts.googleapis.com")
     end
 
-    it "allows fonts from its origin and Google Fonts" do
+    it "allows fonts from its origin, Google Fonts and data URIs" do
       expect(directive("font-src"))
-        .to eq("font-src 'self' https://s3.amazonaws.com https://fonts.gstatic.com")
+        .to eq("font-src 'self' https://s3.amazonaws.com https://fonts.gstatic.com data:")
     end
   end
 
@@ -152,7 +152,7 @@ RSpec.describe "Content Security Policy" do
     it "allows fonts from both Dropbox origins" do
       expect(directive("font-src"))
         .to eq("font-src 'self' https://dl.dropbox.com " \
-               "https://fonts.gstatic.com https://dl.dropboxusercontent.com")
+               "https://fonts.gstatic.com data: https://dl.dropboxusercontent.com")
     end
   end
 
