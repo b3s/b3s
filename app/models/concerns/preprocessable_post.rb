@@ -8,7 +8,7 @@ module PreprocessablePost
   included do
     attr_accessor :skip_preprocess
 
-    validates :body, length: { maximum: MAX_BODY_LENGTH }
+    validates :body, length: { maximum: MAX_BODY_LENGTH }, if: :body_changed?
   end
 
   def preprocess!

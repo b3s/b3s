@@ -231,6 +231,23 @@ describe Post do
     end
   end
 
+  describe "body length validation" do
+    let(:post) { create(:post) }
+
+    before do
+      post.body = "a" * 100_001
+      post.save!(validate: false)
+    end
+
+    context "when the body is not changed" do
+      specify { expect(post.update(edited_at: Time.current)).to be(true) }
+    end
+
+    context "when the body is changed" do
+      specify { expect(post.update(body: "b" * 100_001)).to be(false) }
+    end
+  end
+
   describe "#edited?" do
     subject { post.edited? }
 

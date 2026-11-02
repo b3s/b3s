@@ -9,10 +9,14 @@ module VirtualBody
     after_create :create_first_post
     after_update :update_post_body
     validates :body, presence: true, on: :create
-    validates :body, length: { maximum: Post::MAX_BODY_LENGTH }
+    validates :body, length: { maximum: Post::MAX_BODY_LENGTH }, if: :body_edited?
   end
 
   private
+
+  def body_edited?
+    new_record? || body != posts.first&.body
+  end
 
   def create_first_post
     return if body.blank?

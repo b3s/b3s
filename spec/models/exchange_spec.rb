@@ -242,5 +242,15 @@ describe Exchange do
       specify { expect(exchange.errors).to be_of_kind(:body, :too_long) }
       specify { expect(first_post.reload.body).to eq("changed post") }
     end
+
+    context "when the existing body is over the length limit" do
+      before do
+        first_post.body = "a" * 100_001
+        first_post.save!(validate: false)
+      end
+
+      specify { expect(exchange.update(title: "New title", body: "a" * 100_001)).to be(true) }
+      specify { expect(exchange.update(title: "New title")).to be(true) }
+    end
   end
 end
