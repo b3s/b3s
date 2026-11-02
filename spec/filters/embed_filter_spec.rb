@@ -650,7 +650,7 @@ describe EmbedFilter do
 
     it "builds the iframe" do
       expect(rendered).to eq(
-        '<iframe title="&quot;><b>" src="https://www.youtube.com/embed/ab_c-1" ' \
+        '<iframe title="&quot;&gt;&lt;b&gt;" src="https://www.youtube.com/embed/ab_c-1" ' \
         "frameborder=\"0\" allowfullscreen=\"allowfullscreen\" #{sandbox}></iframe>"
       )
     end
