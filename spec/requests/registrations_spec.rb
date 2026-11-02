@@ -216,7 +216,7 @@ RSpec.describe "Registrations" do
 
       it "explains why the invite can't be used" do
         expect(flash[:notice]).to eq(
-          "You're already signed in. Log out to use this invite."
+          "You're already signed in. Log out, then open the invite link again."
         )
       end
 
@@ -232,7 +232,7 @@ RSpec.describe "Registrations" do
 
       it "explains why the invite can't be used" do
         expect(flash[:notice]).to eq(
-          "You're already signed in. Log out to use this invite."
+          "You're already signed in. Log out, then open the invite link again."
         )
       end
 
