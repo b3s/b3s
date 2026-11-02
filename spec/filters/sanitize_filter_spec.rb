@@ -302,7 +302,9 @@ describe SanitizeFilter do
       "https:\\\\b3s.example/",
       "https:/b3s.example/",
       "//b3s.example/",
-      "https://\uFF42\uFF13s.example/"
+      "https://\uFF42\uFF13s.example/",
+      "https://%ff/",
+      "https://b3s%c3%28.example/"
     ].each do |src|
       context "with the src #{src}" do
         let(:input) { "<p>a</p><iframe src=\"#{src}\"></iframe>" }

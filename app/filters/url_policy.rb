@@ -33,8 +33,8 @@ module UrlPolicy
       authority = url[%r{\A[a-z][a-z0-9+.-]*:[/\\]*([^/\\?#]*)}i, 1]
       return false unless authority
 
-      host = CGI.unescape(authority.split("@").last.sub(/:\d*\z/, "")).downcase.sub(/\.+\z/, "")
-      return true unless host.match?(/\A[a-z0-9.-]+\z/)
+      host = normalized_host(authority)
+      return true unless host
 
       domains.map { |domain| domain.strip.downcase }.compact_blank.any? do |domain|
         host == domain || host.end_with?(".#{domain}")
@@ -42,6 +42,14 @@ module UrlPolicy
     end
 
     private
+
+    def normalized_host(authority)
+      host = CGI.unescape(authority.split("@").last.sub(/:\d*\z/, ""))
+      return unless host.valid_encoding?
+
+      host = host.downcase.sub(/\.+\z/, "")
+      host if host.match?(/\A[a-z0-9.-]+\z/)
+    end
 
     def allowed?(url, protocols)
       protocols.include?(protocol(url) || :relative)

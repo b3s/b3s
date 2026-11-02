@@ -205,6 +205,15 @@ describe Renderer do
       end
     end
 
+    formats.each do |post_format|
+      context "when a #{post_format} post has an iframe host that decodes to invalid UTF-8" do
+        let(:format) { post_format }
+        let(:input) { '<iframe src="https://%ff/"></iframe>' }
+
+        it { expect(rendered).not_to include("<iframe") }
+      end
+    end
+
     {
       "a script tag inside svg" => "<svg><script>alert(document.domain)</script></svg>",
       "an iframe with srcdoc" => '<iframe srcdoc="&lt;script&gt;alert(1)&lt;/script&gt;"></iframe>',
