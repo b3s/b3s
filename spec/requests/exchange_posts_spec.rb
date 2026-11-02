@@ -322,17 +322,6 @@ RSpec.describe "ExchangePosts" do
     end
   end
 
-  describe "GET /conversations/:conversation_id/posts/:id/edit" do
-    let(:exchange) { create(:conversation) }
-    let(:existing_post) { create(:post, exchange:) }
-
-    before { get edit_conversation_post_path(exchange, existing_post) }
-
-    context "when user is not a participant" do
-      it { is_expected.to redirect_to(root_url) }
-    end
-  end
-
   describe "GET /discussions/:discussion_id/posts/:id/edit" do
     let(:existing_post) { create(:post, exchange:) }
     let(:user) { existing_post.user }
@@ -400,6 +389,12 @@ RSpec.describe "ExchangePosts" do
 
     it "includes the post body in the response" do
       expect(response.body).to include(existing_post.body)
+    end
+
+    context "when user is not a participant" do
+      let(:user) { create(:user) }
+
+      it { is_expected.to redirect_to(root_url) }
     end
   end
 
