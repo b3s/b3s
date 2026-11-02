@@ -81,7 +81,7 @@ RSpec.describe "Content Security Policy" do
     end
   end
 
-  describe "custom stylesheet URLs that are not plain HTTPS origins" do
+  describe "custom stylesheet URLs that are not HTTPS" do
     def policy_with_stylesheet(url)
       user.stylesheet_url = url
       user.save!(validate: false)
@@ -90,18 +90,8 @@ RSpec.describe "Content Security Policy" do
     end
 
     [
-      "https://*/custom.css",
-      "https://*.com/custom.css",
-      "https://a;b.example.com/custom.css",
-      "https://example.com;script-src *",
-      "https://a,b.example.com/custom.css",
-      "https://example.com,script-src *",
-      "https://example.com:8443/custom.css",
-      "https://user@example.com/custom.css",
-      "https://192.0.2.1/custom.css",
-      "https://[2001:db8::1]/custom.css",
-      "https://localhost/custom.css",
       "http://example.com/custom.css",
+      "//example.com/custom.css",
       "data:text/css,body{color:red}",
       "javascript:alert(1)"
     ].each do |url|
@@ -117,42 +107,33 @@ RSpec.describe "Content Security Policy" do
     end
   end
 
-  context "when the user has a custom stylesheet on S3" do
-    let(:user) do
-      create(:user, stylesheet_url: "https://S3.Amazonaws.com/b3s-styles/custom.css?v=2")
+  context "when the custom stylesheet URL contains policy syntax" do
+    before do
+      user.stylesheet_url = "https://example.com;script-src *"
+      user.save!(validate: false)
+      get discussion_path(discussion)
     end
 
-    before { get discussion_path(discussion) }
-
-    it "allows styles from its origin and Google Fonts" do
-      expect(directive("style-src"))
-        .to eq("style-src 'self' 'unsafe-inline' https://s3.amazonaws.com " \
-               "https://fonts.googleapis.com")
-    end
-
-    it "allows fonts from its origin, Google Fonts and data URIs" do
-      expect(directive("font-src"))
-        .to eq("font-src 'self' https://s3.amazonaws.com https://fonts.gstatic.com data:")
+    it "does not change the script policy" do
+      expect(directive("script-src")).to match(
+        /\Ascript-src 'strict-dynamic' https: 'unsafe-inline' 'nonce-[^']+'\z/
+      )
     end
   end
 
-  context "when the custom stylesheet is on Dropbox" do
+  context "when the user has a custom stylesheet" do
     let(:user) do
-      create(:user, stylesheet_url: "https://dl.dropbox.com/s/abc/custom.css?dl=1")
+      create(:user, stylesheet_url: "HTTPS://dl.dropbox.com/s/abc/custom.css?dl=1")
     end
 
     before { get discussion_path(discussion) }
 
-    it "allows styles from both Dropbox origins" do
-      expect(directive("style-src"))
-        .to eq("style-src 'self' 'unsafe-inline' https://dl.dropbox.com " \
-               "https://fonts.googleapis.com https://dl.dropboxusercontent.com")
+    it "allows styles over HTTPS" do
+      expect(directive("style-src")).to eq("style-src 'self' 'unsafe-inline' https:")
     end
 
-    it "allows fonts from both Dropbox origins" do
-      expect(directive("font-src"))
-        .to eq("font-src 'self' https://dl.dropbox.com " \
-               "https://fonts.gstatic.com data: https://dl.dropboxusercontent.com")
+    it "allows fonts over HTTPS and data URIs" do
+      expect(directive("font-src")).to eq("font-src 'self' https: data:")
     end
   end
 
@@ -170,16 +151,14 @@ RSpec.describe "Content Security Policy" do
         .to include("https://styles.example.com/custom.css")
     end
 
-    it "allows styles from its origin" do
-      expect(directive("style-src"))
-        .to eq("style-src 'self' 'unsafe-inline' https://styles.example.com " \
-               "https://fonts.googleapis.com")
+    it "allows styles over HTTPS" do
+      expect(directive("style-src")).to eq("style-src 'self' 'unsafe-inline' https:")
     end
   end
 
   context "when the user has a custom mobile stylesheet" do
     let(:user) do
-      build(:user, stylesheet_url: "https://desktop.example.com/custom.css",
+      build(:user, stylesheet_url: "http://desktop.example.com/custom.css",
                    mobile_stylesheet_url: " https://mobile.example.com/custom.css ")
         .tap { |user| user.save!(validate: false) }
     end
@@ -196,10 +175,8 @@ RSpec.describe "Content Security Policy" do
         .to include("https://mobile.example.com/custom.css")
     end
 
-    it "allows styles from the mobile stylesheet's origin" do
-      expect(directive("style-src"))
-        .to eq("style-src 'self' 'unsafe-inline' https://mobile.example.com " \
-               "https://fonts.googleapis.com")
+    it "allows styles over HTTPS for the mobile stylesheet" do
+      expect(directive("style-src")).to eq("style-src 'self' 'unsafe-inline' https:")
     end
   end
 end
