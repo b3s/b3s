@@ -100,7 +100,8 @@ class EmbedFilter < Filter
       tag.iframe(title: element["data-youtube-title"],
                  src: "https://www.youtube.com/embed/#{id}",
                  frameborder: "0",
-                 allowfullscreen: true)
+                 allowfullscreen: true,
+                 sandbox: EmbedSanitizer::IFRAME_SANDBOX)
     )
   end
 end

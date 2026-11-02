@@ -285,6 +285,62 @@ describe SanitizeFilter do
     it { is_expected.to eq("<iframe src=\"https://www.youtube.com/embed/abcd\" #{sandbox}></iframe>") }
   end
 
+  context "when input contains an iframe of the forum itself" do
+    before { B3S.config.domain_names = "b3s.example, Forum.Example" }
+
+    after { B3S.config.domain_names = nil }
+
+    [
+      "https://b3s.example/discussions/1",
+      "https://B3S.Example/",
+      "https://forum.example/",
+      "https://b3s.example:443/",
+      "https://b3s.example./",
+      "https://www.b3s.example/",
+      "https://user@b3s.example/",
+      "https://b3s%2Eexample/",
+      "https:\\\\b3s.example/",
+      "https:/b3s.example/",
+      "//b3s.example/",
+      "https://\uFF42\uFF13s.example/",
+      "https://%ff/",
+      "https://b3s%c3%28.example/"
+    ].each do |src|
+      context "with the src #{src}" do
+        let(:input) { "<p>a</p><iframe src=\"#{src}\"></iframe>" }
+
+        it { is_expected.to eq("<p>a</p>") }
+      end
+    end
+
+    context "with a host that only ends with the domain name" do
+      let(:input) { '<iframe src="https://notb3s.example/"></iframe>' }
+
+      it { is_expected.to eq("<iframe src=\"https://notb3s.example/\" #{sandbox}></iframe>") }
+    end
+  end
+
+  context "when input contains an iframe of a host the forum is served on" do
+    before do
+      allow(Rails.application.config).to receive(:hosts)
+        .and_return(["b3s.example", ".alias.example", /\Aregexp\.example\z/, IPAddr.new("192.0.2.0/24")])
+    end
+
+    %w[https://b3s.example/ https://www.b3s.example/ https://alias.example/ https://forum.alias.example/].each do |src|
+      context "with the src #{src}" do
+        let(:input) { "<p>a</p><iframe src=\"#{src}\"></iframe>" }
+
+        it { is_expected.to eq("<p>a</p>") }
+      end
+    end
+
+    context "with a host matching only a non-string entry" do
+      let(:input) { '<iframe src="https://regexp.example/"></iframe>' }
+
+      it { is_expected.to eq("<iframe src=\"https://regexp.example/\" #{sandbox}></iframe>") }
+    end
+  end
+
   context "when input contains fixed positioning" do
     let(:input) do
       '<div style="position: fixed; top: 0; color: red">a</div>' \

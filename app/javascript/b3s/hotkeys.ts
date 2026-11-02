@@ -215,7 +215,7 @@ type KeySequence = [RegExp, () => void];
   const openTargetNewTab = (target: HTMLElement): void => {
     const anchor = target as HTMLAnchorElement;
     if (anchor.href) {
-      window.open(anchor.href);
+      window.open(anchor.href, "_blank", "noopener");
     }
   };
 

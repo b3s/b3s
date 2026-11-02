@@ -18,7 +18,7 @@ Rails.application.configure do
     policy.connect_src :self
     policy.font_src :self
     policy.form_action :self
-    policy.frame_ancestors :self
+    policy.frame_ancestors :none
     policy.frame_src :https
     policy.img_src :self, :https, :http, :data, :blob
     policy.manifest_src :self

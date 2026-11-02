@@ -62,6 +62,7 @@ span.admin {
     margin-bottom: 1em;
     max-width: 100%;
     overflow: hidden;
+    contain: paint;
   }
   .grant_invites {
     font-size: 1.2em;

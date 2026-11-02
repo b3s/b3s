@@ -3,8 +3,7 @@ name: Pull request
 on:
   pull_request:
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 jobs:
   test:
     name: "Test"
@@ -12,13 +11,15 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       postgres_db: b3s_test
-    secrets: inherit
 
   automerge:
     name: "Auto-merge Dependabot"
     needs: [test]
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Fetch Dependabot metadata
         id: metadata

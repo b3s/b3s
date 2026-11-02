@@ -72,7 +72,6 @@ zh-CN:
       invites_count: 邀请
       administator_privileges: 管理员权限
       birthday_description: "你的年龄不会被显示，但你的生日会"
-      gravatar_link_html: '或者上传图片到 <a href="http://www.gravatar.com/">Gravatar</a>，使用你的注册电子邮件来获得一个头像。'
       temporary_ban: 临时禁止
       moderator_description: '能够编辑所有讨论和帖子'
       user_admin_description: '能够编辑其他用户并处理邀请或批准请求'

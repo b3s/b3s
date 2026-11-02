@@ -7,6 +7,8 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
+permissions:
+  contents: read
 jobs:
   test:
     name: "Test"
@@ -14,7 +16,6 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       postgres_db: b3s_test
-    secrets: inherit
 
   deploy:
     name: "Deploy"
@@ -23,7 +24,13 @@ jobs:
       !contains(github.event.head_commit.message, '[deploy skip]')
     needs:
       - test
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/deploy.yml
     with:
       sentry_project: b3s
-    secrets: inherit
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}

@@ -9,18 +9,30 @@ on:
       sentry_project:
         required: true
         type: string
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN:
+        required: true
+      SENTRY_AUTH_TOKEN:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+permissions:
+  contents: read
 jobs:
   kamal:
     name: Kamal
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
       VERSION: ${{ github.sha }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@v4
       - uses: webfactory/ssh-agent@v0.10.0
@@ -32,6 +44,9 @@ jobs:
         with:
           bundler-cache: true
       - name: Deploy with kamal
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
           bundle exec kamal deploy --version=$VERSION
 
@@ -42,6 +57,8 @@ jobs:
       - kamal
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - name: Sentry Release
         uses: getsentry/action-release@v3.7.2
         env:
