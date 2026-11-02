@@ -14,7 +14,8 @@ class EmbedSanitizer
   }.freeze
 
   IFRAME_SANDBOX = "allow-scripts allow-same-origin allow-popups " \
-                   "allow-popups-to-escape-sandbox allow-presentation"
+                   "allow-popups-to-escape-sandbox allow-presentation " \
+                   "allow-storage-access-by-user-activation"
 
   CONFIG = Sanitize::Config.freeze_config(
     add_attributes: { "iframe" => { "sandbox" => IFRAME_SANDBOX } },

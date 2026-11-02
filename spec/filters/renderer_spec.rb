@@ -101,7 +101,8 @@ describe Renderer do
       let(:url) { "https://vimeo.com/1" }
       let(:input) { "look: #{url}" }
       let(:sandbox) do
-        'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"'
+        'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation ' \
+          'allow-storage-access-by-user-activation"'
       end
 
       before { OembedResponse.store(url, '<iframe src="https://player.vimeo.com/video/1"></iframe><script></script>') }
@@ -118,7 +119,8 @@ describe Renderer do
       let(:format) { "markdown" }
       let(:input) { "!y[A \"title\"](https://youtu.be/abcd)" }
       let(:sandbox) do
-        'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"'
+        'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation ' \
+          'allow-storage-access-by-user-activation"'
       end
 
       it "embeds the video" do

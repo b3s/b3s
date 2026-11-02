@@ -25,7 +25,8 @@ describe EmbedSanitizer do
     subject(:output) { described_class.clean(input, "https://vimeo.com/1") }
 
     let(:sandbox) do
-      'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"'
+      'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation ' \
+        'allow-storage-access-by-user-activation"'
     end
 
     context "when the iframe has no sandbox" do

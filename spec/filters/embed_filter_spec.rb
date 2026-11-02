@@ -644,7 +644,8 @@ describe EmbedFilter do
         "<b>user content</b></div>"
     end
     let(:sandbox) do
-      'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"'
+      'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation ' \
+        'allow-storage-access-by-user-activation"'
     end
 
     it "builds the iframe" do
