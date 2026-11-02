@@ -36,7 +36,7 @@ module UrlPolicy
       host = normalized_host(authority)
       return true unless host
 
-      domains.map { |domain| domain.strip.downcase }.compact_blank.any? do |domain|
+      domains.map { |domain| domain.strip.downcase.delete_prefix(".") }.compact_blank.any? do |domain|
         host == domain || host.end_with?(".#{domain}")
       end
     end

@@ -320,6 +320,27 @@ describe SanitizeFilter do
     end
   end
 
+  context "when input contains an iframe of a host the forum is served on" do
+    before do
+      allow(Rails.application.config).to receive(:hosts)
+        .and_return(["b3s.example", ".alias.example", /\Aregexp\.example\z/, IPAddr.new("192.0.2.0/24")])
+    end
+
+    %w[https://b3s.example/ https://www.b3s.example/ https://alias.example/ https://forum.alias.example/].each do |src|
+      context "with the src #{src}" do
+        let(:input) { "<p>a</p><iframe src=\"#{src}\"></iframe>" }
+
+        it { is_expected.to eq("<p>a</p>") }
+      end
+    end
+
+    context "with a host matching only a non-string entry" do
+      let(:input) { '<iframe src="https://regexp.example/"></iframe>' }
+
+      it { is_expected.to eq("<iframe src=\"https://regexp.example/\" #{sandbox}></iframe>") }
+    end
+  end
+
   context "when input contains fixed positioning" do
     let(:input) do
       '<div style="position: fixed; top: 0; color: red">a</div>' \

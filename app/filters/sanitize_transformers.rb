@@ -58,7 +58,8 @@ module SanitizeTransformers
         node = env[:node]
         next unless env[:node_name] == "iframe" && node.has_attribute?("src")
 
-        node.unlink if UrlPolicy.local_or_ambiguous_host?(node["src"], B3S.config.domain_names.to_s.split(","))
+        domains = B3S.config.domain_names.to_s.split(",") + Rails.application.config.hosts.grep(String)
+        node.unlink if UrlPolicy.local_or_ambiguous_host?(node["src"], domains)
       end
     end
 
