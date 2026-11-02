@@ -5,6 +5,12 @@ require "rails_helper"
 describe EmbedFilter do
   subject(:rendered) { described_class.new(input).to_html }
 
+  before do
+    dns = instance_double(Resolv::DNS, :timeouts= => nil)
+    allow(dns).to receive(:getaddresses).and_return([Resolv::IPv4.create("93.184.215.14")])
+    allow(Resolv::DNS).to receive(:new).and_return(dns)
+  end
+
   def placeholder(url, content = "<a href=\"#{url}\">#{url}</a>")
     "<div class=\"embed\" data-oembed-url=\"#{url}\">#{content}</div>"
   end
@@ -346,10 +352,195 @@ describe EmbedFilter do
       expect(OembedResponse.find_by(url: "https://staff.tumblr.com/post/123456789").html).to eq(html)
     end
 
-    it "sets a timeout" do
-      allow(OEmbed::Providers).to receive(:get).and_call_original
+    it "builds the endpoint URL with the provider" do
       rendered
-      expect(OEmbed::Providers).to have_received(:get).with(anything, timeout: 5)
+      expect(oembed_request).to have_been_made.once
+    end
+
+    it "does not log an error" do
+      allow(Rails.logger).to receive(:error)
+      rendered
+      expect(Rails.logger).not_to have_received(:error)
+    end
+
+    it "relies on OEmbed::Provider#build being public" do
+      expect(OEmbed::Provider.public_method_defined?(:build)).to be(true)
+    end
+
+    it "requests an unencoded response" do
+      rendered
+      expect(oembed_request.with(headers: { "Accept-Encoding" => "identity" })).to have_been_made.once
+    end
+
+    it "limits the fetch to seven seconds" do
+      allow(Timeout).to receive(:timeout).and_call_original
+      rendered
+      expect(Timeout).to have_received(:timeout).with(7)
+    end
+  end
+
+  context "when the provider redirects" do
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+    let(:link) { "<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>" }
+    let(:location) { "https://other.example.com/oembed" }
+
+    before do
+      allow(Resolv::DNS.new).to receive(:getaddresses).with("internal.example.com")
+                                                      .and_return([Resolv::IPv4.create("10.0.0.1")])
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(status: 302, headers: { "Location" => location })
+      stub_request(:get, location)
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>embed</p>" }.to_json)
+    end
+
+    context "when the redirect is to a public address" do
+      it "follows it" do
+        expect(rendered).to eq(placeholder(url, "<p>embed</p>"))
+      end
+    end
+
+    context "when the redirect is to a loopback address" do
+      let(:location) { "http://127.0.0.1/oembed" }
+
+      it "falls back to a link" do
+        expect(rendered).to eq(link)
+      end
+
+      it "does not follow the redirect" do
+        rendered
+        expect(a_request(:get, location)).not_to have_been_made
+      end
+    end
+
+    context "when the redirect is to a link-local address" do
+      let(:location) { "http://169.254.169.254/latest/meta-data/" }
+
+      it "does not follow the redirect" do
+        rendered
+        expect(a_request(:get, location)).not_to have_been_made
+      end
+    end
+
+    context "when the redirect is to a hostname resolving to a private address" do
+      let(:location) { "http://internal.example.com/oembed" }
+
+      it "falls back to a link" do
+        expect(rendered).to eq(link)
+      end
+
+      it "does not follow the redirect" do
+        rendered
+        expect(a_request(:get, location)).not_to have_been_made
+      end
+    end
+  end
+
+  context "when the provider redirects too many times" do
+    let(:input) { placeholder("https://vimeo.com/1") }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(status: 302, headers: { "Location" => "https://other.example.com/0" })
+      4.times do |i|
+        stub_request(:get, "https://other.example.com/#{i}")
+          .to_return(status: 302, headers: { "Location" => "https://other.example.com/#{i + 1}" })
+      end
+    end
+
+    it "gives up after three redirects" do
+      rendered
+      expect(a_request(:get, %r{\Ahttps://other\.example\.com/})).to have_been_made.times(3)
+    end
+  end
+
+  context "when the provider response contains non-ASCII text" do
+    let(:input) { placeholder("https://vimeo.com/1") }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>blåbærsyltetøy</p>" }.to_json)
+    end
+
+    it "keeps the text intact" do
+      expect(rendered).to include("<p>blåbærsyltetøy</p>")
+    end
+  end
+
+  context "when the provider response is too large" do
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>#{'a' * 262_144}</p>" }.to_json)
+    end
+
+    it "falls back to a link" do
+      expect(rendered).to eq("<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>")
+    end
+  end
+
+  context "when a post has more embeds than the fetch limit" do
+    let(:urls) { Array.new(26) { |i| "https://vimeo.com/#{i}" } }
+    let(:input) { urls.map { |url| placeholder(url) }.join }
+
+    before do
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})
+        .to_return(body: { type: "rich", version: "1.0", html: "<p>embed</p>" }.to_json)
+    end
+
+    it "stops fetching" do
+      rendered
+      expect(a_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})).to have_been_made.times(25)
+    end
+
+    it "falls back to a link for the rest" do
+      expect(rendered).to end_with("<a href=\"#{urls.last}\" rel=\"nofollow noopener noreferrer ugc\">#{urls.last}</a>")
+    end
+
+    it "does not cache the skipped embeds" do
+      rendered
+      expect(OembedResponse.exists?(url: urls.last)).to be(false)
+    end
+
+    it "does not count cached embeds" do
+      urls.first(25).each { |url| OembedResponse.store(url, "<p>cached</p>") }
+      expect(rendered).to end_with(placeholder(urls.last, "<p>embed</p>"))
+    end
+  end
+
+  context "when fetching exceeds the render budget" do
+    let(:clock) { { now: 0.0 } }
+    let(:input) { Array.new(3) { |i| placeholder("https://vimeo.com/#{i}") }.join }
+
+    before do
+      allow(Process).to receive(:clock_gettime).and_call_original
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { clock[:now] }
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json}).to_return do
+        clock[:now] += 4
+        { body: { type: "rich", version: "1.0", html: "<p>embed</p>" }.to_json }
+      end
+    end
+
+    it "stops fetching" do
+      rendered
+      expect(a_request(:get, %r{\Ahttps://vimeo\.com/api/oembed\.json})).to have_been_made.twice
+    end
+  end
+
+  context "when the fetch budget is already spent" do
+    subject(:rendered) { described_class.new(input, fetch_budget:).to_html }
+
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+    let(:fetch_budget) { instance_double(FetchBudget, spend?: false) }
+
+    before { stub_request(:any, //) }
+
+    it "does not make a request" do
+      rendered
+      expect(a_request(:any, //)).not_to have_been_made
     end
   end
 
@@ -382,6 +573,18 @@ describe EmbedFilter do
     it "doesn't cache the response" do
       rendered
       expect(OembedResponse.exists?(url:)).to be(false)
+    end
+
+    it "doesn't retry within a day", :cache do
+      rendered
+      travel(23.hours) { described_class.new(input).to_html }
+      expect(a_request(:get, /vimeo\.com/)).to have_been_made.once
+    end
+
+    it "retries after a day", :cache do
+      rendered
+      travel(25.hours) { described_class.new(input).to_html }
+      expect(a_request(:get, /vimeo\.com/)).to have_been_made.twice
     end
   end
 

@@ -162,6 +162,21 @@ RSpec.describe "Registrations" do
       end
     end
 
+    context "with a whitespace-only password" do
+      let(:user_params) do
+        super().merge(password: " " * 10, password_confirmation: " " * 10)
+      end
+
+      before do
+        accept_invite(invite)
+        post registrations_path, params:
+      end
+
+      it "does not create a user" do
+        expect(User.find_by(username: user_params[:username])).to be_nil
+      end
+    end
+
     context "with invalid params" do
       let(:user_params) { { username: "", email: "", password: "" } }
 

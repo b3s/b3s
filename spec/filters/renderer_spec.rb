@@ -31,6 +31,28 @@ describe Renderer do
     end
   end
 
+  describe "fetch budget" do
+    let(:images) { Array.new(25) { |i| "<img src=\"http://example.com/#{i}.png\">" } }
+    let(:input) { [*images, "https://vimeo.com/1"].join("\n\n") }
+
+    before do
+      dns = instance_double(Resolv::DNS, :timeouts= => nil)
+      allow(dns).to receive(:getaddresses).and_return([Resolv::IPv4.create("93.184.215.14")])
+      allow(Resolv::DNS).to receive(:new).and_return(dns)
+      stub_request(:get, %r{\Ahttp://example\.com/}).to_return(status: 404)
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed})
+      described_class.render(input)
+    end
+
+    it "probes images within the budget" do
+      expect(a_request(:get, %r{\Ahttp://example\.com/})).to have_been_made.times(25)
+    end
+
+    it "shares the budget between image probes and embeds" do
+      expect(a_request(:get, %r{\Ahttps://vimeo\.com/api/oembed})).not_to have_been_made
+    end
+  end
+
   describe ".render" do
     formats = %w[markdown html]
 

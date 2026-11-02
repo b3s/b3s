@@ -5,7 +5,7 @@
   <div class="functions">
     <% if @user == current_user %>
       <%= link_to "Edit your profile", edit_user_profile_path( @user.username) %>
-    <% elsif current_user.user_admin? %>
+    <% elsif current_user.admin? || (current_user.user_admin? && !@user.admin?) %>
       <%= link_to "Edit", edit_user_profile_path( @user.username) %> /
     <% end %>
 

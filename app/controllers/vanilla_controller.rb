@@ -10,11 +10,11 @@ class VanillaController < ApplicationController
 
   # /vanilla/comments.php?DiscussionID=13892&page=6
   def discussion
+    exchange = Exchange.find(params.expect(:DiscussionID))
+    raise ActiveRecord::RecordNotFound unless exchange.viewable_by?(current_user)
+
     headers["Status"] = "301 Moved Permanently"
-    redirect_to polymorphic_url(
-      Exchange.find(params.expect(:DiscussionID)),
-      page: params[:page]
-    )
+    redirect_to polymorphic_url(exchange, page: params[:page])
   end
 
   # /vanilla/account.php?u=4

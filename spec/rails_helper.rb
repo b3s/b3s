@@ -105,6 +105,13 @@ RSpec.configure do |config|
     Rails.cache = default_cache
   end
 
+  config.before(:each, :rate_limit) do
+    store = ActiveSupport::Cache::MemoryStore.new
+    allow(ActionController::Base.cache_store).to receive(:increment) do |*args, **options|
+      store.increment(*args, **options)
+    end
+  end
+
   config.before(:each, type: :system) do
     driven_by :rack_test
   end

@@ -6,6 +6,7 @@ class Post < ApplicationRecord
   include Paginatable
   include Paginatable::PositionKeyed
   include Viewable
+  include PreprocessablePost
 
   self.per_page = 50
 
@@ -17,8 +18,6 @@ class Post < ApplicationRecord
 
   validates :body, presence: true
   validates :format, inclusion: %w[markdown html]
-
-  attr_accessor :skip_preprocess
 
   before_save :preprocess!, :set_edit_timestamp
 
@@ -43,7 +42,8 @@ class Post < ApplicationRecord
   end
 
   def body_html
-    return Renderer.render(body, format:) if new_record? || Rails.env.development?
+    return unsaved_body_html if new_record?
+    return Renderer.render(body, format:) if Rails.env.development?
 
     super.presence&.html_safe || Renderer.render(body, format:)
   end
@@ -56,15 +56,6 @@ class Post < ApplicationRecord
 
   def editable_by?(user)
     user.present? && (user.moderator? || user == self.user)
-  end
-
-  def preprocess!
-    return self if skip_preprocess
-
-    fetch_images
-    self.body_html = Renderer.render(body, format:)
-    self.skip_preprocess = true
-    self
   end
 
   def mentions_users?
@@ -81,8 +72,11 @@ class Post < ApplicationRecord
 
   private
 
-  def fetch_images
-    self.body = ImageFetcher.fetch(body)
+  def unsaved_body_html
+    return "".html_safe if body_too_long?
+    return self[:body_html].html_safe if skip_preprocess && self[:body_html]
+
+    Renderer.render(body, format:)
   end
 
   def increment_public_posts_count

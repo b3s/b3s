@@ -28,6 +28,7 @@ module Authenticable
         allow_blank: true
       }
     )
+    validates :password, presence: true, unless: -> { password.nil? }
 
     after_initialize do |u|
       u.persistence_token ||= u.class.random_persistence_token
@@ -52,6 +53,14 @@ module Authenticable
 
   def temporary_banned?
     banned_until? && banned_until > Time.now.utc
+  end
+
+  def require_password_challenge
+    if email.presence != email_was.presence || password_digest_changed?
+      self.password_challenge ||= ""
+    else
+      self.password_challenge = nil
+    end
   end
 
   def reactivate_if_eligible!

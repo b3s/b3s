@@ -74,6 +74,28 @@ describe ImageFetcher do
       it { is_expected.to eq(body) }
     end
 
+    context "when the body has more images than the fetch limit" do
+      let(:body) { Array.new(26) { |i| "http://i.imgur.com/#{i}.png" }.join(" ") }
+
+      before do
+        stub_request(:get, %r{\Ahttp://i\.imgur\.com/})
+          .to_return(status: 404)
+      end
+
+      it "stops fetching" do
+        described_class.fetch(body)
+        expect(a_request(:get, %r{\Ahttp://i\.imgur\.com/})).to have_been_made.times(25)
+      end
+    end
+
+    context "when the fetch budget is already spent" do
+      subject { described_class.fetch(body, fetch_budget:) }
+
+      let(:fetch_budget) { instance_double(FetchBudget, spend?: false) }
+
+      it { is_expected.to eq(body) }
+    end
+
     it "gets the filename" do
       described_class.fetch(body)
       expect(image.filename).to eq("foobar.png")

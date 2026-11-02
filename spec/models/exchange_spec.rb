@@ -25,6 +25,7 @@ describe Exchange do
   it { is_expected.to validate_presence_of(:title) }
   it { is_expected.to validate_length_of(:title).is_at_most(100) }
   it { is_expected.to validate_presence_of(:body) }
+  it { is_expected.to validate_length_of(:body).is_at_most(100_000) }
 
   describe "#updated_by" do
     it "changes closer when updating" do
@@ -234,5 +235,29 @@ describe Exchange do
     before { exchange.update(body: "changed post") }
 
     specify { expect(first_post.body).to eq("changed post") }
+
+    context "when the body is over the length limit" do
+      before { exchange.update(body: "a" * 100_001) }
+
+      specify { expect(exchange.errors).to be_of_kind(:body, :too_long) }
+      specify { expect(first_post.reload.body).to eq("changed post") }
+    end
+
+    context "when validating without a body" do
+      it "does not query the posts" do
+        reloaded = described_class.find(exchange.id)
+        expect(count_queries(matching: 'FROM "posts"') { reloaded.valid? }).to eq(0)
+      end
+    end
+
+    context "when the existing body is over the length limit" do
+      before do
+        first_post.body = "a" * 100_001
+        first_post.save!(validate: false)
+      end
+
+      specify { expect(exchange.update(title: "New title", body: "a" * 100_001)).to be(true) }
+      specify { expect(exchange.update(title: "New title")).to be(true) }
+    end
   end
 end

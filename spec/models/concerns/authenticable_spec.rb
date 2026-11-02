@@ -33,6 +33,20 @@ describe Authenticable do
       specify { expect(length).to eq(1) }
     end
 
+    context "when the password is whitespace-only" do
+      let(:user) do
+        build(:user, password: " " * 10, password_confirmation: " " * 10)
+      end
+
+      it { is_expected.to include("can't be blank") }
+    end
+
+    context "when an empty password is assigned to an existing user" do
+      let(:user) { User.find(create(:user).id).tap { it.password = "" } }
+
+      it { is_expected.to eq([]) }
+    end
+
     context "when password_confirmation is present" do
       let(:user) do
         build(:user,

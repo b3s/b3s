@@ -2,6 +2,9 @@
 
 class PasswordResetsController < ApplicationController
   before_action :set_referrer_policy
+  rate_limit to: 5, within: 15.minutes, only: :create, with: :report_sent
+  rate_limit to: 5, within: 15.minutes, only: :create, with: :report_sent,
+             by: :normalized_email_param, name: "email", if: :normalized_email_param
   before_action :store_token, only: %i[show]
   before_action :find_by_token, only: %i[show update]
 
@@ -10,10 +13,9 @@ class PasswordResetsController < ApplicationController
   def new; end
 
   def create
-    @user = User.where(email: params[:email]).first if params[:email]
+    @user = User.where(email: params[:email].to_s).first if params[:email]
     deliver_password_reset(@user) if @user
-    flash[:notice] = t("password_reset.sent")
-    redirect_to new_session_url
+    report_sent
   end
 
   def update
@@ -46,6 +48,11 @@ class PasswordResetsController < ApplicationController
 
     session.delete(:password_reset_token)
     fail_reset(t("password_reset.invalid"))
+  end
+
+  def report_sent
+    flash[:notice] = t("password_reset.sent")
+    redirect_to new_session_url
   end
 
   def set_referrer_policy

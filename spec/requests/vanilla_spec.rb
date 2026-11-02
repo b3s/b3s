@@ -27,10 +27,20 @@ RSpec.describe "Vanilla" do
     let(:discussion) { create(:discussion) }
 
     before do
+      configure public_browsing: true
       get "/vanilla/comments.php", params: { DiscussionID: discussion.id }
     end
 
     it { is_expected.to redirect_to(discussion_url(discussion)) }
+
+    context "when public browsing is disabled" do
+      before do
+        configure public_browsing: false
+        get "/vanilla/comments.php", params: { DiscussionID: discussion.id }
+      end
+
+      it { is_expected.to have_http_status(:not_found) }
+    end
 
     context "with page parameter" do
       before do
@@ -39,6 +49,34 @@ RSpec.describe "Vanilla" do
       end
 
       it { is_expected.to redirect_to(discussion_url(discussion, page: 2)) }
+    end
+  end
+
+  describe "GET /vanilla/comments.php with a conversation" do
+    let(:conversation) { create(:conversation, title: "Secret plans") }
+
+    before do
+      create(:user) unless User.any?
+      login_as(user)
+      get "/vanilla/comments.php", params: { DiscussionID: conversation.id }
+    end
+
+    context "when user is a participant" do
+      let(:user) { conversation.poster }
+
+      it { is_expected.to redirect_to(conversation_url(conversation)) }
+    end
+
+    context "when user is not a participant" do
+      let(:user) { create(:user) }
+
+      it { is_expected.to have_http_status(:not_found) }
+    end
+
+    context "when not authenticated" do
+      let(:user) { nil }
+
+      it { is_expected.to have_http_status(:not_found) }
     end
   end
 

@@ -22,6 +22,7 @@ en:
         email: Email address
         password: Password
         password_confirmation: Confirm password
+        password_challenge: Current password
         stylesheet_url: Custom stylesheet URL
         mobile_stylesheet_url: Custom mobile stylesheet URL
         banned_until: Banned until
@@ -148,6 +149,8 @@ en:
       account_info: Account info
       settings: Settings
       theme: Theme
+      password_challenge_description: >-
+        Required to change your email address or password
       stylesheet_url_description: Enter a URL here to override the theme
       mobile_stylesheet_url_description: >-
         Enter a URL here to override the mobile theme

@@ -7,10 +7,10 @@ class ExchangePostsController < ApplicationController
   requires_user except: %i[since search]
 
   before_action :find_exchange
+  before_action :verify_viewable
   before_action :find_post, only: %i[edit update]
   before_action :verify_editable, only: %i[edit update]
   before_action :verify_postable, only: %i[create preview]
-  before_action :verify_viewable
 
   after_action :mark_conversation_viewed, only: %i[since]
   after_action :mark_exchange_viewed, only: %i[since]
@@ -45,7 +45,10 @@ class ExchangePostsController < ApplicationController
   end
 
   def preview
-    @post = @exchange.posts.new(post_params.merge(user: current_user)).preprocess!
+    @post = @exchange.posts.new(post_params.merge(user: current_user))
+    return render_too_long(@post) if @post.body_too_long?
+
+    @post.preprocess!
 
     render layout: false if request.xhr?
   end
@@ -85,7 +88,7 @@ class ExchangePostsController < ApplicationController
   end
 
   def find_post
-    @post = Post.find(params.expect(:id))
+    @post = @exchange.posts.find(params.expect(:id))
   end
 
   def post_params
@@ -94,6 +97,11 @@ class ExchangePostsController < ApplicationController
 
   def handle_invalid_uri(exception)
     render plain: exception.message, status: :internal_server_error if request.xhr?
+  end
+
+  def render_too_long(post)
+    post.validate
+    render plain: post.errors.full_messages_for(:body).to_sentence, status: :unprocessable_content
   end
 
   def respond_with_post(post, redirect_url, created: false)

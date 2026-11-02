@@ -15,8 +15,9 @@ class Renderer
 
     def render(post, options = {})
       options[:format] ||= "markdown"
+      fetch_budget = options[:fetch_budget] || FetchBudget.new
       filters(options[:format]).inject(post) do |str, filter|
-        filter.new(str).to_html
+        filter.new(str, fetch_budget:).to_html
       end.html_safe
     end
   end

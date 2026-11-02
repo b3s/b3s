@@ -141,14 +141,10 @@ RSpec.describe "ExchangePosts" do
     end
 
     context "when user is not a participant" do
-      it "redirects to the conversation" do
-        expect(response).to redirect_to(
-          conversation_url(exchange, page: exchange.last_page)
-        )
-      end
+      it { is_expected.to redirect_to(root_url) }
 
       it "sets a flash notice" do
-        expect(flash[:notice]).to eq(I18n.t("exchange.closed"))
+        expect(flash[:notice]).to eq(I18n.t("exchange.not_viewable"))
       end
 
       it "does not create a post" do
@@ -254,6 +250,38 @@ RSpec.describe "ExchangePosts" do
 
       it { is_expected.to have_http_status(:not_found) }
     end
+
+    context "when post belongs to another exchange" do
+      let(:existing_post) { create(:conversation).posts.first }
+      let(:user) { create(:user, :moderator) }
+
+      it { is_expected.to have_http_status(:not_found) }
+
+      it "does not update the post" do
+        expect(existing_post.reload.body).not_to eq("foo")
+      end
+    end
+  end
+
+  describe "PUT /conversations/:conversation_id/posts/:id" do
+    let(:exchange) { create(:conversation) }
+    let(:user) { exchange.poster }
+    let(:existing_post) { exchange.posts.first }
+
+    before do
+      put conversation_post_path(exchange, existing_post),
+          params: { post: { body: "foo", format: "html" } }
+    end
+
+    it "redirects to the conversation with post anchor" do
+      expect(response).to redirect_to(
+        conversation_url(exchange, page: 1, anchor: "post-#{existing_post.id}")
+      )
+    end
+
+    it "updates the post body" do
+      expect(existing_post.reload.body).to eq("foo")
+    end
   end
 
   describe "GET /discussions/:discussion_id/posts/since" do
@@ -337,6 +365,37 @@ RSpec.describe "ExchangePosts" do
 
       it { is_expected.to have_http_status(:not_found) }
     end
+
+    context "when post belongs to another exchange" do
+      let(:existing_post) { create(:conversation).posts.first }
+      let(:user) { create(:user, :moderator) }
+
+      it { is_expected.to have_http_status(:not_found) }
+
+      it "does not include the post body in the response" do
+        expect(response.body).not_to include(existing_post.body)
+      end
+    end
+  end
+
+  describe "GET /conversations/:conversation_id/posts/:id/edit" do
+    let(:exchange) { create(:conversation) }
+    let(:user) { exchange.poster }
+    let(:existing_post) { exchange.posts.first }
+
+    before { get edit_conversation_post_path(exchange, existing_post) }
+
+    it { is_expected.to have_http_status(:success) }
+
+    it "includes the post body in the response" do
+      expect(response.body).to include(existing_post.body)
+    end
+
+    context "when user is not a participant" do
+      let(:user) { create(:user) }
+
+      it { is_expected.to redirect_to(root_url) }
+    end
   end
 
   describe "POST /discussions/:discussion_id/posts/preview" do
@@ -362,6 +421,47 @@ RSpec.describe "ExchangePosts" do
 
       it "renders the preview despite URI error" do
         expect(response.body).to be_present
+      end
+    end
+
+    context "when the body is over the length limit" do
+      let(:post_params) { { body: "a" * 100_001, format: "html" } }
+
+      it { is_expected.to have_http_status(:unprocessable_content) }
+
+      it "explains the error" do
+        expect(response.body).to eq("Body is too long (maximum is 100000 characters)")
+      end
+    end
+  end
+
+  describe "rendering posts on create and preview" do
+    before do
+      exchange
+      allow(Renderer).to receive(:render).and_call_original
+    end
+
+    context "when previewing" do
+      before do
+        post preview_discussion_posts_path(exchange),
+             params: { post: { body: "preview text", format: "html" } }
+      end
+
+      it "renders the post once" do
+        expect(Renderer).to have_received(:render).once
+      end
+    end
+
+    context "when creating a post over the length limit as JSON" do
+      before do
+        post discussion_posts_path(exchange, format: :json),
+             params: { post: { body: "a" * 100_001, format: "html" } }
+      end
+
+      it { is_expected.to have_http_status(:unprocessable_content) }
+
+      it "does not render the post" do
+        expect(Renderer).not_to have_received(:render)
       end
     end
   end

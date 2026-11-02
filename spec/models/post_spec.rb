@@ -14,6 +14,7 @@ describe Post do
   it { is_expected.to belong_to(:user) }
   it { is_expected.to belong_to(:exchange) }
   it { is_expected.to have_many(:exchange_views) }
+  it { is_expected.to validate_length_of(:body).is_at_most(100_000) }
 
   describe "after_create" do
     let(:post) { create(:post, exchange:) }
@@ -164,6 +165,32 @@ describe Post do
       end
     end
 
+    context "when not saved but preprocessed" do
+      let!(:post) { build(:post, exchange:).preprocess! }
+
+      before { allow(Renderer).to receive(:render) }
+
+      it { is_expected.to eq("<p>#{post.body}</p>\n") }
+
+      it "does not parse the post again" do
+        post.body_html
+        expect(Renderer).not_to have_received(:render)
+      end
+    end
+
+    context "when not saved and the body is over the length limit" do
+      let!(:post) { build(:post, exchange:, body: "a" * 100_001) }
+
+      before { allow(Renderer).to receive(:render) }
+
+      it { is_expected.to eq("") }
+
+      it "does not parse the post" do
+        post.body_html
+        expect(Renderer).not_to have_received(:render)
+      end
+    end
+
     context "when body_html has been set" do
       let!(:post) do
         create(:post, exchange:, body_html: "<p>Test</p>")
@@ -201,6 +228,23 @@ describe Post do
       it "returns html_safe content" do
         expect(post.body_html).to be_html_safe
       end
+    end
+  end
+
+  describe "body length validation" do
+    let(:post) { create(:post) }
+
+    before do
+      post.body = "a" * 100_001
+      post.save!(validate: false)
+    end
+
+    context "when the body is not changed" do
+      specify { expect(post.update(edited_at: Time.current)).to be(true) }
+    end
+
+    context "when the body is changed" do
+      specify { expect(post.update(body: "b" * 100_001)).to be(false) }
     end
   end
 
@@ -357,6 +401,30 @@ describe Post do
       post.preprocess!
       post.save
       expect(ImageFetcher).to have_received(:fetch).once
+    end
+
+    context "when the body is over the length limit" do
+      let(:post) { build(:post, exchange:, body: "a" * 100_001) }
+
+      it "does not render the body" do
+        post.preprocess!
+        expect(Renderer).not_to have_received(:render)
+      end
+    end
+  end
+
+  describe "fetching during preprocessing" do
+    let(:imgur_urls) { Array.new(25) { |i| "http://i.imgur.com/#{i}.png" } }
+    let(:post) { build(:post, body: [*imgur_urls, "https://vimeo.com/1"].join("\n\n")) }
+
+    before do
+      stub_request(:get, %r{\Ahttp://i\.imgur\.com/}).to_return(status: 404)
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed})
+    end
+
+    it "shares the fetch budget between images and embeds" do
+      post.preprocess!
+      expect(a_request(:get, %r{\Ahttps://vimeo\.com/api/oembed})).not_to have_been_made
     end
   end
 

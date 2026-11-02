@@ -27,6 +27,26 @@ describe OembedResponse do
       end
     end
 
+    context "when the block returns nothing", :cache do
+      before { described_class.html_for(url) { nil } }
+
+      it "does not store a response" do
+        expect(described_class.exists?(url:)).to be(false)
+      end
+
+      it "does not call the block again within a day" do
+        travel(23.hours) do
+          expect { |block| described_class.html_for(url, &block) }.not_to yield_control
+        end
+      end
+
+      it "calls the block again after a day" do
+        travel(25.hours) do
+          expect { |block| described_class.html_for(url, &block) }.to yield_control
+        end
+      end
+    end
+
     context "when the block raises" do
       before do
         described_class.html_for(url) { raise "timeout" }

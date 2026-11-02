@@ -128,6 +128,73 @@ describe User do
     end
   end
 
+  describe "changing the email" do
+    let(:user) { create(:user, email: "old@example.com") }
+
+    it "notifies the old address" do
+      expect { user.update(email: "new@example.com") }
+        .to have_enqueued_mail(Mailer, :email_changed).with(user, "old@example.com")
+    end
+
+    it "does not notify when there was no previous address" do
+      user.email = nil
+      user.save(validate: false)
+      expect { user.update(email: "new@example.com") }
+        .not_to have_enqueued_mail(Mailer, :email_changed)
+    end
+
+    it "does not notify when the email is unchanged" do
+      expect { user.update(realname: "Changed") }
+        .not_to have_enqueued_mail(Mailer, :email_changed)
+    end
+  end
+
+  describe "#require_password_challenge" do
+    subject do
+      user.require_password_challenge
+      user.password_challenge
+    end
+
+    let(:user) { described_class.find(create(:user).id) }
+
+    context "when the email changes" do
+      before { user.email = "new@example.com" }
+
+      it { is_expected.to eq("") }
+    end
+
+    context "when the password changes" do
+      before do
+        user.assign_attributes(password: "new password",
+                               password_challenge: "secret")
+      end
+
+      it { is_expected.to eq("secret") }
+    end
+
+    context "when a missing email is submitted blank" do
+      before do
+        user.email = nil
+        user.save(validate: false)
+        user.assign_attributes(email: "", password_challenge: "")
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context "when the password is set to whitespace" do
+      before { user.password = " " * 10 }
+
+      it { is_expected.to eq("") }
+    end
+
+    context "when neither changes" do
+      before { user.assign_attributes(realname: "Changed", password_challenge: "") }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe "#previous_usernames" do
     subject { user.previous_usernames }
 

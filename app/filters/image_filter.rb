@@ -3,8 +3,6 @@
 class ImageFilter < Filter
   MAX_IMAGE_BYTES = 65_536
   PROBE_DEADLINE = 3
-  RENDER_BUDGET = 6
-  MAX_PROBES = 25
 
   def process(post)
     parser = Nokogiri::HTML5::DocumentFragment.parse(post)
@@ -49,16 +47,10 @@ class ImageFilter < Filter
     return if data_image?(url) && url.bytesize > UrlPolicy::DATA_IMAGE_MAX_BYTES
 
     cached_probe("image-size", url) do
-      throw :skip_probe unless data_image?(url) || probe_budget?
+      throw :skip_probe unless data_image?(url) || fetch_budget.spend?
 
       fetch_image_size(url)
     end
-  end
-
-  def probe_budget?
-    @render_deadline ||= monotonic_now + RENDER_BUDGET
-    @probes = (@probes || 0) + 1
-    @probes <= MAX_PROBES && monotonic_now < @render_deadline
   end
 
   def fetch_image_size(url)
@@ -92,21 +84,11 @@ class ImageFilter < Filter
 
   def image_request_options(deadline)
     { max_redirects: 3,
-      resolver: image_resolver(deadline),
+      resolver: deadline_resolver(deadline, :image_head),
       headers: { "Range" => "bytes=0-#{MAX_IMAGE_BYTES - 1}",
                  "Accept-Encoding" => "identity" },
       http_options: { open_timeout: 2, read_timeout: 2 },
       request_proc: ->(_) { throw :image_head if monotonic_now >= deadline } }
-  end
-
-  def image_resolver(deadline)
-    dns = Resolv::DNS.new.tap { it.timeouts = 1 }
-    lambda do |host|
-      throw :image_head if monotonic_now >= deadline
-      next [IPAddr.new(host)] if Resolv::AddressRegex.match?(host)
-
-      dns.getaddresses(host).map { IPAddr.new(it.to_s) }
-    end
   end
 
   def read_dimensions(response, deadline)
@@ -118,9 +100,5 @@ class ImageFilter < Filter
       break if dimensions || data.bytesize >= MAX_IMAGE_BYTES || monotonic_now >= deadline
     end
     dimensions
-  end
-
-  def monotonic_now
-    Process.clock_gettime(Process::CLOCK_MONOTONIC)
   end
 end

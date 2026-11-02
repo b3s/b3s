@@ -2,9 +2,11 @@
 
 class Filter
   attr_accessor :post
+  attr_reader :fetch_budget
 
-  def initialize(post)
+  def initialize(post, fetch_budget: FetchBudget.new)
     @post = post
+    @fetch_budget = fetch_budget
   end
 
   def process(post)
@@ -20,6 +22,20 @@ class Filter
   end
 
   private
+
+  def deadline_resolver(deadline, tag)
+    dns = Resolv::DNS.new.tap { it.timeouts = 1 }
+    lambda do |host|
+      throw tag if monotonic_now >= deadline
+      next [IPAddr.new(host)] if Resolv::AddressRegex.match?(host)
+
+      dns.getaddresses(host).map { IPAddr.new(it.to_s) }
+    end
+  end
+
+  def monotonic_now
+    Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  end
 
   def cached_probe(scope, url)
     key = "filter/#{scope}/#{Digest::SHA256.hexdigest(url)}"
