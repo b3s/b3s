@@ -352,6 +352,21 @@ describe EmbedFilter do
       expect(OembedResponse.find_by(url: "https://staff.tumblr.com/post/123456789").html).to eq(html)
     end
 
+    it "builds the endpoint URL with the provider" do
+      rendered
+      expect(oembed_request).to have_been_made.once
+    end
+
+    it "does not log an error" do
+      allow(Rails.logger).to receive(:error)
+      rendered
+      expect(Rails.logger).not_to have_received(:error)
+    end
+
+    it "relies on OEmbed::Provider#build being public" do
+      expect(OEmbed::Provider.public_method_defined?(:build)).to be(true)
+    end
+
     it "requests an unencoded response" do
       rendered
       expect(oembed_request.with(headers: { "Accept-Encoding" => "identity" })).to have_been_made.once
