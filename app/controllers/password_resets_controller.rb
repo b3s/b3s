@@ -20,7 +20,7 @@ class PasswordResetsController < ApplicationController
 
   def update
     if user_params[:password].present? && @user.update(user_params)
-      session.delete(:password_reset_token)
+      renew_session
       deauthenticate!
       authenticate!(@user)
       flash[:notice] = t("password_reset.changed")

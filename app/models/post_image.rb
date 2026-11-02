@@ -2,4 +2,5 @@
 
 class PostImage < ApplicationRecord
   include DynamicImage::Model
+  include ImagePixelLimit
 end

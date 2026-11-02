@@ -44,6 +44,10 @@ class Conversation < Exchange
     ).destroy_all
   end
 
+  def to_param
+    id&.to_s
+  end
+
   def removeable?(user)
     user && participants.include?(user) && participants.many?
   end

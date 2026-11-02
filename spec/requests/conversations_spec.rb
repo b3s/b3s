@@ -36,6 +36,28 @@ RSpec.describe "Conversations" do
     it_behaves_like "authentication is required"
   end
 
+  describe "GET /conversations/:id with a title slug" do
+    before { get "/conversations/#{conversation.id}-Weekend-plans" }
+
+    it { is_expected.to have_http_status(:success) }
+  end
+
+  describe "GET /conversations/:id.json" do
+    before { get conversation_path(conversation, format: :json) }
+
+    it "redirects to the posts without the title" do
+      expect(response.location).to end_with("/conversations/#{conversation.id}/posts.json?page=1")
+    end
+  end
+
+  describe "conversation_path" do
+    let(:conversation) { create(:conversation, title: "Weekend plans") }
+
+    it "contains only the id" do
+      expect(conversation_path(conversation)).to eq("/conversations/#{conversation.id}")
+    end
+  end
+
   describe "GET /conversations/new" do
     let(:recipient) { create(:user) }
 

@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
 
   def self.sentry_parameter_filter
     @sentry_parameter_filter ||= ActiveSupport::ParameterFilter.new(
-      Rails.application.config.filter_parameters + [:body, "conversation.title", "invite.message"]
+      Rails.application.config.filter_parameters
     )
   end
 
@@ -111,6 +111,6 @@ class ApplicationController < ActionController::Base
   end
 
   def search_query
-    params[:q]
+    params[:q]&.to_s&.first(1_000)
   end
 end

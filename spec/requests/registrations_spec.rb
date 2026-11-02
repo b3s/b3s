@@ -139,6 +139,45 @@ RSpec.describe "Registrations" do
       end
     end
 
+    context "when the invite is used up after it was loaded" do
+      before do
+        accept_invite(invite)
+        allow(Invite).to receive(:find_by).and_wrap_original do |find_by, *args|
+          find_by.call(*args).tap { create(:user, invite:) }
+        end
+        post registrations_path, params:
+      end
+
+      it "sets the flash" do
+        expect(flash[:notice]).to include("expired")
+      end
+
+      it "does not create a user" do
+        expect(User.find_by(username: user_params[:username])).to be_nil
+      end
+
+      it "clears the invite token" do
+        expect(session[:invite_token]).to be_nil
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+    end
+
+    context "when signups are allowed" do
+      before do
+        configure signups_allowed: true
+        post registrations_path, params:
+      end
+
+      it "creates a new user" do
+        expect(User.find_by(username: user_params[:username])).to(
+          be_present
+        )
+      end
+    end
+
     context "when signups are not allowed without invite" do
       before { post registrations_path, params: }
 
@@ -205,8 +244,8 @@ RSpec.describe "Registrations" do
     let(:signed_in_user) { create(:user) }
 
     before do
-      accept_invite(invite)
       login_as(signed_in_user)
+      accept_invite(invite)
     end
 
     describe "GET /registrations/new" do
@@ -216,7 +255,7 @@ RSpec.describe "Registrations" do
 
       it "explains why the invite can't be used" do
         expect(flash[:notice]).to eq(
-          "You're already signed in. Log out to use this invite."
+          "You're already signed in. Log out, then open the invite link again."
         )
       end
 
@@ -232,7 +271,7 @@ RSpec.describe "Registrations" do
 
       it "explains why the invite can't be used" do
         expect(flash[:notice]).to eq(
-          "You're already signed in. Log out to use this invite."
+          "You're already signed in. Log out, then open the invite link again."
         )
       end
 

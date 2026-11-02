@@ -31,6 +31,8 @@ en:
       user_link:
         url: URL
     errors:
+      messages:
+        too_many_pixels: is too large (the limit is %{count} megapixels)
       models:
         invite:
           attributes:
@@ -51,6 +53,14 @@ en:
   authentication:
     invalid: That's not a valid email or password.
     logged_out: You have been logged out.
+    logged_out_everywhere: You have been logged out on all devices.
+    log_out_everywhere:
+      title: Sessions
+      description: >-
+        Log out on every device and browser where you're signed in,
+        including this one.
+      button: Log out everywhere
+      confirm: Are you sure you want to log out on all devices?
     notice:
       inactive: >-
         Your account has been disabled due to inactivity/lack of
@@ -180,7 +190,7 @@ en:
     send_invite: Send invite
     new_invite: New Invite
     sent: "Your invite has been sent to %{email}"
-    signed_in: You're already signed in. Log out to use this invite.
+    signed_in: You're already signed in. Log out, then open the invite link again.
   exchange:
     closed: This discussion is closed, you don't have permission to post here.
     invalid: >-

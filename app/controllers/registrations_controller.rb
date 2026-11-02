@@ -17,11 +17,12 @@ class RegistrationsController < ApplicationController
 
   def create
     @user = User.new(user_params)
-    @user.invite = @invite
 
-    if @user.save
+    if save_user
       finalize_successful_signup
       redirect_to user_profile_url(@user.username)
+    elsif @invite_consumed
+      reject_expired_invite
     else
       flash.now[:notice] = t("signup.invalid")
       render :new
@@ -47,15 +48,34 @@ class RegistrationsController < ApplicationController
     @invite = Invite.find_by(token: token.to_s) if token
   end
 
+  def save_user
+    Invite.transaction do
+      lock_invite
+      @user.invite = @invite
+      @user.save unless @invite_consumed
+    end
+  end
+
+  def lock_invite
+    return unless @invite
+
+    @invite = Invite.lock.find_by(id: @invite.id, expires_at: Time.now.utc..)
+    @invite_consumed = @invite.nil?
+  end
+
   def finalize_successful_signup
     Mailer.new_user(@user).deliver_later if @user.email?
-    session.delete(:invite_token)
+    renew_session
     authenticate!(@user)
   end
 
   def check_for_expired_invite
     return unless @invite&.expired?
 
+    reject_expired_invite
+  end
+
+  def reject_expired_invite
     session.delete(:invite_token)
     flash[:notice] = t("invite.expired")
     redirect_to new_session_url

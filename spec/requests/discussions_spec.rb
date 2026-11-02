@@ -397,6 +397,16 @@ RSpec.describe "Discussions" do
       it { is_expected.to redirect_to(conversation_url(conversation)) }
     end
 
+    context "when a participant uses a URL with a title slug" do
+      let(:user) { conversation.poster }
+
+      before { get "/discussions/#{conversation.id}-Secret-plans" }
+
+      it "redirects to the id-only conversation URL" do
+        expect(response.location).to end_with("/conversations/#{conversation.id}")
+      end
+    end
+
     context "when user is not a participant" do
       it { is_expected.to have_http_status(:not_found) }
     end
@@ -442,6 +452,14 @@ RSpec.describe "Discussions" do
 
     context "when user is not a participant" do
       it { is_expected.to have_http_status(:not_found) }
+    end
+  end
+
+  describe "discussion_path" do
+    let(:discussion) { create(:discussion, title: "Weekend plans") }
+
+    it "includes the title" do
+      expect(discussion_path(discussion)).to eq("/discussions/#{discussion.id}-Weekend-plans")
     end
   end
 

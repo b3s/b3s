@@ -52,3 +52,7 @@
     </button>
   </p>
 <% end %>
+
+<% if @page == "settings" && current_user == @user %>
+  <%= render "sessions/log_out_everywhere" %>
+<% end %>

@@ -6,6 +6,7 @@ class SessionsController < ApplicationController
              by: :normalized_email_param, name: "email", if: :normalized_email_param
   before_action :detect_admin_signup, only: %i[new create]
   requires_no_user only: %i[new create]
+  requires_user only: %i[destroy_everywhere]
 
   def new
     # Renders login form
@@ -14,6 +15,7 @@ class SessionsController < ApplicationController
   def create
     user = find_and_authenticate_user
     if user
+      renew_session
       authenticate!(user)
       redirect_to discussions_url
     else
@@ -23,9 +25,18 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    renew_session
     deauthenticate!
     flash[:notice] = t("authentication.logged_out")
     redirect_to B3S.public_browsing? ? discussions_url : new_session_url
+  end
+
+  def destroy_everywhere
+    current_user.log_out_everywhere!
+    renew_session
+    deauthenticate!
+    flash[:notice] = t("authentication.logged_out_everywhere")
+    redirect_to new_session_url
   end
 
   private

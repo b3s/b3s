@@ -21,8 +21,8 @@ RSpec.describe "Sessions" do
 
     context "when already logged in with an invite token in session" do
       before do
-        get accept_invites_path(token: create(:invite).token)
         login_as(create(:user))
+        get accept_invites_path(token: create(:invite).token)
         get new_session_path
       end
 
@@ -53,6 +53,36 @@ RSpec.describe "Sessions" do
 
       it "redirects to discussions" do
         expect(response).to redirect_to(discussions_url)
+      end
+    end
+
+    context "with an existing session" do
+      let(:mobile_user_agent) { "Mozilla/5.0 (Linux; Android 13) Mobile Safari/537.36" }
+      let!(:previous_session_id) do
+        get new_session_path(mobile_format: "desktop"),
+            headers: { "HTTP_USER_AGENT" => mobile_user_agent }
+        get password_reset_path(token: create(:user).generate_token_for(:password_reset))
+        session.id.to_s
+      end
+
+      before do
+        post session_path, params: { email: user.email, password: "password123" }
+      end
+
+      it "issues a new session id" do
+        expect(session.id.to_s).not_to eq(previous_session_id)
+      end
+
+      it "drops the password reset token" do
+        expect(session[:password_reset_token]).to be_nil
+      end
+
+      it "keeps the mobile format preference" do
+        expect(session[:mobile_format]).to eq("desktop")
+      end
+
+      it "stores the user in the new session" do
+        expect(session[:user_id]).to eq(user.id)
       end
     end
 
@@ -219,6 +249,106 @@ RSpec.describe "Sessions" do
 
     it "redirects to login" do
       expect(response).to redirect_to(new_session_url)
+    end
+
+    it "removes the user from the session" do
+      expect(session.to_h.slice("user_id", "persistence_token").compact).to be_empty
+    end
+  end
+
+  describe "DELETE /session with session state" do
+    let(:user) { create(:user) }
+    let(:mobile_user_agent) { "Mozilla/5.0 (Linux; Android 13) Mobile Safari/537.36" }
+    let!(:previous_session_id) do
+      login_as(user)
+      get discussions_path(mobile_format: "desktop"),
+          headers: { "HTTP_USER_AGENT" => mobile_user_agent }
+      get accept_invites_path(token: create(:invite).token)
+      session.id.to_s
+    end
+
+    before { delete session_path }
+
+    it "issues a new session id" do
+      expect(session.id.to_s).not_to eq(previous_session_id)
+    end
+
+    it "drops the invite token" do
+      expect(session[:invite_token]).to be_nil
+    end
+
+    it "keeps the mobile format preference" do
+      expect(session[:mobile_format]).to eq("desktop")
+    end
+
+    it "keeps the flash" do
+      expect(flash[:notice]).to include("logged out")
+    end
+  end
+
+  describe "DELETE /session/everywhere" do
+    let(:user) { create(:user) }
+    let!(:other_device) do
+      open_session { |device| device.post(session_path, params: { email: user.email, password: user.password }) }
+    end
+    let!(:previous_token) { user.persistence_token }
+
+    context "when logged in" do
+      before do
+        login_as(user)
+        delete everywhere_session_path
+      end
+
+      it "rotates the persistence token" do
+        expect(user.reload.persistence_token).not_to eq(previous_token)
+      end
+
+      it "logs out the current device" do
+        expect(session[:user_id]).to be_nil
+      end
+
+      it "logs out other devices" do
+        other_device.get edit_user_profile_path(user.username)
+        expect(other_device.response).to redirect_to(new_session_url)
+      end
+
+      it "sets the flash" do
+        expect(flash[:notice]).to eq("You have been logged out on all devices.")
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+    end
+
+    context "when not logged in" do
+      before { delete everywhere_session_path }
+
+      it "keeps other devices logged in" do
+        expect(user.reload.persistence_token).to eq(previous_token)
+      end
+
+      it "redirects to login" do
+        expect(response).to redirect_to(new_session_url)
+      end
+    end
+
+    context "without a CSRF token" do
+      before do
+        login_as(user)
+        ActionController::Base.allow_forgery_protection = true
+        delete everywhere_session_path
+      end
+
+      after { ActionController::Base.allow_forgery_protection = false }
+
+      it "rejects the request" do
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "keeps other devices logged in" do
+        expect(user.reload.persistence_token).to eq(previous_token)
+      end
     end
   end
 end

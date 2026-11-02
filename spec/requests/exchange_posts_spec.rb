@@ -322,6 +322,14 @@ RSpec.describe "ExchangePosts" do
     end
   end
 
+  describe "GET /conversations/:conversation_id/posts/since with a title slug" do
+    let(:exchange) { create(:conversation, poster: user) }
+
+    before { get "/conversations/#{exchange.id}-Weekend-plans/posts/since/0" }
+
+    it { is_expected.to have_http_status(:success) }
+  end
+
   describe "GET /discussions/:discussion_id/posts/:id/edit" do
     let(:existing_post) { create(:post, exchange:) }
     let(:user) { existing_post.user }

@@ -35,11 +35,12 @@ module Authenticable
     end
 
     before_validation :update_persistence_token
+    after_update_commit :disconnect_cable_connections, if: :access_changed?
   end
 
   module ClassMethods
     def find_and_authenticate_with_password(email, password)
-      User.find_by(email:).try(:authenticate, password)
+      User.authenticate_by(email: email.to_s, password: password.to_s)
     end
 
     def random_persistence_token
@@ -53,6 +54,11 @@ module Authenticable
 
   def temporary_banned?
     banned_until? && banned_until > Time.now.utc
+  end
+
+  def log_out_everywhere!
+    self.persistence_token = self.class.random_persistence_token
+    save!(validate: false)
   end
 
   def require_password_challenge
@@ -99,6 +105,14 @@ module Authenticable
     return unless password_digest_changed?
 
     self.persistence_token = self.class.random_persistence_token
+  end
+
+  def access_changed?
+    saved_change_to_status? || saved_change_to_persistence_token?
+  end
+
+  def disconnect_cable_connections
+    ActionCable.server.remote_connections.where(current_user: self).disconnect
   end
 
   def schedule_reactivation_job

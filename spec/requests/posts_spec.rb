@@ -31,6 +31,14 @@ RSpec.describe "Posts" do
         expect(response.body).to include(existing_post.body)
       end
     end
+
+    context "with a search query over 1,000 characters" do
+      before { get search_posts_path, params: { q: "#{'a' * 1_000}overflow" } }
+
+      it "truncates the query" do
+        expect(response.body).not_to include("overflow")
+      end
+    end
   end
 
   describe "GET /posts/:id" do

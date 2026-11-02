@@ -26,7 +26,9 @@ Rails.application.routes.draw do
   end
 
   # Sessions
-  resource :session, only: %i[new create destroy]
+  resource :session, only: %i[new create destroy] do
+    delete :everywhere, action: :destroy_everywhere
+  end
 
   # Registrations
   resources :registrations, only: %i[new create]
