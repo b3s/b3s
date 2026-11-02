@@ -49,6 +49,14 @@ describe Discussion do
     end
   end
 
+  describe "#to_param" do
+    subject { discussion.to_param }
+
+    let(:discussion) { create(:discussion, title: "Weekend plans") }
+
+    it { is_expected.to eq("#{discussion.id}-Weekend-plans") }
+  end
+
   describe "#convert_to_conversation!" do
     let!(:post) { create(:post, exchange: discussion) }
     let(:conversation) { Conversation.find(discussion.id) }

@@ -31,6 +31,14 @@ describe Conversation do
     end
   end
 
+  describe "#to_param" do
+    subject { conversation.to_param }
+
+    let(:conversation) { create(:conversation, title: "Weekend plans") }
+
+    it { is_expected.to eq(conversation.id.to_s) }
+  end
+
   describe "#add_participant" do
     context "with a new participant" do
       specify do
