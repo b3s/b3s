@@ -15,7 +15,7 @@ module VirtualBody
   private
 
   def body_edited?
-    new_record? || body != posts.first&.body
+    body.present? && (new_record? || body != posts.first&.body)
   end
 
   def create_first_post

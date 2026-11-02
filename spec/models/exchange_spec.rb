@@ -243,6 +243,13 @@ describe Exchange do
       specify { expect(first_post.reload.body).to eq("changed post") }
     end
 
+    context "when validating without a body" do
+      it "does not query the posts" do
+        reloaded = described_class.find(exchange.id)
+        expect(count_queries(matching: 'FROM "posts"') { reloaded.valid? }).to eq(0)
+      end
+    end
+
     context "when the existing body is over the length limit" do
       before do
         first_post.body = "a" * 100_001
