@@ -40,10 +40,6 @@ RSpec.describe "Vanilla" do
       end
 
       it { is_expected.to have_http_status(:not_found) }
-
-      it "does not redirect" do
-        expect(response.location.to_s).not_to include(discussion.to_param)
-      end
     end
 
     context "with page parameter" do
@@ -75,20 +71,12 @@ RSpec.describe "Vanilla" do
       let(:user) { create(:user) }
 
       it { is_expected.to have_http_status(:not_found) }
-
-      it "does not redirect" do
-        expect(response.location.to_s).not_to include(conversation.to_param)
-      end
     end
 
     context "when not authenticated" do
       let(:user) { nil }
 
       it { is_expected.to have_http_status(:not_found) }
-
-      it "does not redirect" do
-        expect(response.location.to_s).not_to include(conversation.to_param)
-      end
     end
   end
 

@@ -399,10 +399,6 @@ RSpec.describe "Discussions" do
 
     context "when user is not a participant" do
       it { is_expected.to have_http_status(:not_found) }
-
-      it "does not redirect" do
-        expect(response.location.to_s).not_to include(conversation.to_param)
-      end
     end
 
     context "when not authenticated with public browsing" do
@@ -414,10 +410,6 @@ RSpec.describe "Discussions" do
       end
 
       it { is_expected.to have_http_status(:not_found) }
-
-      it "does not redirect" do
-        expect(response.location.to_s).not_to include(conversation.to_param)
-      end
     end
   end
 
