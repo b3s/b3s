@@ -48,10 +48,9 @@ export async function loadNewPosts() {
     return;
   }
 
-  const exchangeUrl = discussionLink.href;
-  const [, exchangeType, exchangeId] = exchangeUrl.match(
-    /\/\/[\w\d.:]+\/(discussions|conversations)\/([\d]+)/
-  );
+  const [, exchangeType, exchangeId] = new URL(
+    discussionLink.href
+  ).pathname.match(/^\/(discussions|conversations)\/(\d+)/);
 
   const endpoint =
     `/${exchangeType}/${exchangeId}/posts` +
