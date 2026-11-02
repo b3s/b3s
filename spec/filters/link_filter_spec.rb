@@ -20,7 +20,7 @@ describe LinkFilter do
     before { B3S.config.domain_names = "b3s.me" }
 
     let(:input) { %(<a href="http://www.example.com/>foo&amp;bar">x</a>) }
-    let(:output) { %(<a href="http://www.example.com/>foo&amp;bar">x</a>) }
+    let(:output) { %(<a href="http://www.example.com/&gt;foo&amp;bar">x</a>) }
 
     it "leaves the link untouched" do
       expect(filter.to_html).to eq(output)
@@ -29,7 +29,7 @@ describe LinkFilter do
 
   context "when input contains a malformed image src" do
     let(:input) { %(<img src="http://www.example.com/>foo&amp;bar">) }
-    let(:output) { %(<img src="http://www.example.com/>foo&amp;bar">) }
+    let(:output) { %(<img src="http://www.example.com/&gt;foo&amp;bar">) }
 
     it "leaves the image untouched" do
       expect(filter.to_html).to eq(output)
