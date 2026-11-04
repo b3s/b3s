@@ -15,7 +15,10 @@ Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.base_uri :self
-    policy.connect_src :self
+    policy.connect_src :self, lambda {
+      req = respond_to?(:request) ? request : self
+      "#{req.protocol.sub('http', 'ws')}#{req.host_with_port}"
+    }
     policy.font_src :self
     policy.form_action :self
     policy.frame_ancestors :none
