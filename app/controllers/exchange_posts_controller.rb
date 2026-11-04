@@ -110,7 +110,7 @@ class ExchangePostsController < ApplicationController
         format.html { redirect_to redirect_url }
         format.json { render json: post, status: (created ? :created : :ok) }
       else
-        format.html { render created ? :new : :edit }
+        format.html { render created ? :new : :edit, status: :unprocessable_content }
         format.json { render json: post, status: :unprocessable_content }
       end
     end

@@ -1,0 +1,33 @@
+<% content_for(:body_class, "new_post") %>
+<% content_for(:page_title, "Reply") %>
+
+<h2 class="section">
+  <% if @exchange.labels? %>
+    [ <%= @exchange.labels.join(",") %> ]
+  <% end %>
+  <%= link_to h(@exchange.title), @exchange %> &raquo; Reply
+</h2>
+
+<%= form_for([@exchange, @post]) do |f| %>
+  <%= f.hidden_field(:format, class: "format") %>
+
+  <% @post.errors.full_messages.each do |message| %>
+    <p class="error"><%= message %></p>
+  <% end %>
+
+  <p>
+    <%= f.text_area(
+      :body,
+      id:                   "compose-body",
+      class:                "rich",
+      "data-format-binding" => ".format",
+      "data-formats"        => "markdown html"
+    ) %>
+  </p>
+
+  <p>
+    <button type="submit">
+      Post
+    </button>
+  </p>
+<% end %>

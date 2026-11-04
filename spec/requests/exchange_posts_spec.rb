@@ -61,6 +61,30 @@ RSpec.describe "ExchangePosts" do
       end
     end
 
+    context "with invalid params and HTML format" do
+      let(:post_params) { { body: "", format: "markdown" } }
+
+      it { is_expected.to have_http_status(:unprocessable_content) }
+
+      it "shows the error" do
+        expect(response.parsed_body.css(".error").map(&:text))
+          .to include("Body can't be blank")
+      end
+
+      it "does not create a post" do
+        expect(Post.where(exchange:, user:).count).to eq(0)
+      end
+    end
+
+    context "when an HTML reply is too long" do
+      let(:post_params) { { body: "x" * (Post::MAX_BODY_LENGTH + 1), format: "markdown" } }
+
+      it "keeps the text in the form" do
+        expect(response.parsed_body.at_css("#compose-body").text)
+          .to eq(post_params[:body])
+      end
+    end
+
     context "when discussion is closed" do
       let(:exchange) { create(:closed_discussion) }
 
@@ -191,6 +215,21 @@ RSpec.describe "ExchangePosts" do
                   "user_id" => existing_post.user_id,
                   "exchange_id" => exchange.id)
         )
+      end
+    end
+
+    context "with invalid params and HTML format" do
+      let(:post_params) { { body: "", format: "markdown" } }
+
+      it { is_expected.to have_http_status(:unprocessable_content) }
+
+      it "renders the edit form" do
+        expect(response.parsed_body.at_css("#edit-post-body-#{existing_post.id}")).to be_present
+      end
+
+      it "shows the error" do
+        expect(response.parsed_body.css(".error").map(&:text))
+          .to include("Body can't be blank")
       end
     end
 
