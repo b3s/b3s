@@ -47,6 +47,40 @@ describe OembedResponse do
       end
     end
 
+    context "when the block reports a temporary failure", :cache do
+      before { described_class.html_for(url) { :temporary } }
+
+      it "returns the cached failure" do
+        expect(described_class.html_for(url) { "<iframe>fresh</iframe>" }).to eq(:temporary)
+      end
+
+      it "calls the block again when refetching temporary failures" do
+        expect(described_class.html_for(url, refetch_temporary: true) { "<iframe>fresh</iframe>" })
+          .to eq("<iframe>fresh</iframe>")
+      end
+    end
+
+    context "when the block reports a gone failure", :cache do
+      before { described_class.html_for(url) { :gone } }
+
+      it "doesn't call the block when refetching temporary failures" do
+        expect { |block| described_class.html_for(url, refetch_temporary: true, &block) }.not_to yield_control
+      end
+
+      it "returns the cached failure" do
+        expect(described_class.html_for(url, refetch_temporary: true) { "<iframe>fresh</iframe>" }).to eq(:gone)
+      end
+    end
+
+    context "when an older failure entry is cached", :cache do
+      before { Rails.cache.write("oembed-failure/#{Digest::SHA256.hexdigest(url)}", true) }
+
+      it "treats it as temporary" do
+        expect(described_class.html_for(url, refetch_temporary: true) { "<iframe>fresh</iframe>" })
+          .to eq("<iframe>fresh</iframe>")
+      end
+    end
+
     context "when the block raises" do
       before do
         described_class.html_for(url) { raise "timeout" }

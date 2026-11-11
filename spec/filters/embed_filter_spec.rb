@@ -31,8 +31,8 @@ describe EmbedFilter do
     end
   end
 
-  %w[bluesky flickr giphy imgur mastodon soundcloud spotify tidal tiktok
-     tumblr vimeo youtube].each do |name|
+  %w[bluesky dailymotion flickr giphy imgur mastodon soundcloud spotify tidal
+     tiktok tumblr vimeo youtube].each do |name|
     context "when the embed is a cached #{name} response" do
       let(:input) { placeholder(fixture(name)["url"]) }
 
@@ -153,6 +153,7 @@ describe EmbedFilter do
     "vimeo" => "player.vimeo.com",
     "spotify" => "open.spotify.com",
     "soundcloud" => "w.soundcloud.com",
+    "dailymotion" => "geo.dailymotion.com",
     "tidal" => "embed.tidal.com",
     "tiktok" => "www.tiktok.com"
   }.each do |name, host|
@@ -170,6 +171,7 @@ describe EmbedFilter do
   {
     "https://www.youtube.com/watch?v=abcd" => %w[www.youtube.com youtube.com www.youtube-nocookie.com],
     "https://vimeo.com/1" => %w[player.vimeo.com],
+    "https://www.dailymotion.com/video/x1abcd" => %w[geo.dailymotion.com],
     "https://giphy.com/gifs/x" => %w[giphy.com],
     "https://www.kickstarter.com/projects/a/b" => %w[www.kickstarter.com],
     "https://codepen.io/a/pen/b" => %w[codepen.io],
@@ -585,6 +587,128 @@ describe EmbedFilter do
       rendered
       travel(25.hours) { described_class.new(input).to_html }
       expect(a_request(:get, /vimeo\.com/)).to have_been_made.twice
+    end
+  end
+
+  context "when rendering strictly" do
+    subject(:rendered) { described_class.new(input, strict: true).to_html }
+
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+    let(:link) { "<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>" }
+
+    [400, 401, 404, 410, 501].each do |status|
+      context "when the provider responds with #{status}" do
+        before { stub_request(:get, /vimeo\.com/).to_return(status:) }
+
+        it { is_expected.to eq(link) }
+      end
+    end
+
+    [403, 429, 500, 503].each do |status|
+      context "when the provider responds with #{status}" do
+        before { stub_request(:get, /vimeo\.com/).to_return(status:) }
+
+        it { expect { rendered }.to raise_error(EmbedFilter::FetchFailed) }
+      end
+    end
+
+    context "when the connection fails" do
+      before { stub_request(:get, /vimeo\.com/).to_raise(Errno::ECONNRESET) }
+
+      it { expect { rendered }.to raise_error(EmbedFilter::FetchFailed) }
+    end
+
+    context "when the provider hostname doesn't resolve" do
+      before { stub_request(:get, /vimeo\.com/).to_raise(SsrfFilter::UnresolvedHostname) }
+
+      it { expect { rendered }.to raise_error(EmbedFilter::FetchFailed) }
+    end
+
+    context "when the provider redirects to a loopback address" do
+      before do
+        stub_request(:get, /vimeo\.com/).to_return(status: 302, headers: { "Location" => "http://127.0.0.1/" })
+      end
+
+      it { is_expected.to eq(link) }
+    end
+
+    context "when the provider response is too large" do
+      before do
+        stub_request(:get, /vimeo\.com/)
+          .to_return(body: { type: "rich", version: "1.0", html: "<p>#{'a' * 262_144}</p>" }.to_json)
+      end
+
+      it { is_expected.to eq(link) }
+    end
+
+    {
+      "not JSON" => "not json",
+      "a JSON array" => "[]",
+      "JSON null" => "null",
+      "a link response" => { type: "link", version: "1.0" }.to_json
+    }.each do |description, body|
+      context "when the provider response is #{description}" do
+        before { stub_request(:get, /vimeo\.com/).to_return(body:) }
+
+        it { is_expected.to eq(link) }
+      end
+    end
+
+    context "when the provider redirects to a malformed location" do
+      before do
+        stub_request(:get, /vimeo\.com/).to_return(status: 302, headers: { "Location" => "http://exa mple.com/" })
+      end
+
+      it { is_expected.to eq(link) }
+    end
+
+    context "when the provider redirects without a location" do
+      before { stub_request(:get, /vimeo\.com/).to_return(status: 302) }
+
+      it { expect { rendered }.to raise_error(EmbedFilter::FetchFailed) }
+    end
+
+    context "when the fetch budget is spent" do
+      subject(:rendered) { described_class.new(input, fetch_budget:, strict: true).to_html }
+
+      let(:fetch_budget) { instance_double(FetchBudget, spend?: false) }
+
+      it { expect { rendered }.to raise_error(EmbedFilter::FetchFailed) }
+    end
+
+    context "when a temporary failure is cached", :cache do
+      before do
+        stub_request(:get, /vimeo\.com/).to_return(status: 500)
+        described_class.new(input).to_html
+        stub_request(:get, /vimeo\.com/)
+          .to_return(body: { type: "rich", version: "1.0", html: "<p>embed</p>" }.to_json)
+      end
+
+      it { is_expected.to eq(placeholder(url, "<p>embed</p>")) }
+    end
+
+    context "when a gone failure is cached", :cache do
+      before do
+        stub_request(:get, /vimeo\.com/).to_return(status: 404)
+        described_class.new(input).to_html
+      end
+
+      it "doesn't refetch" do
+        rendered
+        expect(a_request(:get, /vimeo\.com/)).to have_been_made.once
+      end
+    end
+  end
+
+  context "when the provider is gone" do
+    let(:url) { "https://vimeo.com/1" }
+    let(:input) { placeholder(url) }
+
+    before { stub_request(:get, /vimeo\.com/).to_return(status: 404) }
+
+    it "falls back to a link" do
+      expect(rendered).to eq("<a href=\"#{url}\" rel=\"nofollow noopener noreferrer ugc\">#{url}</a>")
     end
   end
 

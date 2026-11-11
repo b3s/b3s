@@ -4,14 +4,14 @@ class OembedResponse < ApplicationRecord
   validates :url, :html, :fetched_at, presence: true
 
   class << self
-    def html_for(url)
+    def html_for(url, refetch_temporary: false)
       cached = find_by(url:)
       return cached.html if cached
-      return if Rails.cache.exist?(failure_key(url))
 
-      yield.tap do |html|
-        html.present? ? store(url, html) : Rails.cache.write(failure_key(url), true, expires_in: 1.day)
-      end
+      failure = cached_failure(url)
+      return failure if failure == :gone || (failure && !refetch_temporary)
+
+      record(url, yield)
     end
 
     def store(url, html, fetched_at: Time.current)
@@ -27,6 +27,21 @@ class OembedResponse < ApplicationRecord
     end
 
     private
+
+    def record(url, result)
+      return store(url, result).html if result.is_a?(String) && result.present?
+
+      failure = result == :temporary ? :temporary : :gone
+      Rails.cache.write(failure_key(url), failure, expires_in: 1.day)
+      failure
+    end
+
+    def cached_failure(url)
+      failure = Rails.cache.read(failure_key(url))
+      return unless failure
+
+      failure == :gone ? :gone : :temporary
+    end
 
     def failure_key(url)
       "oembed-failure/#{Digest::SHA256.hexdigest(url)}"
