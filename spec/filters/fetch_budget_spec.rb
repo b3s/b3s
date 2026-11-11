@@ -41,5 +41,16 @@ describe FetchBudget do
 
       it { expect(budget.spend?).to be(true) }
     end
+
+    context "when the budget is unlimited" do
+      let(:budget) { described_class.unlimited }
+
+      before do
+        100.times { budget.spend? }
+        clock[:now] += 3600
+      end
+
+      it { expect(budget.spend?).to be(true) }
+    end
   end
 end
