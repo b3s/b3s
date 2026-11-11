@@ -53,6 +53,19 @@ describe Renderer do
     end
   end
 
+  describe "strict rendering" do
+    subject(:rendered) { described_class.render("https://vimeo.com/1", strict: true) }
+
+    before do
+      dns = instance_double(Resolv::DNS, :timeouts= => nil)
+      allow(dns).to receive(:getaddresses).and_return([Resolv::IPv4.create("93.184.215.14")])
+      allow(Resolv::DNS).to receive(:new).and_return(dns)
+      stub_request(:get, %r{\Ahttps://vimeo\.com/api/oembed}).to_return(status: 503)
+    end
+
+    it { expect { rendered }.to raise_error(EmbedFilter::FetchFailed) }
+  end
+
   describe ".render" do
     formats = %w[markdown html]
 
