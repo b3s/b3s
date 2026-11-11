@@ -113,3 +113,11 @@ OEmbed::Provider.new("https://giphy.com/services/oembed").tap do |provider|
   provider << "https://giphy.com/*"
   OEmbed::Providers.register(provider)
 end
+
+OEmbed::Provider.new("https://www.dailymotion.com/services/oembed", format: :json).tap do |provider|
+  provider << "http://www.dailymotion.com/video/*"
+  provider << "https://www.dailymotion.com/video/*"
+  provider << "http://dailymotion.com/video/*"
+  provider << "https://dailymotion.com/video/*"
+  OEmbed::Providers.register(provider)
+end

@@ -7,6 +7,7 @@ class EmbedSanitizer
     "oembed.tidal.com" => %w[embed.tidal.com],
     "open.spotify.com" => %w[open.spotify.com],
     "soundcloud.com" => %w[w.soundcloud.com],
+    "www.dailymotion.com" => %w[geo.dailymotion.com],
     "vimeo.com" => %w[player.vimeo.com],
     "www.kickstarter.com" => %w[www.kickstarter.com],
     "www.tiktok.com" => %w[www.tiktok.com],

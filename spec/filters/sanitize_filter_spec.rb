@@ -116,6 +116,72 @@ describe SanitizeFilter do
     it { is_expected.to eq(input) }
   end
 
+  context "when input contains a Flash object" do
+    let(:url) { "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+    let(:input) do
+      '<p>before</p><object width="425" height="344">' \
+        '<param name="movie" value="http://www.youtube.com/v/dQw4w9WgXcQ&amp;hl=en"></param>' \
+        '<embed src="http://www.youtube.com/v/dQw4w9WgXcQ&amp;hl=en" type="application/x-shockwave-flash">' \
+        "</embed></object><p>after</p>"
+    end
+
+    it do
+      expect(output).to eq("<p>before</p><div class=\"embed\" data-oembed-url=\"#{url}\">" \
+                           "<a href=\"#{url}\" #{rel}>#{url}</a></div><p>after</p>")
+    end
+  end
+
+  context "when input contains a standalone Flash embed" do
+    let(:url) { "https://vimeo.com/123" }
+    let(:input) { '<embed src="http://vimeo.com/moogaloop.swf?clip_id=123" type="application/x-shockwave-flash">' }
+
+    it do
+      expect(output).to eq("<div class=\"embed\" data-oembed-url=\"#{url}\"><a href=\"#{url}\" #{rel}>#{url}</a></div>")
+    end
+  end
+
+  {
+    "a SoundCloud player" => [
+      '<embed src="http://player.soundcloud.com/player.swf?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F123">',
+      "https://api.soundcloud.com/tracks/123"
+    ],
+    "a Dailymotion player" => [
+      '<object><param name="Movie" value="http://www.dailymotion.com/swf/x1abcd"></object>',
+      "https://www.dailymotion.com/video/x1abcd"
+    ],
+    "a nested object" => [
+      '<object><object data="http://www.youtube.com/v/dQw4w9WgXcQ"></object></object>',
+      "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    ]
+  }.each do |description, (input, url)|
+    context "when input contains #{description}" do
+      let(:input) { input }
+
+      it do
+        expect(output).to eq("<div class=\"embed\" data-oembed-url=\"#{url}\">" \
+                             "<a href=\"#{url}\" #{rel}>#{url}</a></div>")
+      end
+    end
+  end
+
+  context "when a Flash object with fallback content is replaced" do
+    let(:input) { '<object data="http://www.youtube.com/v/dQw4w9WgXcQ"><p>fallback</p><script>alert(1)</script></object>' }
+
+    it { is_expected.not_to include("fallback") }
+  end
+
+  context "when a Flash object with fallback content isn't recognised" do
+    let(:input) { '<object data="http://example.com/a.swf"><p>fallback</p><script>alert(1)</script></object>' }
+
+    it { is_expected.to eq("<p>fallback</p>") }
+  end
+
+  context "when input contains a Flash object from an unknown host" do
+    let(:input) { '<object><embed src="http://www.youtube.example.com/v/dQw4w9WgXcQ"></embed></object>' }
+
+    it { is_expected.to eq("") }
+  end
+
   context "when the oEmbed placeholder has an unsafe URL" do
     let(:input) { '<div class="embed" data-oembed-url="javascript:alert(1)"></div>' }
 

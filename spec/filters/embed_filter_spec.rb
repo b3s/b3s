@@ -31,8 +31,8 @@ describe EmbedFilter do
     end
   end
 
-  %w[bluesky flickr giphy imgur mastodon soundcloud spotify tidal tiktok
-     tumblr vimeo youtube].each do |name|
+  %w[bluesky dailymotion flickr giphy imgur mastodon soundcloud spotify tidal
+     tiktok tumblr vimeo youtube].each do |name|
     context "when the embed is a cached #{name} response" do
       let(:input) { placeholder(fixture(name)["url"]) }
 
@@ -153,6 +153,7 @@ describe EmbedFilter do
     "vimeo" => "player.vimeo.com",
     "spotify" => "open.spotify.com",
     "soundcloud" => "w.soundcloud.com",
+    "dailymotion" => "geo.dailymotion.com",
     "tidal" => "embed.tidal.com",
     "tiktok" => "www.tiktok.com"
   }.each do |name, host|
@@ -170,6 +171,7 @@ describe EmbedFilter do
   {
     "https://www.youtube.com/watch?v=abcd" => %w[www.youtube.com youtube.com www.youtube-nocookie.com],
     "https://vimeo.com/1" => %w[player.vimeo.com],
+    "https://www.dailymotion.com/video/x1abcd" => %w[geo.dailymotion.com],
     "https://giphy.com/gifs/x" => %w[giphy.com],
     "https://www.kickstarter.com/projects/a/b" => %w[www.kickstarter.com],
     "https://codepen.io/a/pen/b" => %w[codepen.io],

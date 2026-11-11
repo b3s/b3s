@@ -61,6 +61,7 @@ class SanitizeFilter < Filter
     },
     css: Sanitize::Config::RELAXED[:css],
     transformers: [
+      LegacyEmbeds.transformer,
       SanitizeTransformers.urls,
       SanitizeTransformers.srcset(MEDIA_PROTOCOLS),
       SanitizeTransformers.remove_local_iframes,
