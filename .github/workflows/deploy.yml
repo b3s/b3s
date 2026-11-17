@@ -60,7 +60,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Sentry Release
-        uses: getsentry/action-release@v3.7.2
+        uses: getsentry/action-release@v3.8.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: b3s
